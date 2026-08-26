@@ -1,0 +1,85 @@
+// Colours come from CS2's own custom properties so the popup follows the game's palette, and sizes
+// stay in rem, which the game scales with the player's UI-scale setting. See the note in
+// path-library-panel.module.scss about how large a rem is here — vanilla panels are ~580rem wide.
+
+@use "./base.scss" as _base;
+
+.popup {
+    position: absolute;
+    bottom: 100%;
+    left: 195rem;
+    margin-bottom: 8rem;
+    width: 280rem;
+    padding: 10rem;
+    border-top-left-radius: var(--panelRadius);
+    border-top-right-radius: var(--panelRadius);
+    border-bottom-left-radius: var(--panelRadius);
+    border-bottom-right-radius: var(--panelRadius);
+    background-color: var(--panelColorDark);
+    backdrop-filter: var(--panelBlur);
+    color: var(--menuText1Normal);
+    font-size: 13rem;
+    pointer-events: auto;
+
+    z-index: 10;
+}
+
+.title {
+    text-align: center;
+    font-size: 14rem;
+    letter-spacing: 0.4rem;
+    color: var(--accentColorLight);
+    margin-bottom: 8rem;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6rem;
+}
+
+.label {
+    flex-shrink: 0;
+    margin-right: 8rem;
+    color: var(--textColorDim);
+}
+
+.options {
+    display: flex;
+    align-items: center;
+
+    > * + * {
+        margin-left: 4rem;
+    }
+}
+
+.icon {
+    width: 20rem;
+    height: 20rem;
+    background-color: var(--menuText1Normal);
+    mask-size: contain;
+    mask-position: 50% 50%;
+    mask-repeat: no-repeat;
+}
+
+.option {
+    @include _base.transparentButton(false);
+    width: 34rem;
+    height: 34rem;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+
+    &:hover {
+        background-color: rgba(200, 200, 200, 0.15);
+    }
+
+    &[disabled] {
+        background-color: rgba(150, 150, 150, 0.1);
+    }
+}
+
+.optionSelected {
+    @include _base.selectedButton;
+    color: var(--normalTextColor);
+}

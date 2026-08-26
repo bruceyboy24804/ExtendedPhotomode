@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 32 32">
+  <!-- Generator: Adobe Illustrator 30.7.0, SVG Export Plug-In . SVG Version: 2.1.4 Build 114)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: #fff;
+      }
+
+      .st1 {
+        fill: none;
+      }
+    </style>
+  </defs>
+  <!-- Full-bleed plate, matching the rect vanilla bakes into its own photo mode icons
+       (Media/PhotoMode/HideUIOn.svg carries width=38 height=38 rx=6 at 0.18 alpha, scaled here
+       to this 32x32 viewBox). These SVGs are applied as a CSS mask, where only alpha counts, so
+       the partial alpha is what renders as the subtle square behind the glyph rather than any
+       colour. Without it our buttons sit on nothing while every vanilla one has a ground. -->
+  <rect width="32" height="32" rx="5" ry="5" fill="rgba(78,86,90,0.18)"/>
+  <g id="Pivot_Point">
+    <g>
+      <circle class="st0" cx="16" cy="16" r="6.12"/>
+      <path class="st0" d="M16,10.88c2.82,0,5.12,2.3,5.12,5.12s-2.3,5.12-5.12,5.12-5.12-2.3-5.12-5.12,2.3-5.12,5.12-5.12h0ZM16,8.88c-3.93,0-7.12,3.19-7.12,7.12s3.19,7.12,7.12,7.12,7.12-3.19,7.12-7.12-3.19-7.12-7.12-7.12h0Z"/>
+    </g>
+  </g>
+  <g id="Orbit_Ring">
+    <circle class="st1" cx="7" cy="6" r="5"/>
+    <g>
+      <path class="st0" d="M16,2.66c-1.83,0-3.58.38-5.17,1.05.48.4.87.89,1.15,1.46,1.25-.47,2.6-.73,4.02-.73,6.39,0,11.56,5.18,11.56,11.56s-5.18,11.56-11.56,11.56-11.56-5.18-11.56-11.56c0-1.85.44-3.58,1.21-5.13-.53-.33-.99-.76-1.34-1.28-1.05,1.9-1.65,4.09-1.65,6.41,0,7.37,5.97,13.34,13.34,13.34s13.34-5.97,13.34-13.34S23.37,2.66,16,2.66Z"/>
+      <path class="st0" d="M16,2.66c-1.83,0-3.58.38-5.17,1.05.48.4.87.89,1.15,1.46,1.25-.47,2.6-.73,4.02-.73,6.39,0,11.56,5.18,11.56,11.56s-5.18,11.56-11.56,11.56-11.56-5.18-11.56-11.56c0-1.85.44-3.58,1.21-5.13-.53-.33-.99-.76-1.34-1.28-1.05,1.9-1.65,4.09-1.65,6.41,0,7.37,5.97,13.34,13.34,13.34s13.34-5.97,13.34-13.34S23.37,2.66,16,2.66h0Z"/>
+    </g>
+  </g>
+  <g id="Camera">
+    <g>
+      <path class="st0" d="M7.99,9.66c-1.41,0-2.56-1.15-2.56-2.56s1.15-2.56,2.56-2.56,2.56,1.15,2.56,2.56-1.15,2.56-2.56,2.56Z"/>
+      <path class="st0" d="M7.99,5.55c.86,0,1.56.7,1.56,1.56s-.7,1.56-1.56,1.56-1.56-.7-1.56-1.56.7-1.56,1.56-1.56h0ZM7.99,3.55c-1.97,0-3.56,1.59-3.56,3.56s1.59,3.56,3.56,3.56,3.56-1.59,3.56-3.56-1.59-3.56-3.56-3.56h0Z"/>
+    </g>
+  </g>
+</svg>

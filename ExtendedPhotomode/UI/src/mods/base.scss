@@ -1,0 +1,126 @@
+// Button mixins modelled on the pattern RoadBuilder (MIT) and FindIt share. Written for this
+// project rather than copied, but the conventions are theirs and they are worth matching, because
+// they are what make a mod's buttons behave like the game's own.
+//
+// The rules that matter:
+//   * every colour comes from CS2's own CSS custom properties, so buttons follow the game's palette
+//   * icons are masks tinted with the text colour, not images — so they dim when disabled
+//   * `pointer-events: auto`, because the layers mod panels mount into are click-through
+//   * a 0.15s colour transition; vanilla controls never snap between states
+
+@mixin baseButton($hasText: true, $tintIcon: true) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8rem;
+    border: none;
+    border-radius: 4rem;
+    pointer-events: auto;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+    color: var(--menuText1Normal);
+
+    &[disabled],
+    &.disabled {
+        pointer-events: none;
+        color: var(--normalTextColorLocked);
+    }
+
+    img {
+        @if $hasText {
+            width: 22rem;
+            height: 22rem;
+            margin-right: 8rem;
+        } @else {
+            width: 22rem;
+            height: 22rem;
+        }
+
+        @if $tintIcon {
+            background-color: var(--menuText1Normal);
+            mask-size: contain;
+            mask-position: 50% 50%;
+        }
+    }
+
+    &[disabled] img,
+    &.disabled img {
+        @if $tintIcon {
+            background-color: var(--normalTextColorLocked);
+        }
+    }
+}
+
+@mixin basicButton($hasText: true, $tintIcon: true) {
+    @include baseButton($hasText, $tintIcon);
+
+    background-color: var(--panelColorDark);
+    backdrop-filter: blur(4px);
+
+    &:hover {
+        background-color: var(--panelColorNormal);
+    }
+
+    &:active {
+        background-color: var(--accentColorDark-focused);
+    }
+
+    &[disabled],
+    &.disabled {
+        background-color: var(--panelColorDark);
+    }
+}
+
+@mixin lightButton($hasText: true, $tintIcon: true) {
+    @include baseButton($hasText, $tintIcon);
+
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(4px);
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.35);
+    }
+
+    &:active {
+        background-color: var(--accentColorDark-focused);
+    }
+
+    &[disabled],
+    &.disabled {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+@mixin transparentButton($hasText: true, $tintIcon: true) {
+    @include baseButton($hasText, $tintIcon);
+
+    background-color: transparent;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+
+    &:active {
+        background-color: var(--accentColorDark-focused);
+    }
+
+    &[disabled],
+    &.disabled {
+        background-color: transparent;
+        opacity: 0.75;
+    }
+}
+
+@mixin selectedButton {
+    background-image: linear-gradient(var(--gradientHighlightStart), var(--gradientHighlightEnd));
+    background-color: transparent;
+
+    img {
+        filter: drop-shadow(0 0 1rem rgba(0, 0, 0, 0.5));
+    }
+
+    :global(.legacy-interface) & {
+        background-image: none;
+        background-color: var(--accentColorDark-focused);
+    }
+}

@@ -1,0 +1,116 @@
+<Publish>
+  <!--Id must be set in order to update existed mod. it is not required for publishing mod for the first time-->
+  <ModId Value="" />
+  <!--Name of the mod to display to players-->
+  <DisplayName Value="Extended Photomode [Early Access]" />
+  <!--Short description of the mod-->
+  <ShortDescription Value="Extends photomode beyond what it can do and some much needed QoL improvements" />
+  <!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
+  <!--LongDescription Value="This is a long description" /-->
+  <LongDescription># Extended Photomode
+
+Photo mode, rebuilt for people making videos.
+
+Vanilla's cinematic camera can only do so much: it resets your weather, it can't shoot at half speed, and building an orbit by hand means placing every keyframe yourself. Extended Photomode fills those gaps and adds shot types you'd otherwise have to fake.
+
+Everything is written straight onto the **vanilla cinematic timeline**. Playback, scrubbing, the curve editor and saving a shot all work exactly as they already do — this extends the tool you know rather than replacing it.
+
+### Early Access Warning
+**This mod is currently in EARLY ACCESS.**
+- Not all features are complete, and updates may be frequent.
+- Please **back up your save** before using it.
+- Bug reports and feedback are very welcome on [Discord](https://discord.gg/4f7geN26S).
+
+### Shot generators
+Pick a type from the **Shot** dropdown, frame your subject, and press Generate. The panel only shows the settings that apply to the shot you picked.
+
+* **Orbit** -- circle a subject at a set radius, height and sweep. Give it a different end radius and it spirals in or out as it goes round.
+* **Dolly zoom** -- the camera travels while the lens counter-zooms, holding your subject the same size while the background rushes past. The lens is written as a real curve, so it stays editable afterwards.
+* **Drawn path** -- draw a route through your city and fly it.
+
+### Drawing paths
+Open the path tool with **Ctrl+P** and draw in the world. Click empty ground to add a point, click a segment to insert one, drag to move, **PageUp/PageDown** to change a point's height, **Escape** to delete, **Ctrl+R** to reverse. What a click does depends on what's under the cursor, so there are no modes to get stuck in.
+
+Generate the shot with **Ctrl+Shift+P**, or from the Generate button. Paths can look along their own direction, hold a fixed heading, or track your pinned subject.
+
+Save paths by name and load them back on any later shot.
+
+### Timing
+* **Per-keyframe easing** -- linear, smooth, ease in, ease out, ease in and out, set on any keyframe.
+* **Constant speed** -- flatten every key at once for a perfectly even move.
+* **Retime** -- stretch or compress a finished sequence without regenerating it.
+
+### Light and weather
+* **Time of day ranges** solved from your map's **real** sunrise, sunset, golden hour and twilight times, for its latitude and date. Pick "Golden hour" and you get the actual figures, not round numbers.
+* **A key at every camera keyframe**, so you can drag the light's pacing around in the curve editor instead of placing keys by hand.
+* **Linger at ends** -- a linear ramp in hours races through dawn and then sits on flat daylight, because almost all the visible change happens as the sun crosses the horizon. Turn this up and the shot spends its time where something is actually happening.
+* **Weather is carried over** from your world instead of being reset when photo mode opens, so cloud and fog settings survive.
+
+### Quality of life
+* Sort your saved shots by name or by date.
+* Hide the cursor during playback.
+* Orbit around a building by selecting it.
+* Post-process quality no longer drops when photo mode opens -- vanilla quietly downgrades bloom, depth of field and motion blur on entry.
+
+### Known issues
+* The orbit preview draws in normal gameplay but not inside photo mode, which suppresses overlays.
+* Long shots at very high resolutions can play back unevenly; this is frame pacing rather than the camera path.</LongDescription>
+  <!--Thumbnail-->
+  <Thumbnail Value="Assets/Thumbnail.png" />
+  <!--Screenshot, can be set multiple times-->
+  <Screenshot Value="Assets/Cover/1.jpg" />
+  <!--Tag, can be set multiple times-->
+  <Tag Value="Code Mod" />
+  <!--Link to the forum post where the mod can be discussed-->
+  <ForumLink Value="" />
+  <!--Version of the mod-->
+  <ModVersion Value="1.0.0" />
+  <!--Recommended version of the base game to use the mod-->
+  <GameVersion Value="1.6.*" />
+  <!--Dependency for the mod, can be set multiple-->
+  <Dependency Id="74417" DisplayName="Unified Icon Library" Version="1.*" />
+  <!--Required DLC, can be set multiple times. Supported values are "Landmark Buildings", "San Fransisco Set", "Beach Properties", "Urban Promenades", "Modern Architecture"-->
+  <RequiredDLC Value="" />
+  <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
+  <ChangeLog># 1.0.0
+
+First release. Early access — please report anything that misbehaves.
+
+**Shot generators**
+
+Pick a shot type from the Shot dropdown, then press Generate. Keys are written straight onto the vanilla cinematic timeline, so playback, scrubbing, saving and the curve editor all work as normal.
+
+- Orbit — circle a subject, with a separate end radius for spiral moves that pull in or push out
+- Dolly zoom — the camera travels while the lens counter-zooms, holding the subject the same size
+- Drawn path — draw a route in the world with Ctrl+P, generate it with Ctrl+Shift+P
+
+**Paths**
+
+- Click to append, click a segment to insert, drag to move, PageUp/PageDown for height, Escape to delete, Ctrl+R to reverse
+- Save, load, rename and delete named paths from the path library
+- Aim mode: look along the path, hold a fixed heading, or track the pinned subject
+
+**Timing**
+
+- Per-keyframe easing — linear, smooth, ease in, ease out, ease in and out
+- Constant speed to flatten every key at once
+- Retime the whole sequence without regenerating it
+
+**Environment**
+
+- Time of day ranges filled from the map's real sunrise, sunset, golden hour and twilight times
+- Optionally a time of day key at every camera keyframe, so the light can be re-paced by dragging
+- Linger at ends, which spends more of the shot on sunrise and sunset instead of racing through them
+- Weather carried over from the world instead of being reset on entry
+
+**Quality of life**
+
+- Sort saved shots by name or date
+- Hide the cursor during playback
+- Orbit around a selected building
+- Post-process quality no longer downgrades on entering photo mode</ChangeLog>
+  <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon, buymeacoffee, kofi, crowdin, gitlab-->
+  <ExternalLink Type="discord" Url="https://discord.gg/4f7geN26S" />
+  <!--Supported values Public, Private, Unlisted-->
+  <AccessLevel Value="Unlisted" />
+</Publish>

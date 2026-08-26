@@ -1,0 +1,167 @@
+// Styling follows IMT's approach, which in turn follows RoadBuilder and FindIt: colours come from
+// the game's own CSS custom properties rather than being hardcoded. Those variables are supplied by
+// CS2's UI at runtime, so the panel matches the game's palette exactly and follows it if the theme
+// changes — which is what makes a mod panel look native instead of merely dark.
+//
+// Sizes stay in `rem`, which CS2 scales with the player's UI-scale setting; `px` would ignore it.
+// Note the scale: vanilla panels are ~580rem wide and body text is 14rem, so a `rem` here is far
+// closer to a pixel than to a CSS `rem`. Sizing this panel with web-sized values made it a postage
+// stamp.
+
+@use "./base.scss" as _base;
+
+@mixin spaced($amount) {
+    margin-left: -$amount;
+
+    > * {
+        margin-left: $amount;
+    }
+}
+
+@mixin interactive {
+    pointer-events: auto;
+    transition: background-color 0.15s, color 0.15s;
+    cursor: pointer;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    &:active {
+        background-color: var(--accentColorDark-focused);
+    }
+
+    &[disabled],
+    &.disabled {
+        pointer-events: none;
+        color: var(--normalTextColorLocked);
+        background-color: transparent;
+    }
+}
+
+.panel {
+    position: absolute;
+    top: 120rem;
+    left: 20rem;
+    width: 300rem;
+    pointer-events: auto;
+    overflow: hidden;
+    border-radius: var(--panelRadius);
+    background-color: var(--panelColorNormal);
+    backdrop-filter: var(--panelBlur);
+    color: var(--menuText1Normal);
+    font-size: 14rem;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8rem 10rem;
+    background-color: var(--panelColorDark);
+}
+
+.title {
+    flex: 1;
+    text-align: center;
+    font-size: 17rem;
+    letter-spacing: 0.4rem;
+    color: var(--normalTextColor);
+}
+
+.content {
+    padding: 8rem;
+}
+
+.search {
+    padding-bottom: 6rem;
+    margin-bottom: 6rem;
+    border-bottom: 1rem solid var(--menuControlBorder);
+}
+
+.list {
+    max-height: 220rem;
+    margin-bottom: 8rem;
+}
+
+.item {
+    @include interactive;
+    display: flex;
+    align-items: center;
+    @include spaced(6rem);
+    padding: 5rem 6rem;
+    border-bottom: 1rem solid var(--menuControlBorder);
+}
+
+.itemSelected {
+    @include _base.selectedButton;
+}
+
+.itemLabel {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.itemPoints {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18rem;
+    height: 18rem;
+    flex-shrink: 0;
+    padding: 0 4rem;
+    border-radius: 4rem;
+    font-size: 11rem;
+    color: var(--menuText1Normal);
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.empty {
+    padding: 10rem;
+    color: var(--textColorDim);
+}
+
+.field {
+    @include interactive;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 4rem 8rem;
+    border: 2.5rem solid var(--menuControlBorder);
+    border-radius: 5rem;
+    text-align: left;
+    font-size: 14rem;
+    color: var(--menuText1Normal);
+    background-color: rgba(0, 0, 0, 0.15);
+
+    &::placeholder {
+        color: var(--textColorDim);
+    }
+}
+
+.buttonRow {
+    display: flex;
+    align-items: center;
+    margin-top: 8rem;
+    @include spaced(4rem);
+
+    > button {
+        @include _base.transparentButton(false);
+        flex: 1;
+        padding: 5rem 8rem;
+        font-size: 13rem;
+        white-space: nowrap;
+        background-color: rgba(0, 0, 0, 0.3);
+
+        &:hover {
+            background-color: rgba(200, 200, 200, 0.15);
+        }
+
+        &[disabled] {
+            background-color: rgba(150, 150, 150, 0.1);
+        }
+    }
+}
