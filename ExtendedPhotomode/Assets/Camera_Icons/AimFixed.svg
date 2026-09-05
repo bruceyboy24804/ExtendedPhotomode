@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Aim: hold one compass heading for the whole move.
+     Same path, same two cameras, but both cones point the same absolute direction — parallel, and
+     pointedly NOT following the curve. Against AimForward, where the two cones splay apart with the
+     tangent, parallel is the entire difference and it is visible at a glance.
+
+     They point away from the arc rather than across it so the cones do not tangle with the path. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #8cd9ff; stroke-width: 2px; stroke-linecap: round; }
+      .cls-2 { fill: #8cd9ff; opacity: .45; }
+      .cls-3 { fill: #ffd933; }
+    </style>
+  </defs>
+  <g id="Cones">
+    <polygon class="cls-2" points="8.5 15.75 11 22.25 6 22.25"/>
+    <polygon class="cls-2" points="19.5 15.75 22 22.25 17 22.25"/>
+  </g>
+  <path class="cls-1" d="M3,21 Q14,7 25,21"/>
+  <circle class="cls-3" cx="3" cy="21" r="2"/>
+  <circle class="cls-3" cx="25" cy="21" r="2"/>
+  <circle class="cls-3" cx="8.5" cy="15.75" r="2.5"/>
+  <circle class="cls-3" cx="19.5" cy="15.75" r="2.5"/>
+</svg>

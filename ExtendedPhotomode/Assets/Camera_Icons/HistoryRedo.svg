@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- History: redo the edit just undone. Mirror of HistoryUndo. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #8cd9ff; stroke-width: 2.25px; stroke-linecap: round; }
+      .cls-2 { fill: #8cd9ff; }
+    </style>
+  </defs>
+  <path class="cls-1" d="M22,12 C18,4 8,4 5,11 C3,16 6,22 12,23"/>
+  <polygon class="cls-2" points="24.5 17 16.5 14.5 22.5 8.5"/>
+</svg>

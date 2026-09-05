@@ -1,0 +1,50 @@
+// The number rows are vanilla `Section`s holding a vanilla `TextInput` with the editor-item theme,
+// so the box, colour and focus behaviour all come from the game. This only sets the width and
+// alignment, which the theme leaves to the caller because vanilla's own uses of it are full-width.
+
+@use "./base.scss" as _base;
+
+.field {
+    width: 136rem;
+    text-align: center;
+}
+
+// For the readouts built from vanilla's `numberField` class. That class reads `--size` from the
+// tool-options ROW wrapper, which these do not use — see the mixin for why an unresolved lookup here
+// is worse than a layout slip.
+.numberBox {
+    @include _base.vanillaControlSize;
+}
+
+// The slider theme sizes the track but not the row it sits in, because vanilla's own slider fields
+// live in the full-width settings menu. Here the number and the track have to share the same 136rem
+// the text fields occupy, or the rows do not line up down the panel.
+// nowrap is the load-bearing line. Without it "18.75" and "h" break onto two lines, which makes the
+// slider rows half again as tall as the text ones and leaves the panel visibly ragged.
+// align-self matters as much as nowrap: the row is a flex line, so without it this box stretches to
+// the slider's full height and the number floats at the top of a 94px box instead of beside the track.
+.sliderValue {
+    flex: 0 0 auto;
+    align-self: center;
+    width: 62rem;
+    text-align: right;
+    padding-right: 8rem;
+    white-space: nowrap;
+}
+
+.slider {
+    width: 74rem;
+}
+
+// The readout row. Three figures in the width one number field gets, so it takes a smaller size than
+// the editable rows — at the panel's normal 32px "335m · 120s · 10km/h" is nearly twice as wide as
+// the box. flex and align-self stop it stretching to the row height and floating at the top.
+.metrics {
+    flex: 0 0 auto;
+    align-self: center;
+    width: 136rem;
+    text-align: center;
+    white-space: nowrap;
+    font-size: 11rem;
+    opacity: 0.85;
+}

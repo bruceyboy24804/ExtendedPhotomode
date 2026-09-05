@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Points: add a point at the middle of every segment.
+     The curve is drawn identically in all five icons of this row, and that IS the message — every one
+     of these operations changes the points without changing the shape the camera flies. A bare plus
+     sign, which is what was here, could as easily have meant "add a point at the end".
+
+     The added points are ringed white so they read as new against the three that were already there.
+     Their positions are the real quarter points of the quadratic, not eyeballed. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #8cd9ff; stroke-width: 2px; stroke-linecap: round; }
+      .cls-2 { fill: #ffd933; }
+      .cls-3 { fill: #ffd933; stroke: #fff; stroke-width: 1.25px; }
+    </style>
+  </defs>
+  <path class="cls-1" d="M4,21 Q14,6 24,21"/>
+  <circle class="cls-2" cx="4" cy="21" r="2.5"/>
+  <circle class="cls-2" cx="24" cy="21" r="2.5"/>
+  <circle class="cls-2" cx="14" cy="13.5" r="2.5"/>
+  <circle class="cls-3" cx="9" cy="15.4" r="2.5"/>
+  <circle class="cls-3" cx="19" cy="15.4" r="2.5"/>
+</svg>

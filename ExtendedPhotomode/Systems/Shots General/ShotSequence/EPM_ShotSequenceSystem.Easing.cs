@@ -36,7 +36,6 @@ namespace ExtendedPhotomode.Systems {
             SmoothTransformCurves(sequence);
             RefreshTransformCurveBinding();
 
-            m_Log.Info($"Re-tangented the open sequence (constantSpeed={Mod.Instance.Settings.ConstantSpeed}).");
             return true;
         }
 
@@ -96,7 +95,6 @@ namespace ExtendedPhotomode.Systems {
 
             m_ChosenEase[index] = ease;
             RefreshTransformCurveBinding();
-            m_Log.Info($"Keyframe {index} at t={time:0.##}s set to {ease}.");
             return true;
         }
 

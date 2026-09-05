@@ -1,0 +1,114 @@
+// The shot track sits directly above the curve graphs and shares their time axis, so it uses the
+// same plot-area treatment: the game's dark inset with a hairline border.
+
+@use "./base.scss" as _base;
+
+.track {
+    position: relative;
+    height: 26rem;
+    margin-bottom: 5rem;
+    @include _base.edges(1rem, rgba(255, 255, 255, 0.2));
+    border-radius: 3rem;
+    background-color: rgba(0, 0, 0, 0.149);
+    overflow: hidden;
+}
+
+// While ANY shot is being dragged. The track announces itself as a target the moment the drag
+// starts — waiting until the pointer is over it tells the player something they have by then worked
+// out for themselves.
+//
+// Longhand border colour: Cohtml drops shorthand declarations containing a var(), and the `edges`
+// mixin above already laid down the widths, so only the colour needs changing here.
+.trackReady {
+    border-top-color: var(--accentColorNormal);
+    border-right-color: var(--accentColorNormal);
+    border-bottom-color: var(--accentColorNormal);
+    border-left-color: var(--accentColorNormal);
+    background-color: rgba(120, 180, 230, 0.12);
+}
+
+// While the pointer is actually over it — the "release now" state, brighter than merely available.
+.trackOver {
+    background-color: rgba(120, 180, 230, 0.28);
+}
+
+// Sits above the blocks so the message is readable over a full track, and ignores the pointer so it
+// cannot itself become the thing the drag is hovering.
+.dropHint {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11rem;
+    color: var(--menuText1Normal);
+    pointer-events: none;
+}
+
+// A shot in the cut. Deliberately not the curve blue: the blocks are containers for curves, not
+// curves, and giving them the same colour would read as another channel.
+.block {
+    position: absolute;
+    top: 3rem;
+    bottom: 3rem;
+    display: flex;
+    align-items: center;
+    padding: 0 6rem;
+    border-radius: 2rem;
+    background-color: rgba(120, 180, 230, 0.35);
+    color: var(--normalTextColor);
+    font-size: 11rem;
+    white-space: nowrap;
+    overflow: hidden;
+    pointer-events: auto;
+    cursor: grab;
+    transition: background-color 0.15s;
+
+    &:hover {
+        background-color: rgba(140, 200, 250, 0.5);
+    }
+}
+
+// A block mid-drag. Raised so it travels over its neighbours rather than under them.
+.dragging {
+    opacity: 0.85;
+    z-index: 10;
+    cursor: grabbing;
+}
+
+.index {
+    flex: 0 0 auto;
+    margin-right: 6rem;
+    color: var(--textColorDim);
+    font-size: 10rem;
+}
+
+.name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.empty {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding-left: 8rem;
+    font-size: 11rem;
+    color: var(--textColorDim);
+}
+
+// The same marker the graphs carry. The track shares their time axis, so it gets one too.
+.playhead {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1rem;
+    margin-left: -0.5rem;
+    background-color: var(--accentColorNormal);
+    pointer-events: none;
+}

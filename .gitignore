@@ -3,3 +3,15 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+
+# Node dependencies for the UI. Restored with `npm install` from package-lock.json, which IS
+# tracked — the tree itself is thousands of files and does not belong in the repo.
+node_modules/
+
+# IDE and per-user state.
+.idea/
+*.DotSettings.user
+*.user
+
+# Build scratch. `ilpp.pid` is written by the CSII toolchain's IL post-processor.
+ExtendedPhotomode/Library/

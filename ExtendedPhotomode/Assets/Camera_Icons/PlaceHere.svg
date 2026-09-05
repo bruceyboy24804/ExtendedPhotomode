@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Place: move the whole path so its centre lands under the cursor.
+     Plan view, unlike the two height icons beside it, because this one is about where on the map the
+     path goes. The cursor crosshair is the same mark SnapFree uses, so it already means "where you
+     are pointing" by the time anyone reaches this row.
+
+     Replaces MarkerSpawner, which was opaque — nothing in it suggested a path, a centre, or a move. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #fff; stroke-width: 1.75px; stroke-linecap: round; opacity: .35; }
+      .cls-2 { fill: none; stroke: #fff; stroke-width: 1.5px; stroke-linecap: round; opacity: .6; }
+      .cls-3 { fill: none; stroke: #8cd9ff; stroke-width: 2px; stroke-linecap: round; }
+      .cls-4 { fill: #ffd933; }
+    </style>
+  </defs>
+  <path class="cls-1" d="M2,10 Q7,3 12,10"/>
+  <g id="Cursor">
+    <path class="cls-2" d="M17,7 L17,11"/>
+    <path class="cls-2" d="M17,23 L17,19"/>
+    <path class="cls-2" d="M10,15 L14,15"/>
+    <path class="cls-2" d="M24,15 L20,15"/>
+  </g>
+  <path class="cls-3" d="M9,21 Q17,10 25,21"/>
+  <circle class="cls-4" cx="17" cy="15" r="2.75"/>
+</svg>

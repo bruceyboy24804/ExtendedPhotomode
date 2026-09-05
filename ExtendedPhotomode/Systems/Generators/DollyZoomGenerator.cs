@@ -1,4 +1,4 @@
-namespace ExtendedPhotomode.Systems.Generators {
+﻿namespace ExtendedPhotomode.Systems.Generators {
     #region Using Statements
 
     using System;
@@ -49,6 +49,11 @@ namespace ExtendedPhotomode.Systems.Generators {
             List<CameraSample> samples = shot.Solve(focal.getValue(), out List<float> focalLengths);
             float              start   = Shots.NextStartTime(Replaces);
 
+            // Passed the dolly's own focal curve, so holding the subject a constant size overrides
+            // the counter-zoom rather than being computed alongside it and thrown away.
+            Shots.ApplyFraming(samples, focalLengths);
+            Shots.ApplyRig(samples);
+
             if (!Shots.ApplySamples(samples, start, Replaces, shot.ToString())) {
                 return false;
             }
@@ -63,9 +68,6 @@ namespace ExtendedPhotomode.Systems.Generators {
             }
 
             focal.setEnabled?.Invoke(true);
-
-            Log.Info($"Applied dolly zoom: focal {focalLengths[0]:0.#}mm -> " +
-                     $"{focalLengths[focalLengths.Count - 1]:0.#}mm");
 
             Shots.RefreshModifierCurveBinding();
             return true;

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Whole path: turn anticlockwise about its centre, by the snap angle step.
+     The yellow centre dot is the payload. Vanilla's RotateLeft is a bare circular arrow, which says
+     "rotate" but not "about what" — and about-its-centre is the whole behaviour, the reason a saved
+     path can be reused somewhere else without falling apart. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #8cd9ff; stroke-width: 2px; stroke-linecap: round; }
+      .cls-2 { fill: #8cd9ff; }
+      .cls-3 { fill: #ffd933; }
+    </style>
+  </defs>
+  <path class="cls-1" d="M20,20.5 A9,9 0 1,0 20,7.5"/>
+  <polygon class="cls-2" points="15.5 7.5 21.5 4.2 21.5 10.8"/>
+  <circle class="cls-3" cx="14" cy="14" r="2.75"/>
+</svg>

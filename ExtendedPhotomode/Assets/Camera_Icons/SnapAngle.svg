@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Snap mode: Angle. Plan view. The previous point anchors a fan of fixed headings; the new point
+     lands on one of them, with the blue segment showing the leg that results.
+
+     Two points, not one — this is the only snap mode that depends on where you came FROM, since it
+     constrains the heading out of the previous point and keeps the distance you reached. An icon with
+     a single point could not say that. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #fff;
+        stroke-width: 1.25px;
+        stroke-linecap: round;
+        opacity: .45;
+      }
+
+      .cls-2 {
+        fill: none;
+        stroke: #8cd9ff;
+        stroke-width: 2px;
+        stroke-linecap: round;
+      }
+
+      .cls-3 {
+        fill: #ffd933;
+      }
+    </style>
+  </defs>
+  <g id="Headings">
+    <path class="cls-1" d="M5,23 L25,23"/>
+    <path class="cls-1" d="M5,23 L5,4"/>
+    <path class="cls-1" d="M5,23 L23,14"/>
+  </g>
+  <g id="Leg">
+    <path class="cls-2" d="M5,23 L18,10"/>
+  </g>
+  <g id="Points">
+    <circle class="cls-3" cx="5" cy="23" r="2.5"/>
+    <circle class="cls-3" cx="18" cy="10" r="3.25"/>
+  </g>
+</svg>

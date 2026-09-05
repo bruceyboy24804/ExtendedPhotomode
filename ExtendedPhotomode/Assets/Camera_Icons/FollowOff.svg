@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Follow: the shot plays exactly as generated.
+     All three Follow icons share one scene — a subject that MOVES, ghost to solid with an arrow — and
+     differ only in what the camera does about it. The subject moving is the premise of the whole row;
+     without it none of the three would have anything to be about.
+
+     Here the cone still points where the subject WAS. It is the only icon in the tool that draws the
+     camera getting it wrong, and that is the setting: nothing follows anything. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: #8cd9ff; opacity: .45; }
+      .cls-2 { fill: #ffd933; }
+      .cls-3 { fill: none; stroke: #fff; stroke-width: 1.5px; opacity: .4; }
+      .cls-4 { fill: none; stroke: #fff; stroke-width: 1.25px; stroke-linecap: round; opacity: .55; }
+      .cls-5 { fill: #fff; opacity: .55; }
+    </style>
+  </defs>
+  <polygon class="cls-1" points="5 23 14.6 10.9 17.6 14.2"/>
+  <circle class="cls-2" cx="5" cy="23" r="3"/>
+  <circle class="cls-3" cx="15" cy="11" r="2.75"/>
+  <g id="Moves">
+    <path class="cls-4" d="M18.5,9 L21.5,7.6"/>
+    <polygon class="cls-5" points="24.5 6.2 20.7 5.7 21.8 9.4"/>
+  </g>
+  <circle class="cls-2" cx="24" cy="6.5" r="3"/>
+</svg>

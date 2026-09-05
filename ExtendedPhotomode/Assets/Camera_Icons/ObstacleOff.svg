@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Obstacle mode: Off. The three obstacle icons share one skyline and differ only in what the curve
+     does about it. Buildings rather than the terrain icons' ridge, deliberately: Terrain/Free and
+     Obstacle/Off both mean "ignore it and fly straight", so if both drew the same scene the two rows
+     of the panel would be indistinguishable. The scene is what separates them.
+
+     Here the curve runs clean through the tall block, unremarked. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+        opacity: .22;
+      }
+
+      .cls-2 {
+        fill: none;
+        stroke: #fff;
+        stroke-width: 1.5px;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+      }
+
+      .cls-3 {
+        fill: none;
+        stroke: #8cd9ff;
+        stroke-width: 2px;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+    </style>
+  </defs>
+  <g id="Skyline">
+    <path class="cls-1" d="M3,20 L8,20 L8,25 L3,25 Z"/>
+    <path class="cls-1" d="M11,11 L18,11 L18,25 L11,25 Z"/>
+    <path class="cls-1" d="M21,19 L26,19 L26,25 L21,25 Z"/>
+    <path class="cls-2" d="M3,25 L3,20 L8,20 L8,25"/>
+    <path class="cls-2" d="M11,25 L11,11 L18,11 L18,25"/>
+    <path class="cls-2" d="M21,25 L21,19 L26,19 L26,25"/>
+    <path class="cls-2" d="M1,25 L27,25"/>
+  </g>
+  <g id="Curve">
+    <path class="cls-3" d="M1,17 L27,17"/>
+  </g>
+</svg>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Rig: no rig — the move plays exactly as solved.
+     The rig row is four versions of ONE trace with increasing character: dead smooth, weighted,
+     drifting, shaky. Rig is the only setting in the panel that changes how a move FEELS rather than
+     where it goes, so a trace is the only honest picture of it — and read left to right the row is a
+     scale, which no set of pictograms could have been.
+
+     This is the reference: a perfect arc, mathematically clean, which is exactly the tooltip's
+     complaint about it. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #fff; stroke-width: 1.25px; stroke-dasharray: 2 2; opacity: .3; }
+      .cls-2 { fill: none; stroke: #8cd9ff; stroke-width: 2.25px; stroke-linecap: round; }
+    </style>
+  </defs>
+  <path class="cls-1" d="M2,22 Q14,4 26,22"/>
+  <path class="cls-2" d="M2,22 Q14,4 26,22"/>
+</svg>

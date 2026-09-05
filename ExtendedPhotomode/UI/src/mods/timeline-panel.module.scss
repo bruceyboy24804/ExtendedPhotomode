@@ -1,0 +1,454 @@
+@use "./base.scss" as _base;
+
+// Sized and coloured to match the game's own cinematic curve editor. The values here are not
+// approximations of a screenshot — they were read off the live widget's computed styles, and the
+// comments say which. Sizes are in `rem`, which CS2 scales with the player's UI-scale setting; the
+// game's editor was measured on a 2px-per-rem screen, so a measured pixel is half a rem.
+
+.panel {
+    position: absolute;
+
+    // Docked along the bottom like the game's, stopping short of the right-hand column so the photo
+    // mode panel is not covered. Vanilla leaves ~410rem there; so do we.
+    left: 10rem;
+    right: 420rem;
+    bottom: 10rem;
+
+    pointer-events: auto;
+    padding: 10rem;
+    border-radius: 12rem;
+
+    // The game's panel colour, over its own darker ground.
+    background-color: rgba(42, 55, 83, 0.4375);
+    backdrop-filter: var(--panelBlur);
+    color: var(--menuText1Normal);
+    font-size: 13rem;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    padding: 0 4rem 8rem 4rem;
+}
+
+// The panel's name, between the shots toggle and the transport.
+//
+// Margins on both sides because it is the only child of the header that is not a button: every
+// button carries its own margin-left, so a bare label ends up flush against whatever precedes it —
+// "Shots" and "TIMELINE" were touching at 0px. The letter-spacing makes that worse by pushing the
+// glyphs to the very edge of the text box.
+.title {
+    flex: 0 0 auto;
+    margin: 0 16rem 0 14rem;
+    font-size: 14rem;
+    letter-spacing: 0.4rem;
+    color: var(--normalTextColor);
+}
+
+// Every text button in this window, so the header matches the shot list pane beside it.
+//
+// Flex because some of these carry an icon beside their label. `panelButton` already sets flex via
+// baseButton, but the alignment is restated here so a label sits on the icon's centre line rather
+// than its baseline.
+.play {
+    @include _base.panelButton;
+    display: flex;
+    align-items: center;
+    margin-left: 6rem;
+}
+
+// An icon sitting beside a button's text label, as opposed to filling the button on its own.
+//
+// Sized to the text it accompanies — 12rem, matching panelButton's font-size — so the two read as
+// one word rather than a picture with a caption. `baseButton` would otherwise size any img in here
+// at 22rem, which towers over the label.
+.labelIcon {
+    width: 12rem;
+    height: 12rem;
+    margin-right: 5rem;
+    flex: 0 0 auto;
+
+    > * {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+// Transport steppers: square, so a row of them reads as one control rather than as five words.
+//
+// Untinted — these hold the mod's own icons, which carry their own colours. See panelButton.
+.step {
+    @include _base.panelButton($tintIcon: false);
+    min-width: 26rem;
+    margin-left: 4rem;
+    padding: 5rem 4rem;
+}
+
+// A step button holding one of VANILLA's glyphs rather than one of the mod's own icons.
+//
+// The glyphs are solid black fills — they are drawn by being tinted, never by being shown. That
+// cannot be done to the <img> ToolButton renders from `src`: a mask clips the element's background
+// AND its image content, so the black art survives the mask and the icon comes out black. So the
+// img is hidden and a vanilla TintedIcon is passed as the button's child instead, which is exactly
+// how vanilla's own cinematic panel draws these two.
+//
+// `src` is still passed to ToolButton because it is a required prop; nothing renders it.
+.glyph > img {
+    display: none;
+}
+
+.glyphIcon {
+    width: 22rem;
+    height: 22rem;
+
+    // TintedIcon's own class colours it from --iconColor, which is only defined inside the themes
+    // that set it — this panel is not one of them, so the colour is named here instead.
+    background-color: var(--menuText1Normal);
+    mask-repeat: no-repeat;
+}
+
+.active {
+    @include _base.panelButtonActive;
+}
+
+.clock {
+    flex: 1;
+    margin-left: 12rem;
+    font-size: 12rem;
+    color: var(--textColorDim);
+}
+
+// The sequence's total length, sat between its two steppers in the header — beside the clock it
+// rescales rather than on a panel that showed none of the axis.
+//
+// A group, not three loose siblings. Each button used to carry the header's own 6rem margin and the
+// value was padded out to 46rem, so the number floated between two widely separated buttons and the
+// three read as unrelated controls rather than one stepper.
+.retimeGroup {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    margin-left: 10rem;
+}
+
+.retimeStep {
+    @include _base.panelButton;
+
+    // No margin: inside the group the spacing comes from the value's own padding, so the buttons sit
+    // right against the number they change.
+    min-width: 20rem;
+    margin-left: 0;
+    padding: 4rem 6rem;
+}
+
+.retime {
+    // Centred with flex, NOT text-align.
+    //
+    // As a child of the flex row this element is blockified — and Cohtml blockifies it to `flex`
+    // rather than to `block` as the spec says. On a flex container `text-align` does nothing: the
+    // main axis is governed by justify-content, which defaults to flex-start. So the value sat hard
+    // left of its own box while claiming `text-align: center`, which is why it read as off-centre
+    // between the two buttons even though the box itself was exactly centred between them.
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    // Wide enough for "3600s" so the buttons do not shuffle sideways as the duration changes, and no
+    // wider — the earlier 46rem was sized for nothing in particular and left the number adrift.
+    min-width: 40rem;
+    padding: 0 4rem;
+    font-size: 12rem;
+    color: var(--normalTextColor);
+}
+
+// Shot list on the left, curves filling the rest.
+.body {
+    display: flex;
+    align-items: stretch;
+}
+
+.curves {
+    flex: 1;
+    min-width: 0;
+}
+
+// Fallback for the panel close button, used only when vanilla's own class does not resolve.
+//
+// Geometry measured off the game's real close button rather than guessed: 24rem square, fully round,
+// transparent until hovered. The old rule sized a text "×" — 22rem with a font-size and line-height —
+// which is meaningless now the content is a masked icon.
+.close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24rem;
+    height: 24rem;
+    padding: 0;
+
+    // 50% on every corner, written long-hand: `border-radius` is a shorthand, and Cohtml drops a
+    // shorthand outright if it ever gains a var(). Consistent with the rest of this file.
+    border-top-left-radius: 50%;
+    border-top-right-radius: 50%;
+    border-bottom-left-radius: 50%;
+    border-bottom-right-radius: 50%;
+
+    background-color: transparent;
+    transition: background-color 0.15s;
+
+    // Room from whatever sits to its left. As the last thing in the header it had none, so the glyph
+    // butted straight against the neighbouring button.
+    margin-left: 8rem;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+}
+
+// The glyph inside the close button.
+//
+// Sized explicitly because cs2/ui's `Icon` wraps the mask in an `icon_` div carrying its own
+// dimensions — 52rem here, larger than the 48rem button containing it, so the X overflowed its own
+// hit area. Vanilla's close button has no such wrapper: it masks a single bare div at 100%.
+//
+// 20rem in a 24rem button. Vanilla's glyph fills its button edge to edge; this keeps a little inset
+// so it does not crowd the circular hover, but stays close to vanilla's weight. 13rem was tried and
+// read as tiny next to the header's text buttons.
+.closeIcon {
+    width: 20rem;
+    height: 20rem;
+
+    // The wrapper and the masked div both have to be pinned, or the inner one keeps its own size.
+    > * {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+// The graphs stack, and the playhead is absolutely positioned across all of them — which is the
+// point of stacking rather than showing one curve at a time.
+.lanes {
+    position: relative;
+}
+
+// One graph card. The game's own: a dark inset with a hairline border and a small radius.
+.group {
+    margin-bottom: 5rem;
+}
+
+.groupHeader {
+    display: flex;
+    align-items: center;
+    height: 22rem;
+    margin-bottom: 3rem;
+}
+
+.groupTitle {
+    min-width: 120rem;
+    padding: 2rem 8rem;
+    border-radius: 3rem;
+    font-size: 12rem;
+    letter-spacing: 0.3rem;
+    background-color: rgba(0, 0, 0, 0.35);
+    color: var(--normalTextColor);
+}
+
+// The legend doubles as the channel picker, exactly as the game's does — the coloured dot names the
+// curve and clicking it makes that curve the one being edited.
+.legend {
+    display: flex;
+    align-items: center;
+    margin-left: 10rem;
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    margin-right: 14rem;
+    padding: 0;
+    font-size: 11rem;
+    background-color: transparent;
+    color: var(--textColorDim);
+}
+
+.legendActive {
+    color: var(--normalTextColor);
+}
+
+.legendDot {
+    width: 7rem;
+    height: 7rem;
+    margin-right: 5rem;
+    border-radius: 50%;
+}
+
+// The plot area. Values from the game's `.editor_Es7`: a 15%-black ground, a 1rem white-20% border
+// and a 3rem radius.
+.graph {
+    position: relative;
+    height: 150rem;
+    border: 1rem solid rgba(255, 255, 255, 0.2);
+    border-radius: 3rem;
+    background-color: rgba(0, 0, 0, 0.149);
+    overflow: hidden;
+}
+
+// preserveAspectRatio is none, so the box stretches to the panel width. Only the grid and the curve
+// strokes are drawn in it; anything with a shape or glyphs would be scaled anisotropically, so keys,
+// handle grips and axis labels are positioned HTML on top instead.
+.svg {
+    width: 100%;
+    height: 100%;
+}
+
+.axisLabel {
+    position: absolute;
+    left: 5rem;
+    transform: translateY(-100%);
+    padding-bottom: 1rem;
+    font-size: 11rem;
+    color: #b9b9b9;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+// The game draws its keys as r=5 circles with a 2px stroke, which on its screen is 5rem across.
+.key {
+    position: absolute;
+    width: 6rem;
+    height: 6rem;
+    margin: -3rem 0 0 -3rem;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.keyPicked {
+    width: 9rem;
+    height: 9rem;
+    margin: -4.5rem 0 0 -4.5rem;
+    box-shadow: 0 0 0 1rem rgba(0, 0, 0, 0.6);
+}
+
+.handle {
+    position: absolute;
+    width: 6rem;
+    height: 6rem;
+    margin: -3rem 0 0 -3rem;
+    background-color: #ffffff;
+    pointer-events: none;
+}
+
+// The time marker, drawn inside each plot area rather than across the whole stack.
+//
+// It used to be one line in `.lanes`, which meant it also crossed the group headers, the legends and
+// the gaps between graphs — reading as a divider laid over the panel rather than a marker on the
+// data. Confined to the boxes, it only ever crosses something it is actually marking a time in.
+.playhead {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1rem;
+
+    // Nudged half its own width so the line sits centred on the time it reports rather than starting
+    // at it. At 1rem that is imperceptible; it matters if the width is ever raised.
+    margin-left: -0.5rem;
+
+    background-color: var(--accentColorNormal);
+    pointer-events: none;
+}
+
+// Everything outside the work area. Dims rather than tints, and sits under the playhead so the
+// playhead stays readable when it leaves the range.
+.outside {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.45);
+    pointer-events: none;
+}
+
+// The key inspector, in the strip the hint text otherwise occupies.
+.inspector {
+    display: flex;
+    align-items: center;
+    padding: 4rem 4rem 6rem 4rem;
+    font-size: 12rem;
+}
+
+.inspectorLabel {
+    min-width: 90rem;
+    color: var(--normalTextColor);
+    white-space: nowrap;
+}
+
+.inspectorField {
+    min-width: 96rem;
+    margin-left: 8rem;
+    color: var(--textColorDim);
+    white-space: nowrap;
+}
+
+.footer {
+    padding: 4rem 4rem 6rem 4rem;
+    font-size: 11rem;
+    color: var(--textColorDim);
+}
+
+// Tall enough to actually grab. At 14rem this was a hairline over the game's own bottom bar, which
+// is most of why it read as undraggable even before the drag handler existed.
+.scrub {
+    position: relative;
+    height: 20rem;
+    border-radius: 4rem;
+    background-color: rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.45);
+    }
+}
+
+.scrubHead {
+    position: absolute;
+    top: -2rem;
+    bottom: -2rem;
+    width: 5rem;
+    margin-left: -2.5rem;
+    border-radius: 2rem;
+    background-color: var(--accentColorNormal);
+}
+
+// The box-select band. Confined to the graph it is dragged in, and given a real height, because it
+// selects keys from that graph's active channel alone — "these two seconds of the yaw curve", not
+// "these two seconds". It used to span the whole stack and select across every lane with it, which
+// meant a drag aimed at Position also picked up Rotation and Focus and then moved all three.
+// The outline is what makes the vertical extent legible; a 0.18 wash on its own barely reads.
+.box {
+    position: absolute;
+    border: 1rem solid var(--accentColorNormal);
+    background-color: var(--accentColorNormal);
+    opacity: 0.25;
+    pointer-events: none;
+}
+
+// Cohtml gives SVG children no layout box and no hit testing, so everything in the SVG is decoration
+// — every click is resolved against the graph's own div and the nearest key found in JS.
+.svg circle,
+.svg path,
+.svg line {
+    pointer-events: none;
+}
+
+// A shared time axis under every graph, the way the game runs one ruler across its whole panel.
+.ruler {
+    position: relative;
+    height: 14rem;
+    margin-bottom: 4rem;
+    font-size: 10rem;
+    color: var(--textColorDim);
+}
+
+.tick {
+    position: absolute;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}

@@ -33,6 +33,12 @@ namespace ExtendedPhotomode.Systems {
         }
 
         public void RefreshModifierCurveBinding() {
+            CinematicCameraSequence sequence = ActiveSequence;
+
+            if (sequence == null) {
+                return;
+            }
+
             object binding = m_CinematicCameraUISystem.GetMemberValue(kModifierCurveBindingField);
 
             if (binding == null) {
@@ -40,10 +46,10 @@ namespace ExtendedPhotomode.Systems {
                 return;
             }
 
-            binding.TryInvokeMethod("Update", out _, ActiveSequence.modifiers.ToArray());
+            binding.TryInvokeMethod("Update", out _, sequence.modifiers.ToArray());
         }
 
-        private void RefreshTransformCurveBinding() {
+        internal void RefreshTransformCurveBinding() {
             object binding = m_CinematicCameraUISystem.GetMemberValue(kTransformCurveBindingField);
             if (binding == null) {
                 m_Log.Warn($"{kTransformCurveBindingField} not found; cinematic panel may show stale curves.");

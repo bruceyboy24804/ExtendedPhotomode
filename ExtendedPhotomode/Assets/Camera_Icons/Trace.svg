@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 27.33 25.02">
+  <defs>
+    <style>
+      .cls-1 {
+        stroke: #fff;
+      }
+
+      .cls-1, .cls-2, .cls-3, .cls-4, .cls-5, .cls-6 {
+        stroke-miterlimit: 10;
+      }
+
+      .cls-1, .cls-2, .cls-5, .cls-6 {
+        stroke-width: 2.7px;
+      }
+
+      .cls-1, .cls-3, .cls-5, .cls-6 {
+        fill: none;
+      }
+
+      .cls-2 {
+        fill: #59b2ff;
+        stroke: #59b2ff;
+      }
+
+      .cls-3, .cls-4 {
+        stroke-width: 2px;
+      }
+
+      .cls-3, .cls-4, .cls-5, .cls-6 {
+        stroke: #ff73bf;
+      }
+
+      .cls-4 {
+        fill: #ff73bf;
+      }
+
+      .cls-6 {
+        stroke-dasharray: 2.27 2.27;
+      }
+    </style>
+  </defs>
+  <g id="Curve">
+    <line class="cls-2" x1="16" y1="3.67" x2="27.33" y2="3.67"/>
+    <g>
+      <line class="cls-5" x1="12.67" y1="6.33" x2="12.62" y2="7.33"/>
+      <line class="cls-6" x1="12.5" y1="9.6" x2="12.11" y2="17.53"/>
+      <line class="cls-5" x1="12.05" y1="18.67" x2="12" y2="19.67"/>
+    </g>
+    <line class="cls-3" x1="1.34" y1="21.67" x2="20" y2="21.67"/>
+  </g>
+  <g id="Point">
+    <circle class="cls-4" cx="13.33" cy="3.67" r="2.67"/>
+  </g>
+  <g id="Ground">
+    <line class="cls-1" y1="23.67" x2="21.33" y2="23.67"/>
+  </g>
+</svg>

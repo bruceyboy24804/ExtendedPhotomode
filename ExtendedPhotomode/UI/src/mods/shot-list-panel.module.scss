@@ -1,0 +1,431 @@
+// Styling follows IMT's approach, which in turn follows RoadBuilder and FindIt: colours come from
+// the game's own CSS custom properties rather than being hardcoded. Those variables are supplied by
+// CS2's UI at runtime, so the panel matches the game's palette exactly and follows it if the theme
+// changes — which is what makes a mod panel look native instead of merely dark.
+//
+// Sizes stay in `rem`, which CS2 scales with the player's UI-scale setting; `px` would ignore it.
+// Note the scale: vanilla panels are ~580rem wide and body text is 14rem, so a `rem` here is far
+// closer to a pixel than to a CSS `rem`. Sizing this panel with web-sized values made it a postage
+// stamp.
+
+@use "./base.scss" as _base;
+
+@mixin spaced($amount) {
+    margin-left: -$amount;
+
+    > * {
+        margin-left: $amount;
+    }
+}
+
+@mixin interactive {
+    pointer-events: auto;
+    transition: background-color 0.15s, color 0.15s;
+    cursor: pointer;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    &:active {
+        background-color: var(--accentColorDark-focused);
+    }
+
+    &[disabled],
+    &.disabled {
+        pointer-events: none;
+        color: var(--normalTextColorLocked);
+        background-color: transparent;
+    }
+}
+
+// A column inside the timeline window, not a floating panel of its own. It carries no background:
+// the window it sits in already provides one, and a second panel colour over the first reads as a
+// dialog stacked on a dialog.
+.pane {
+    flex: 0 0 auto;
+    width: 300rem;
+    margin-right: 10rem;
+    padding-right: 10rem;
+    @include _base.edge(right, 1rem, var(--menuControlBorder));
+    display: flex;
+    flex-direction: column;
+    color: var(--menuText1Normal);
+    font-size: 14rem;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8rem 10rem;
+    background-color: var(--panelColorDark);
+}
+
+.title {
+    flex: 1;
+    text-align: center;
+    font-size: 17rem;
+    letter-spacing: 0.4rem;
+    color: var(--normalTextColor);
+}
+
+.close {
+    width: 22rem;
+    height: 22rem;
+    font-size: 18rem;
+    line-height: 18rem;
+    color: var(--normalTextColor);
+    background-color: transparent;
+}
+
+.status {
+    padding: 6rem 10rem 0 10rem;
+    font-size: 12rem;
+    color: var(--textColorDim);
+}
+
+.content {
+    padding: 8rem 0 0 0;
+}
+
+// Names the list for what it holds. Worth the line: "generated" and "in sequence" are two different
+// states now, and without a label the pane reads as one undifferentiated list of shots.
+.sectionLabel {
+    padding-bottom: 4rem;
+    font-size: 11rem;
+    letter-spacing: 0.3rem;
+    text-transform: uppercase;
+    color: var(--textColorDim);
+}
+
+.search {
+    padding-bottom: 6rem;
+    margin-bottom: 6rem;
+    @include _base.edge(bottom, 1rem, var(--menuControlBorder));
+}
+
+.list {
+    max-height: 220rem;
+    margin-bottom: 8rem;
+}
+
+.item {
+    @include interactive;
+    display: flex;
+    align-items: center;
+    @include spaced(6rem);
+    padding: 5rem 6rem;
+    @include _base.edge(bottom, 1rem, var(--menuControlBorder));
+}
+
+.itemSelected {
+    @include _base.selectedButton;
+}
+
+// The drag grip. The only part of a row that starts a drag, so the row keeps its own click — which
+// means it has to be BOTH visible and big enough to hit. The first version was a 12rem strip holding
+// a glyph the font does not have, so it was neither.
+//
+// Two columns of three dots, laid out by wrapping a 9rem-wide flex box.
+.grip {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    flex: 0 0 auto;
+
+    // Full row height and a wider target: this is a grab handle, and a few rem either way is the
+    // difference between picking a row up first time and stabbing at it.
+    width: 20rem;
+    height: 26rem;
+    margin-right: 2rem;
+    cursor: grab;
+    pointer-events: auto;
+
+    &:hover .dot {
+        background-color: var(--normalTextColor);
+    }
+
+    &:active {
+        cursor: grabbing;
+    }
+}
+
+.dot {
+    width: 3rem;
+    height: 3rem;
+    margin: 1.5rem;
+    border-radius: 50%;
+    background-color: var(--textColorDim);
+    transition: background-color 0.15s;
+
+    // The dots are decoration; the grip itself takes the drag. Without this a mousedown that lands
+    // on a dot has a different target from one that lands between them.
+    pointer-events: none;
+}
+
+// The row while it is being dragged. Raised above its neighbours so it is not clipped by the next
+// row's background as it travels.
+.dragging {
+    opacity: 0.85;
+    z-index: 10;
+}
+
+// A shot in the bin. Dimmed rather than hidden or moved to a second list: it is still a shot you can
+// rename, edit and drag back in, and shuffling rows between two lists on every toggle would lose the
+// order the bin shots are waiting in.
+.itemBinned {
+    opacity: 0.5;
+}
+
+// The in-the-cut dot. Sits at the end of the row so the eye can run down one column to see what is
+// in the sequence, which is the question the bin state exists to answer.
+// The list advertising itself as somewhere a timeline shot can be dropped to leave the sequence.
+// Shown from the moment such a shot is picked up, not on hover: by the time the pointer is over the
+// list the player has already guessed it can be dropped there.
+//
+// Longhand border properties throughout — Cohtml drops any shorthand declaration containing a
+// var(), so `border: 1rem solid var(--accentColorNormal)` would apply nothing at all.
+.binReady {
+    border-top-width: 1rem;
+    border-right-width: 1rem;
+    border-bottom-width: 1rem;
+    border-left-width: 1rem;
+    // Solid: Cohtml supports no other border style and drops the declaration, which leaves the
+    // initial `none` and no outline at all rather than a dashed one.
+    border-top-style: solid;
+    border-right-style: solid;
+    border-bottom-style: solid;
+    border-left-style: solid;
+    border-top-color: var(--accentColorNormal);
+    border-right-color: var(--accentColorNormal);
+    border-bottom-color: var(--accentColorNormal);
+    border-left-color: var(--accentColorNormal);
+    border-radius: 3rem;
+    background-color: rgba(120, 180, 230, 0.1);
+}
+
+// Over it: the "release now" state. Only the wash changes, since every border here is solid — the
+// two states were meant to differ by dashed-versus-solid, which this engine cannot draw.
+.binOver {
+    background-color: rgba(120, 180, 230, 0.25);
+}
+
+// The message above the list. A line of its own rather than an overlay, because the list is
+// scrollable and full of rows — covering them to say they accept a drop hides what you are aiming at.
+.dropHint {
+    padding: 3rem 0;
+    font-size: 11rem;
+    color: var(--accentColorNormal);
+}
+
+// The per-row edit button, and now the only control on a row — the cut dot that used to sit beside
+// it is gone, since dragging says the same thing.
+.edit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 18rem;
+    height: 18rem;
+    margin-left: 4rem;
+    padding: 0;
+    border-radius: 3rem;
+    background-color: transparent;
+    pointer-events: auto;
+    cursor: pointer;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    &:hover .editIcon {
+        background-color: var(--menuText1Normal);
+    }
+}
+
+// A mask over a background colour, never an <img> — a mask reads alpha only, so the glyph takes the
+// text colour and can brighten on hover. An <img> would arrive in whatever colour it was drawn.
+.editIcon {
+    width: 12rem;
+    height: 12rem;
+    background-color: var(--textColorDim);
+    mask-size: contain;
+    mask-position: 50% 50%;
+    mask-repeat: no-repeat;
+    transition: background-color 0.15s;
+}
+
+.index {
+    min-width: 16rem;
+    flex-shrink: 0;
+    text-align: right;
+    color: var(--textColorDim);
+}
+
+.meta {
+    flex-shrink: 0;
+    font-size: 11rem;
+    white-space: nowrap;
+    color: var(--textColorDim);
+}
+
+.itemLabel {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+// The rename field, which replaces the label in place while a row is being renamed.
+//
+// Sized to sit in the label's slot so the row does not change height or reflow when it appears —
+// the name should look like it became editable, not like a different control took its place. The
+// border and darker ground are the only things that say "this is a field now".
+//
+// Longhand border properties: Cohtml drops any shorthand declaration containing a var(), so
+// `border: 1rem solid var(--menuControlBorder)` would silently apply nothing at all.
+.itemField {
+    flex: 1;
+    min-width: 0;
+    padding: 1rem 4rem;
+    @include _base.edges(1rem, var(--menuControlBorder));
+    border-radius: 3rem;
+
+    // The row's own size, stated rather than inherited: Cohtml cannot parse `font-size: inherit`
+    // and drops it, so the field fell back to the engine's default input size and the name changed
+    // size the moment you started renaming it.
+    font-size: 14rem;
+    color: var(--menuText1Normal);
+    background-color: rgba(0, 0, 0, 0.35);
+    pointer-events: auto;
+}
+
+.itemPoints {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18rem;
+    height: 18rem;
+    flex-shrink: 0;
+    padding: 0 4rem;
+    border-radius: 4rem;
+    font-size: 11rem;
+    color: var(--menuText1Normal);
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.empty {
+    padding: 10rem;
+    color: var(--textColorDim);
+}
+
+.field {
+    @include interactive;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 4rem 8rem;
+    @include _base.edges(2.5rem, var(--menuControlBorder));
+    border-radius: 5rem;
+    text-align: left;
+    font-size: 14rem;
+    color: var(--menuText1Normal);
+    background-color: rgba(0, 0, 0, 0.15);
+
+    // No ::placeholder rule — Cohtml does not implement the pseudo-element and warns on every load.
+    // The placeholder still shows, in the engine's own dimmed style.
+}
+
+// The timeline block: labelled rows rather than the tool options' narrow strip, because this panel
+// is a floating window and has room to name what each control does.
+.timeline {
+    padding: 6rem 0 2rem 0;
+    @include _base.edge(top, 1rem, var(--menuControlBorder));
+    margin-top: 6rem;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 3rem 2rem;
+}
+
+.rowLabel {
+    flex: 1;
+    min-width: 0;
+    font-size: 12rem;
+    color: var(--textColorDim);
+}
+
+// The buttons and the value field are vanilla widgets carrying their own sizing and colour, so this
+// only lines them up — anything more here would start fighting the theme it is meant to match.
+.stepper {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+
+    // It holds a vanilla number field, which reads --size from a row wrapper we do not use.
+    @include _base.vanillaControlSize;
+}
+
+.eases {
+    display: flex;
+    flex-shrink: 0;
+
+    > button {
+        min-width: 26rem;
+        padding: 2rem 4rem;
+        font-size: 11rem;
+    }
+}
+
+// The delete drop zone.
+//
+// Fills the space the Assemble, Up and Down buttons used to occupy. Those went because every drop,
+// reorder and add now rebuilds the sequence on its own, and dragging a row or a track block is how
+// order is changed — three buttons that only restated what a drag already does.
+//
+// An outline rather than a filled panel: it reads as a target to drop into, not as another control
+// to press. Red only on hover, so it warns at the moment it matters rather than sitting there
+// looking dangerous.
+//
+// SOLID, not dashed. Cohtml supports only solid borders and drops anything else — and since the
+// initial border-style is `none`, `dashed` did not degrade to a solid line, it removed the outline
+// altogether while logging a warning on every load.
+.trash {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 auto;
+    min-height: 46rem;
+    margin-top: 10rem;
+    padding: 8rem;
+
+    border-top-width: 2rem;
+    border-right-width: 2rem;
+    border-bottom-width: 2rem;
+    border-left-width: 2rem;
+    border-style: solid;
+    border-color: rgba(255, 255, 255, 0.25);
+    border-radius: 4rem;
+
+    font-size: 12rem;
+    color: var(--textColorDim);
+    text-align: center;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+
+    // Nothing inside should take the drop instead of the zone itself.
+    > * {
+        pointer-events: none;
+    }
+}
+
+.trashOver {
+    border-color: rgba(255, 90, 90, 0.9);
+    background-color: rgba(255, 60, 60, 0.18);
+    color: #ffdada;
+}

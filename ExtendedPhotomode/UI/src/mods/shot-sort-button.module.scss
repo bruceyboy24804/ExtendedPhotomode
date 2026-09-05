@@ -54,6 +54,36 @@
     }
 }
 
+// The row layout used inside the mod's own panel, where there is room to show the choices rather
+// than hide them behind a disclosure. Same buttons, no popup.
+.inlineRow {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+
+    > * + * {
+        margin-left: 3rem;
+    }
+
+    // Smaller than the popup's 34rem buttons: these sit in a section heading beside a text label,
+    // not in a dialog of their own, and at full size they set the height of the whole row.
+    button {
+        width: 24rem;
+        height: 24rem;
+    }
+
+    button > div {
+        width: 14rem;
+        height: 14rem;
+    }
+}
+
+// Separates the sort key from the direction, so five buttons read as two groups and not as one
+// undifferentiated strip.
+.inlineGap {
+    width: 8rem;
+}
+
 .icon {
     width: 20rem;
     height: 20rem;

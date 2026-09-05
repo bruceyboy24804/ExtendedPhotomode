@@ -8,6 +8,53 @@
 //   * `pointer-events: auto`, because the layers mod panels mount into are click-through
 //   * a 0.15s colour transition; vanilla controls never snap between states
 
+// Cohtml cannot parse a `var()` inside a SHORTHAND declaration. It logs
+//   "Custom CSS expressions are not supported in shorthand declaration, please use the long
+//    versions of the CSS property: border-bottom - 1rem solid var(--menuControlBorder)"
+// to UI.log and then DROPS the whole declaration — so the border simply is not drawn, with nothing
+// visible to explain why. It bites `border`, `border-<side>`, `border-radius`, `border-width` and
+// `border-color` alike, since all of them are shorthands for several longhands.
+//
+// These two mixins are the long-hand forms, so a themed border can still be written in one line.
+
+@mixin edge($side, $width, $color) {
+    border-#{$side}-width: $width;
+    border-#{$side}-style: solid;
+    border-#{$side}-color: $color;
+}
+
+@mixin edges($width, $color) {
+    @include edge(top, $width, $color);
+    @include edge(right, $width, $color);
+    @include edge(bottom, $width, $color);
+    @include edge(left, $width, $color);
+}
+
+@mixin radius($radius) {
+    border-top-left-radius: $radius;
+    border-top-right-radius: $radius;
+    border-bottom-left-radius: $radius;
+    border-bottom-right-radius: $radius;
+}
+
+/// Supplies `--size` to a container holding one of vanilla's tool-options widgets.
+///
+/// `number-field` and `dropdown-toggle` READ `--size` without defining it — their row does, via
+/// `mouseToolOptions.item` (`.item_bZY`). Borrowing the field class without that wrapper leaves the
+/// variable unresolved, and the field falls back to `height: auto`.
+///
+/// That is not just cosmetic. Cohtml reports every unresolved lookup as a warning, once per property
+/// per layout pass, forever — and the game's own log formatter throws a NullReferenceException while
+/// writing it. So a handful of steppers on screen produce a steady stream of exceptions from
+/// `Colossal.Logging.UnityLogger`, pointing at nothing that names this mod.
+///
+/// The expression is vanilla's own, so the control keeps tracking the player's font-scale setting.
+/// Applied here rather than by adding `mouseToolOptions.item` itself, which would also bring that
+/// row's layout into panels that already have their own.
+@mixin vanillaControlSize {
+    --size: calc(28rem * ((var(--fontScale) - 1) / 2 + 1));
+}
+
 @mixin baseButton($hasText: true, $tintIcon: true) {
     display: flex;
     align-items: center;
@@ -108,6 +155,49 @@
     &.disabled {
         background-color: transparent;
         opacity: 0.75;
+    }
+}
+
+// The standard text button for this mod's floating panels — shot list, timeline, key inspector.
+//
+// A mixin rather than a copy in each stylesheet: the same block had been pasted into `.actions` and
+// `.buttonRow` already, and the timeline panel had grown its own slightly different one, so the
+// panels no longer matched. One definition is the only thing that keeps them honest.
+/// `$tintIcon: false` for any button holding one of the mod's OWN icons.
+///
+/// Two reasons, and either alone is enough. The tint works by painting the img's background and
+/// letting a mask cut the shape out of it — but `baseButton` sets the colour and the mask sizing
+/// WITHOUT a `mask-image`, which CSS cannot derive from the img's `src`. With no mask there is
+/// nothing to cut, so the colour fills the whole box and the icon renders as a solid white square.
+///
+/// And even with a working mask it would be wrong here: the mod's icons are deliberately multi-
+/// colour — path blue, point yellow, rail orange — and a tint flattens all of that to one shade.
+/// Tinting is for vanilla's monochrome line art, which is what the mixin was written against.
+@mixin panelButton($tintIcon: true) {
+    @include transparentButton(false, $tintIcon);
+
+    padding: 5rem 8rem;
+    font-size: 13rem;
+    white-space: nowrap;
+    background-color: rgba(0, 0, 0, 0.3);
+
+    &:hover {
+        background-color: rgba(200, 200, 200, 0.15);
+    }
+
+    &[disabled],
+    &.disabled {
+        background-color: rgba(150, 150, 150, 0.1);
+    }
+}
+
+/// The same button while its state is on. `!important` because it is applied alongside the base
+/// rule above, which also sets a background on hover.
+@mixin panelButtonActive {
+    background-color: rgba(120, 180, 230, 0.35) !important;
+
+    &:hover {
+        background-color: rgba(140, 200, 250, 0.45) !important;
     }
 }
 

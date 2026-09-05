@@ -1,4 +1,4 @@
-namespace ExtendedPhotomode.Systems {
+﻿namespace ExtendedPhotomode.Systems {
     #region Using Statements
 
     using Colossal.Serialization.Entities;
@@ -55,8 +55,38 @@ namespace ExtendedPhotomode.Systems {
 
             buffer.Clear();
 
-            foreach (PathNode node in m_PathTool.Path.Nodes) {
+            // Every field, not just the geometry. This used to store position, tangents and the two
+            // flags alone, which quietly threw away dwell, pitch, speed, look-at, lens and time of day
+            // on any working path that had not been saved to the library first.
+            foreach (PathNode node in m_PathTool.TravelPath.Nodes) {
                 buffer.Add(new EPM_PathNodeData {
+                    m_Position   = node.Position,
+                    m_TangentOut = node.TangentOut,
+                    m_TangentIn  = node.TangentIn,
+                    m_Auto       = node.Auto,
+                    m_Broken     = node.Broken,
+
+                    m_Dwell        = node.Dwell,
+                    m_Pitch        = node.Pitch ?? 0f,
+                    m_HasPitch     = node.Pitch.HasValue,
+                    m_Speed        = node.Speed,
+                    m_LookAt       = node.LookAt ?? default,
+                    m_HasLookAt    = node.LookAt.HasValue,
+                    m_Fov          = node.Fov ?? 0f,
+                    m_HasFov       = node.Fov.HasValue,
+                    m_TimeOfDay    = node.TimeOfDay ?? 0f,
+                    m_HasTimeOfDay = node.TimeOfDay.HasValue,
+                });
+            }
+
+            DynamicBuffer<EPM_RailNodeData> rail = EntityManager.HasBuffer<EPM_RailNodeData>(entity)
+                                                       ? EntityManager.GetBuffer<EPM_RailNodeData>(entity)
+                                                       : EntityManager.AddBuffer<EPM_RailNodeData>(entity);
+
+            rail.Clear();
+
+            foreach (PathNode node in m_PathTool.RailPath.Nodes) {
+                rail.Add(new EPM_RailNodeData {
                     m_Position   = node.Position,
                     m_TangentOut = node.TangentOut,
                     m_TangentIn  = node.TangentIn,
@@ -65,11 +95,12 @@ namespace ExtendedPhotomode.Systems {
                 });
             }
 
-            m_Log.Debug($"Stored {buffer.Length} path points into the save.");
+            m_Log.Debug($"Stored {buffer.Length} path points and {rail.Length} rail points into the save.");
         }
 
         private void LoadPath() {
-            m_PathTool.Path.Clear();
+            m_PathTool.TravelPath.Clear();
+            m_PathTool.RailPath.Clear();
 
             if (m_Query.IsEmptyIgnoreFilter) {
                 return;
@@ -81,17 +112,45 @@ namespace ExtendedPhotomode.Systems {
             for (int i = 0; i < buffer.Length; i++) {
                 EPM_PathNodeData data = buffer[i];
 
-                m_PathTool.Path.Nodes.Add(new PathNode(data.m_Position) {
+                m_PathTool.TravelPath.Nodes.Add(new PathNode(data.m_Position) {
                     TangentOut = data.m_TangentOut,
                     TangentIn  = data.m_TangentIn,
                     Auto       = data.m_Auto,
                     Broken     = data.m_Broken,
+
+                    Dwell     = data.m_Dwell,
+                    Pitch     = data.m_HasPitch ? data.m_Pitch : (float?)null,
+                    Speed     = data.m_Speed,
+                    LookAt    = data.m_HasLookAt ? (Vector3)data.m_LookAt : (Vector3?)null,
+                    Fov       = data.m_HasFov ? data.m_Fov : (float?)null,
+                    TimeOfDay = data.m_HasTimeOfDay ? data.m_TimeOfDay : (float?)null,
                 });
             }
 
-            m_PathTool.Path.RefreshAutoTangents();
+            m_PathTool.TravelPath.RefreshAutoTangents();
 
-            m_Log.Info($"Restored {buffer.Length} path points from the save.");
+            int rails = 0;
+
+            // Absent on any save written before the aim rail existed, which is why it is its own
+            // component: nothing to version, nothing to branch on, it is simply not there.
+            if (EntityManager.HasBuffer<EPM_RailNodeData>(entity)) {
+                DynamicBuffer<EPM_RailNodeData> rail = EntityManager.GetBuffer<EPM_RailNodeData>(entity, true);
+
+                for (int i = 0; i < rail.Length; i++) {
+                    EPM_RailNodeData data = rail[i];
+
+                    m_PathTool.RailPath.Nodes.Add(new PathNode(data.m_Position) {
+                        TangentOut = data.m_TangentOut,
+                        TangentIn  = data.m_TangentIn,
+                        Auto       = data.m_Auto,
+                        Broken     = data.m_Broken,
+                    });
+                }
+
+                rails = rail.Length;
+                m_PathTool.RailPath.RefreshAutoTangents();
+            }
+
         }
 
         private Entity GetOrCreateEntity() {

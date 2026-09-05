@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Aim rail: build a rail by copying the camera path sideways.
+     This is a straight portrait of what the tool draws in the world — blue path, orange rail, faint
+     dashed ties between them. #ff994c is kRailColor and the ties are kTieColor at the same low alpha,
+     so the icon is a key to the overlay rather than an invention.
+
+     The two curves stay a constant distance apart rather than converging, because the offset is
+     perpendicular to the direction of travel; a rail drawn parallel in screen space would show the
+     bug this operation exists to avoid.
+
+     Replaces RoadUpgradeQuay, which had nothing to do with any of this. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #8cd9ff; stroke-width: 2px; stroke-linecap: round; }
+      .cls-2 { fill: none; stroke: #ff994c; stroke-width: 2px; stroke-linecap: round; }
+      .cls-3 { fill: none; stroke: #fff; stroke-width: 1px; stroke-dasharray: 1.5 1.5; opacity: .45; }
+      .cls-4 { fill: #ffd933; }
+    </style>
+  </defs>
+  <path class="cls-1" d="M3,11 Q14,3 25,11"/>
+  <path class="cls-2" d="M3,22 Q14,14 25,22"/>
+  <g id="Ties">
+    <path class="cls-3" d="M8.2,7.9 L8.2,18.9"/>
+    <path class="cls-3" d="M14,6 L14,17"/>
+    <path class="cls-3" d="M19.8,7.9 L19.8,18.9"/>
+  </g>
+  <circle class="cls-4" cx="3" cy="11" r="2.25"/>
+  <circle class="cls-4" cx="25" cy="11" r="2.25"/>
+</svg>

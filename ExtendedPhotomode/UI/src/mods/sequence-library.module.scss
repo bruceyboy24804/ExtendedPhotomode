@@ -1,0 +1,131 @@
+// Saved sequences, at the foot of the shot list pane. Shares that pane's metrics so the two read as
+// one column rather than two panels stacked.
+
+@use "./base.scss" as _base;
+
+.library {
+    display: flex;
+    flex-direction: column;
+    margin-top: 8rem;
+    padding-top: 8rem;
+    @include _base.edge(top, 1rem, var(--menuControlBorder));
+}
+
+// The heading and its sort control on one line, so the control reads as belonging to this list
+// rather than floating above the whole panel.
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 4rem;
+}
+
+// No padding of its own any more — the header row above supplies the gap, and keeping both pushed
+// the label off-centre against the sort buttons beside it.
+.sectionLabel {
+    font-size: 11rem;
+    letter-spacing: 0.3rem;
+    text-transform: uppercase;
+    color: var(--textColorDim);
+}
+
+// Local / Steam Cloud. Segmented buttons, NOT a dropdown: a <select> element kills the entire Cohtml
+// UI with a "reading 'length'" error, which is the first entry in this project's trap list.
+.targets {
+    display: flex;
+    margin-bottom: 6rem;
+
+    > button {
+        @include _base.panelButton;
+        flex: 1;
+        margin-right: 4rem;
+    }
+}
+
+.targetOn {
+    @include _base.panelButtonActive;
+}
+
+.list {
+    max-height: 120rem;
+    margin-bottom: 6rem;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    padding: 4rem 6rem;
+    pointer-events: auto;
+    cursor: pointer;
+    transition: background-color 0.15s;
+    @include _base.edge(bottom, 1rem, var(--menuControlBorder));
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+.itemSelected {
+    @include _base.selectedButton;
+}
+
+.itemLabel {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+// Where a sequence is stored, or that it is locked. A mask over a colour, never an <img> — the
+// game's Glyphs are solid black fills meant to be tinted, and an img renders one as a black blob.
+.cloudIcon {
+    flex-shrink: 0;
+    width: 14rem;
+    height: 14rem;
+    margin-left: 6rem;
+    background-color: var(--textColorDim);
+    mask-size: contain;
+    mask-position: 50% 50%;
+    mask-repeat: no-repeat;
+}
+
+.meta {
+    flex-shrink: 0;
+    margin-left: 6rem;
+    font-size: 10rem;
+    white-space: nowrap;
+    color: var(--textColorDim);
+}
+
+.empty {
+    padding: 8rem 6rem;
+    font-size: 12rem;
+    color: var(--textColorDim);
+}
+
+.field {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 6rem;
+    padding: 4rem 8rem;
+    @include _base.edges(2.5rem, var(--menuControlBorder));
+    border-radius: 5rem;
+    text-align: left;
+    font-size: 13rem;
+    color: var(--menuText1Normal);
+    background-color: rgba(0, 0, 0, 0.15);
+    pointer-events: auto;
+}
+
+.buttonRow {
+    display: flex;
+    align-items: center;
+
+    > button {
+        @include _base.panelButton;
+        flex: 1;
+        margin-right: 4rem;
+    }
+}

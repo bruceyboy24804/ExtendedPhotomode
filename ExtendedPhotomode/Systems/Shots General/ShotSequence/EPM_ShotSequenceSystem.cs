@@ -1,4 +1,4 @@
-namespace ExtendedPhotomode.Systems {
+﻿namespace ExtendedPhotomode.Systems {
     #region Using Statements
 
     using System.Collections.Generic;
@@ -74,11 +74,30 @@ namespace ExtendedPhotomode.Systems {
 
             SmoothTransformCurves(sequence);
             ApplyTimeOfDay(sequence, end);
-            m_Log.Info($"Applied {samples.Count} keys from {description} at t={startTime:0.##}s");
             LogYawCurve(sequence);
 
             RefreshTransformCurveBinding();
             return true;
         }
+
+        /// <summary>Runs the generator for a shot type.</summary>
+        /// <remarks>
+        /// The single dispatch point, shared by the Generate button, the hotkey and the sequencer's
+        /// assembly pass. Keeping the generator table on a UI system meant anything that was not the
+        /// button had to reach into it, and a second copy of the lookup is a second place for a shot
+        /// type to go missing.
+        /// </remarks>
+        public bool Generate(ShotType type) {
+            m_Generators ??= GenerateShotBase.Discover(World);
+
+            if (!m_Generators.TryGetValue(type, out GenerateShotBase generator)) {
+                m_Log.Warn($"No generator registered for shot type {type}.");
+                return false;
+            }
+
+            return generator.TryGenerate();
+        }
+
+        private Dictionary<ShotType, GenerateShotBase> m_Generators;
     }
 }

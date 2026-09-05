@@ -35,6 +35,16 @@ namespace ExtendedPhotomode.Systems {
 
         public float? PinnedStartAngle { get; set; }
 
+        /// <summary>The entity the centre was pinned to, when it was pinned to one rather than to a point.</summary>
+        /// <remarks>
+        /// Kept alongside <see cref="PinnedTarget"/> rather than instead of it, because the two answer
+        /// different questions: the generators want the position the shot was built around, and only
+        /// following wants the thing that is still moving. <see cref="PinnedTarget"/> doubles as the
+        /// anchor a Ride shot measures its offset from, so re-pinning after generating shifts that
+        /// anchor and the shot has to be generated again.
+        /// </remarks>
+        public Entity PinnedEntity { get; set; }
+
         protected override void OnCreate() {
             base.OnCreate();
             m_Log                   = new PrefixedLogger(nameof(EPM_ShotSubjectSystem));
@@ -63,6 +73,7 @@ namespace ExtendedPhotomode.Systems {
 
             if (TryBuildOrbitFromSettings(out OrbitShot orbit)) {
                 PinnedTarget = orbit.Target;
+                PinnedEntity = Entity.Null;
                 m_Log.Debug($"Placed shot centre at {orbit.Target} for this photo mode session.");
             }
         }
@@ -83,9 +94,40 @@ namespace ExtendedPhotomode.Systems {
             PinnedTarget = EntityManager.GetComponentData<Game.Objects.Transform>(selected).m_Position;
 
             PinnedStartAngle = null;
+            PinnedEntity     = selected;
 
-            m_Log.Info($"Pinned shot to selected entity {selected.Index} at {PinnedTarget}");
             return true;
+        }
+
+        /// <summary>Reads where the pinned entity is right now, for following it during playback.</summary>
+        /// <param name="position">The subject's current world position.</param>
+        /// <returns>False when nothing is pinned to an entity, or that entity no longer exists.</returns>
+        /// <remarks>
+        /// Prefers <see cref="InterpolatedTransform"/> over <see cref="Game.Objects.Transform"/>: the
+        /// latter only moves on a simulation tick, so aiming at it makes the camera judder at the
+        /// difference between tick rate and frame rate. The interpolated copy is what the game's own
+        /// rendering follows, so tracking it keeps the subject still in frame.
+        /// </remarks>
+        public bool TryGetLiveSubject(out Vector3 position) {
+            position = default;
+
+            Entity entity = PinnedEntity;
+
+            if (entity == Entity.Null || !EntityManager.Exists(entity)) {
+                return false;
+            }
+
+            if (EntityManager.HasComponent<InterpolatedTransform>(entity)) {
+                position = EntityManager.GetComponentData<InterpolatedTransform>(entity).m_Position;
+                return true;
+            }
+
+            if (EntityManager.HasComponent<Game.Objects.Transform>(entity)) {
+                position = EntityManager.GetComponentData<Game.Objects.Transform>(entity).m_Position;
+                return true;
+            }
+
+            return false;
         }
 
         public OrbitShot OrbitFromCurrentCamera(Vector3 target) {
@@ -106,6 +148,8 @@ namespace ExtendedPhotomode.Systems {
                 orbit.DegreesPerKey = settings.OrbitDegreesPerKey;
                 orbit.LookAtTarget  = settings.OrbitLookAtTarget;
                 orbit.EndRadius     = settings.OrbitEndRadius;
+                orbit.EndHeight     = settings.OrbitEndHeight;
+                orbit.SweepEase     = settings.OrbitSweepEase;
                 orbit.StartAngle    = PinnedStartAngle ?? orbit.StartAngle;
                 return true;
             }
@@ -121,6 +165,8 @@ namespace ExtendedPhotomode.Systems {
             orbit.LookAtTarget  = settings.OrbitLookAtTarget;
 
             orbit.EndRadius = settings.OrbitEndRadius;
+            orbit.EndHeight = settings.OrbitEndHeight;
+            orbit.SweepEase = settings.OrbitSweepEase;
             return true;
         }
 

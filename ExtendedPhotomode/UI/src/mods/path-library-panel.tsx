@@ -1,21 +1,61 @@
-import { bindValue, trigger, useValue } from "cs2/api";
-import { Button, Scrollable } from "cs2/ui";
+import { useValue } from "cs2/api";
+import { Button, Icon, Scrollable, Tooltip } from "cs2/ui";
 import { type ReactElement, useEffect, useState } from "react";
-import mod from "mod.json";
-import { VC } from "vanilla/Components";
+import { VC, VF, VT } from "vanilla/Components";
+import { closeButtonClass } from "./close-button";
 import styles from "./path-library-panel.module.scss";
+import {
+    closePanel,
+    deletePath,
+    generateShot,
+    loadPath,
+    loadedPathBinding,
+    newPath,
+    importFromSequence,
+    previewBinding,
+    togglePreview,
+    panelOpenBinding,
+    placementHeightBinding,
+    pointCountBinding,
+    renamePath,
+    savePath,
+    savedPathsBinding,
+    setToolActive,
+    toolActiveBinding,
+    ShotTypes,
+    metricsBinding,
+    numbersBinding,
+} from "./path-bindings";
 
-type PathLibraryEntry = {
-    index: number;
-
-    name: string;
-
-    points: number;
+/**
+ * What the panel calls itself, and what its tool button does, for each shot type.
+ *
+ * The panel serves all three shots now, and almost every word on it was written for a drawn path —
+ * a title saying CAMERA PATH above an orbit's controls is worse than no title.
+ */
+const SHOT_LABELS: Record<
+    number,
+    { title: string; create: string; edit: string; stop: string }
+> = {
+    [ShotTypes.Path]: {
+        title: "CAMERA PATH",
+        create: "New path",
+        edit: "Draw path",
+        stop: "Stop drawing",
+    },
+    [ShotTypes.Orbit]: {
+        title: "ORBIT SHOT",
+        create: "New orbit",
+        edit: "Draw orbit",
+        stop: "Stop editing",
+    },
+    [ShotTypes.DollyZoom]: {
+        title: "DOLLY ZOOM",
+        create: "New dolly",
+        edit: "Draw dolly",
+        stop: "Stop editing",
+    },
 };
-
-const savedPaths$ = bindValue<PathLibraryEntry[]>(mod.id, "BINDING:savedPaths", []);
-
-const pathToolActive$ = bindValue<boolean>(mod.id, "BINDING:pathToolActive", false);
 
 const MAX_NAME = 60;
 
@@ -36,11 +76,19 @@ function TextField({
 }): ReactElement {
     const handle = (event: React.ChangeEvent<HTMLInputElement>): void => onChange(event.target.value);
 
-    return VC.EllipsisTextInput ? (
-        <VC.EllipsisTextInput
+    // TextInput, not EllipsisTextInput: the latter keeps its real <input> at opacity 0 and paints the
+    // visible text into a sibling label that only ever carries `value`, so a placeholder never shows.
+    // TextInput renders a real field and honours it — this is what FindIt's search box uses.
+    return VC.TextInput ? (
+        <VC.TextInput
+            multiline={1}
+            type="text"
             value={value}
             placeholder={placeholder}
             maxLength={maxLength}
+            disabled={false}
+            focusKey={VF.FOCUS_DISABLED}
+            className={`${VT.textInput?.input ?? ""} ${styles.field}`}
             onChange={handle}
             onBlur={onBlur}
         />
@@ -57,24 +105,6 @@ function TextField({
     );
 }
 
-function savePath(name: string): void {
-    trigger("audio", "playSound", "select-item", 1);
-    trigger(mod.id, "TRIGGER:savePath", name);
-}
-
-function loadPath(id: number): void {
-    trigger("audio", "playSound", "select-item", 1);
-    trigger(mod.id, "TRIGGER:loadPath", id);
-}
-
-function deletePath(id: number): void {
-    trigger(mod.id, "TRIGGER:deletePath", id);
-}
-
-function renamePath(id: number, name: string): void {
-    trigger(mod.id, "TRIGGER:renamePath", id, name);
-}
-
 /**
  * The saved path library: the named paths, with save/load/delete controls under them.
  *
@@ -83,19 +113,36 @@ function renamePath(id: number, name: string): void {
  * per-node editor into a point selector.
  */
 export function PathLibraryPanel(): ReactElement | null {
-    const paths = useValue(savedPaths$);
-    const toolActive = useValue(pathToolActive$);
+    const paths = useValue(savedPathsBinding.binding);
+    const toolActive = useValue(toolActiveBinding.binding);
+    const panelOpen = useValue(panelOpenBinding.binding);
+    const points = useValue(pointCountBinding.binding);
+    const placementHeight = useValue(placementHeightBinding.binding);
+    const loadedId = useValue(loadedPathBinding.binding);
+    // Must sit above the `panelOpen` early return with the rest: a hook called conditionally changes
+    // the hook count between renders, which React treats as a hard error.
+    const previewing = useValue(previewBinding.binding);
+    const numbers = useValue(numbersBinding.binding);
+    const metrics = useValue(metricsBinding.binding);
     const [selected, setSelected] = useState(-1);
     const [name, setName] = useState("");
     const [search, setSearch] = useState("");
 
     const path = paths.find((entry) => entry.index === selected) ?? null;
+    const loaded = paths.find((entry) => entry.index === loadedId) ?? null;
 
     useEffect(() => setName(path?.name ?? ""), [path?.name, path?.index]);
 
-    if (!toolActive) {
+    if (!panelOpen) {
         return null;
     }
+
+    const shot = numbers.shotType;
+    const isPath = shot === ShotTypes.Path;
+    const labels = SHOT_LABELS[shot] ?? SHOT_LABELS[ShotTypes.Path];
+
+    // An orbit or dolly is ready the moment it has a subject; a path needs two points.
+    const ready = isPath ? points >= 2 : numbers.hasSubject;
 
     const trimmed = name.trim();
     const searchable = paths.length > MIN_SEARCHABLE;
@@ -113,9 +160,87 @@ export function PathLibraryPanel(): ReactElement | null {
     return (
         <div className={styles.panel}>
             <div className={styles.header}>
-                <span className={styles.title}>SAVED PATHS</span>
+                <span className={styles.title}>{labels.title}</span>
+                {/* Vanilla's close button, so its hover and hit area come with it. See the same
+                    change in timeline-panel for why a styled "×" was not equivalent. */}
+                <Tooltip tooltip="Close the path library.">
+                    <Button
+                        variant="icon"
+                        className={closeButtonClass(styles.close)}
+                        focusKey={VF.FOCUS_DISABLED}
+                        onSelect={closePanel}
+                    >
+                        <Icon src="Media/Glyphs/Close.svg" tinted className={styles.closeIcon} />
+                    </Button>
+                </Tooltip>
             </div>
 
+            {/* Row order is the workflow: start a path, work on it, then commit it. Generate shot
+                sits alone on the last row and so runs full width, which is right — it is the one
+                button here that changes the timeline. */}
+            <div className={styles.actions}>
+                {/* New means the same for all three — start again — even though what gets cleared
+                    differs: a path's points, or a shot's subject and its numbers. */}
+                <Button
+                    variant="flat"
+                    disabled={isPath ? points === 0 : !numbers.hasSubject}
+                    onSelect={newPath}
+                >
+                    {labels.create}
+                </Button>
+
+                {/* This one really is path-only: it reads camera keyframes back into control points,
+                    and there is nothing in a timeline that reconstitutes into an orbit. */}
+                {isPath && (
+                    <Button variant="flat" onSelect={importFromSequence}>
+                        From timeline
+                    </Button>
+                )}
+
+                <Button
+                    variant="flat"
+                    className={toolActive ? styles.actionActive : ""}
+                    onSelect={() => setToolActive(!toolActive)}
+                >
+                    {toolActive ? labels.stop : labels.edit}
+                </Button>
+
+                <Button
+                    variant="flat"
+                    disabled={!ready}
+                    className={previewing ? styles.actionActive : ""}
+                    onSelect={togglePreview}
+                >
+                    {previewing ? "Stop preview" : "Preview"}
+                </Button>
+
+                <Button variant="flat" disabled={!ready} onSelect={generateShot}>
+                    Generate shot
+                </Button>
+            </div>
+
+            <div className={styles.status}>
+                {isPath
+                    ? points === 0
+                        ? "No path yet. Press Draw path, then click the ground to add points."
+                        : points < 2
+                          ? "1 point. Add at least one more before generating."
+                          : `${points} points · ${Math.round(metrics.length)}m · ${Math.round(metrics.speed)}km/h.`
+                    : numbers.hasSubject
+                      ? shot === ShotTypes.Orbit
+                          ? `${numbers.orbitRadius}m radius · ${numbers.orbitSweep}° · ${numbers.orbitDuration}s.`
+                          : `${numbers.dollyStart}m to ${numbers.dollyEnd}m · ${numbers.dollyDuration}s.`
+                      : "No subject yet. Press Edit, then click the ground or a building to place one."}
+                {toolActive && isPath
+                    ? ` New points land ${placementHeight}m up — Ctrl+wheel to change. Point settings are in the tool options.`
+                    : ""}
+                {toolActive && !isPath ? " Drag the handles in the world; numbers are in the tool options." : ""}
+                {isPath && loaded ? ` Editing “${loaded.name}” — Save updates it.` : ""}
+            </div>
+
+            {/* The library holds drawn paths. An orbit or a dolly is a handful of numbers, and the
+                place to keep one of those is the shot list, not here. */}
+            {isPath && (
             <div className={styles.content}>
                 {searchable && (
                     <div className={styles.search}>
@@ -181,6 +306,7 @@ export function PathLibraryPanel(): ReactElement | null {
                     </Button>
                 </div>
             </div>
+            )}
         </div>
     );
 }

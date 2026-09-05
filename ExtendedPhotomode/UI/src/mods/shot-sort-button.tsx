@@ -90,6 +90,53 @@ function Option({
     );
 }
 
+/**
+ * The same sorting, laid out as a row instead of a popup.
+ *
+ * For the mod's own Saved sequences list, which shows the very same assets: `EPM_ShotSortSystem`
+ * wraps the getter behind vanilla's `assets` binding, and that binding is what feeds both this list
+ * and the game's own. So one order applies to both, and there is nothing to keep in step.
+ *
+ * A row rather than the popup because the popup is positioned against vanilla's button row
+ * (`left: 195rem`) and there is room here — a panel with space does not need a disclosure.
+ */
+export function ShotSortRow(): ReactElement {
+    const order = useValue(sortOrder$);
+
+    const key       = keyOf(order);
+    const ascending = isAscending(order);
+
+    return (
+        <div className={styles.inlineRow}>
+            <Option icon={IconListView} tooltip="Leave the game's own order alone"
+                    selected={key === "game"}
+                    onSelect={() => setOrder(orderFrom("game", ascending))} />
+            <Option icon={IconNameSort} tooltip="Sort by name"
+                    selected={key === "name"}
+                    onSelect={() => setOrder(orderFrom("name", ascending))} />
+            <Option icon={IconClock} tooltip="Sort by when the shot was last saved"
+                    selected={key === "date"}
+                    onSelect={() => setOrder(orderFrom("date", ascending))} />
+
+            <div className={styles.inlineGap} />
+
+            {/* The direction icons follow the sort key, because "ascending" means different things:
+                A to Z for a name, oldest first for a date. Disabled rather than hidden under Game
+                order — a control that vanishes is harder to understand than one visibly inert. */}
+            <Option icon={key === "date" ? ArrowSortUp : ArrowSortAZ}
+                    tooltip={key === "date" ? "Oldest first" : "A to Z"}
+                    selected={key !== "game" && ascending}
+                    disabled={key === "game"}
+                    onSelect={() => setOrder(orderFrom(key, true))} />
+            <Option icon={key === "date" ? ArrowSortDown : ArrowSortZA}
+                    tooltip={key === "date" ? "Newest first" : "Z to A"}
+                    selected={key !== "game" && !ascending}
+                    disabled={key === "game"}
+                    onSelect={() => setOrder(orderFrom(key, false))} />
+        </div>
+    );
+}
+
 function ShotSortControl(): ReactElement {
     const order = useValue(sortOrder$);
     const [open, setOpen] = useState(false);

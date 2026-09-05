@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Points: select every point.
+     Pink is #ff73bf, kSelectedColor — what a selected point is drawn in on the terrain — and the
+     bracket is the same gathering mark SelectionAll uses. Two rows, one idea: a bracket over pink
+     means "the whole selection". -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #8cd9ff; stroke-width: 2px; stroke-linecap: round; }
+      .cls-2 { fill: #ff73bf; }
+      .cls-3 { fill: none; stroke: #fff; stroke-width: 1.5px; stroke-linecap: round; stroke-linejoin: round; opacity: .6; }
+    </style>
+  </defs>
+  <path class="cls-3" d="M3,9 L3,6 L25,6 L25,9"/>
+  <path class="cls-1" d="M4,23 Q14,10 24,23"/>
+  <circle class="cls-2" cx="4" cy="23" r="2.75"/>
+  <circle class="cls-2" cx="14" cy="16.5" r="2.75"/>
+  <circle class="cls-2" cx="24" cy="23" r="2.75"/>
+</svg>

@@ -46,7 +46,7 @@
     width: 300rem;
     pointer-events: auto;
     overflow: hidden;
-    border-radius: var(--panelRadius);
+    @include _base.radius(var(--panelRadius));
     background-color: var(--panelColorNormal);
     backdrop-filter: var(--panelBlur);
     color: var(--menuText1Normal);
@@ -69,6 +69,106 @@
     color: var(--normalTextColor);
 }
 
+// Fallback for the panel close button, used only when vanilla's own class does not resolve.
+//
+// Geometry measured off the game's real close button rather than guessed: 24rem square, fully round,
+// transparent until hovered. The old rule sized a text "×" — 22rem with a font-size and line-height —
+// which is meaningless now the content is a masked icon.
+.close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24rem;
+    height: 24rem;
+    padding: 0;
+
+    // 50% on every corner, written long-hand: `border-radius` is a shorthand, and Cohtml drops a
+    // shorthand outright if it ever gains a var(). Consistent with the rest of this file.
+    border-top-left-radius: 50%;
+    border-top-right-radius: 50%;
+    border-bottom-left-radius: 50%;
+    border-bottom-right-radius: 50%;
+
+    background-color: transparent;
+    transition: background-color 0.15s;
+
+    // Room from whatever sits to its left. As the last thing in the header it had none, so the glyph
+    // butted straight against the neighbouring button.
+    margin-left: 8rem;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+}
+
+// The glyph inside the close button.
+//
+// Sized explicitly because cs2/ui's `Icon` wraps the mask in an `icon_` div carrying its own
+// dimensions — 52rem here, larger than the 48rem button containing it, so the X overflowed its own
+// hit area. Vanilla's close button has no such wrapper: it masks a single bare div at 100%.
+//
+// 20rem in a 24rem button. Vanilla's glyph fills its button edge to edge; this keeps a little inset
+// so it does not crowd the circular hover, but stays close to vanilla's weight. 13rem was tried and
+// read as tiny next to the header's text buttons.
+.closeIcon {
+    width: 20rem;
+    height: 20rem;
+
+    // The wrapper and the masked div both have to be pinned, or the inner one keeps its own size.
+    > * {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+// Two rows of two rather than one row of four. The panel is 300rem wide and the labels are nowrap,
+// so a fourth button pushed the row past the panel's `overflow: hidden` and clipped it.
+//
+// The pairing falls out of DOM order and happens to read well: create and edit above, then the two
+// that talk to the timeline below — Generate shot writes to it, From timeline reads back out of it.
+//
+// Spacing is a symmetric margin on each button against a matching negative one on the row, not the
+// `spaced` mixin. That mixin puts margin on one side only, which a wrapped row cannot compensate for
+// — the first button of the second row would sit 4rem right of the first button of the first.
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 8rem 8rem 0 8rem;
+
+    > button {
+        @include _base.transparentButton(false);
+        flex: 1 1 40%;
+        margin: 0 2rem 4rem 2rem;
+        padding: 5rem 8rem;
+        font-size: 13rem;
+        white-space: nowrap;
+        background-color: rgba(0, 0, 0, 0.3);
+
+        &:hover {
+            background-color: rgba(200, 200, 200, 0.15);
+        }
+
+        &[disabled] {
+            background-color: rgba(150, 150, 150, 0.1);
+        }
+    }
+}
+
+.actionActive {
+    background-color: rgba(120, 180, 230, 0.35) !important;
+
+    &:hover {
+        background-color: rgba(140, 200, 250, 0.45) !important;
+    }
+}
+
+.status {
+    padding: 6rem 10rem 0 10rem;
+    font-size: 12rem;
+    color: var(--textColorDim);
+}
+
 .content {
     padding: 8rem;
 }
@@ -76,7 +176,7 @@
 .search {
     padding-bottom: 6rem;
     margin-bottom: 6rem;
-    border-bottom: 1rem solid var(--menuControlBorder);
+    @include _base.edge(bottom, 1rem, var(--menuControlBorder));
 }
 
 .list {
@@ -90,7 +190,7 @@
     align-items: center;
     @include spaced(6rem);
     padding: 5rem 6rem;
-    border-bottom: 1rem solid var(--menuControlBorder);
+    @include _base.edge(bottom, 1rem, var(--menuControlBorder));
 }
 
 .itemSelected {
@@ -130,16 +230,15 @@
     align-items: center;
     width: 100%;
     padding: 4rem 8rem;
-    border: 2.5rem solid var(--menuControlBorder);
+    @include _base.edges(2.5rem, var(--menuControlBorder));
     border-radius: 5rem;
     text-align: left;
     font-size: 14rem;
     color: var(--menuText1Normal);
     background-color: rgba(0, 0, 0, 0.15);
 
-    &::placeholder {
-        color: var(--textColorDim);
-    }
+    // No ::placeholder rule — Cohtml does not implement the pseudo-element and warns on every load.
+    // The placeholder still shows, in the engine's own dimmed style.
 }
 
 .buttonRow {

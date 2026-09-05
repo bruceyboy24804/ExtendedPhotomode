@@ -120,7 +120,6 @@ namespace ExtendedPhotomode.Systems {
 
             m_PlanetarySystem.Update();
 
-            m_Log.Info($"Restored time and climate overrides on photo mode exit (time override {m_OverrideTime}).");
         }
 
         private static (bool active, float value) Snapshot(OverridableProperty<float> property) {
@@ -145,7 +144,6 @@ namespace ExtendedPhotomode.Systems {
                 return;
             }
 
-            var synced = new List<string>();
 
             foreach (Type type in kSyncedComponents) {
                 if (!climate.sharedProfile.TryGet(type, out VolumeComponent source)
@@ -153,14 +151,7 @@ namespace ExtendedPhotomode.Systems {
                     continue;
                 }
 
-                int copied = CopyOverriddenParameters(source, destination);
-                if (copied > 0) {
-                    synced.Add($"{type.Name}({copied})");
-                }
-            }
-
-            if (synced.Count > 0) {
-                m_Log.Info($"Carried live weather into photo mode: {string.Join(", ", synced)}");
+                CopyOverriddenParameters(source, destination);
             }
         }
 

@@ -1,4 +1,4 @@
-namespace ExtendedPhotomode.Systems.Generators {
+﻿namespace ExtendedPhotomode.Systems.Generators {
     #region Using Statements
 
     using System.Collections.Generic;
@@ -34,7 +34,20 @@ namespace ExtendedPhotomode.Systems.Generators {
                 return false;
             }
 
-            return Shots.ApplySamples(samples, Shots.NextStartTime(Replaces), Replaces, orbit.ToString());
+            // An orbit already aims at its centre, so framing here is the composition offset and the
+            // constant-size lens rather than the aim itself — which is exactly what turns a plain
+            // circle into a shot that holds its subject on a third all the way round.
+            Shots.ApplyFraming(samples, null);
+            Shots.ApplyRig(samples);
+
+            float start = Shots.NextStartTime(Replaces);
+
+            if (!Shots.ApplySamples(samples, start, Replaces, orbit.ToString())) {
+                return false;
+            }
+
+            Shots.ApplyFocus(samples, start);
+            return true;
         }
     }
 }

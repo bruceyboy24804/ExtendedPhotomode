@@ -1,4 +1,4 @@
-namespace ExtendedPhotomode.L10n {
+﻿namespace ExtendedPhotomode.L10n {
     #region Using Statements
 
     using System.Collections.Generic;
@@ -6,6 +6,7 @@ namespace ExtendedPhotomode.L10n {
     using Colossal;
 
     using ExtendedPhotomode.Systems;
+    using ExtendedPhotomode.Tools;
 
     #endregion
 
@@ -30,6 +31,10 @@ namespace ExtendedPhotomode.L10n {
 
                 { m_Setting.GetOptionGroupLocaleID(Setting.kRenderingGroup), "Rendering" },
                 { m_Setting.GetOptionGroupLocaleID(Setting.kKeybindingGroup), "Key bindings" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.PreviewOutsidePhotoMode)), "Preview lens and light outside photo mode" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.PreviewOutsidePhotoMode)),
+                  "Show focal length, focus and time of day while scrubbing the mod's timeline with photo mode closed. Scrubbing always applies these values; the reason they were invisible is that the game only renders them inside photo mode. Two things are borrowed to fix that, and only those two — the mod does not open photo mode, which would drop you out of the path tool and clear your overrides on the way back out. The cost: photo mode's control volume outranks the climate volume, so any weather override left on it applies too, the same way photo mode overrides Weather Anarchy. The first scrub also takes the camera, and hands it back when the timeline closes." },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.RestorePostProcessQuality)), "Restore post-process quality" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.RestorePostProcessQuality)),
@@ -89,15 +94,21 @@ namespace ExtendedPhotomode.L10n {
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.PathBreakTangentBinding)),
                   "Toggle the hovered point between a smooth curve and a sharp corner." },
 
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ApplyOrbitBinding)), "Generate orbit" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ApplyOrbitBinding)), "Generate shot" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ApplyOrbitBinding)),
-                  "Generate an orbit around a point ahead of the camera and write it to the cinematic timeline." },
+                  "Generate whichever shot the Shot dropdown names and write it to the cinematic timeline. Does the same as the Generate button, and is the way to generate in the map editor, where that button does not appear." },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ResetBindings)), "Reset key bindings" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ResetBindings)),
                   "Reset all key bindings of the mod." },
 
-                { m_Setting.GetBindingKeyLocaleID(Mod.kApplyOrbitActionName), "Generate orbit" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.TimelineBinding)), "Curve timeline" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.TimelineBinding)),
+                  "Open the curve timeline — every channel of the shot on its own scale, stacked under one playhead." },
+
+                { m_Setting.GetBindingKeyLocaleID(Mod.kTimelineActionName), "Curve timeline" },
+                { m_Setting.GetBindingKeyLocaleID(Mod.kHideUIActionName), "Hide UI" },
+                { m_Setting.GetBindingKeyLocaleID(Mod.kApplyOrbitActionName), "Generate shot" },
                 { m_Setting.GetBindingKeyLocaleID(Mod.kPathToolActionName), "Camera path tool" },
                 { m_Setting.GetBindingKeyLocaleID(Mod.kGeneratePathActionName), "Generate path shot" },
                 { m_Setting.GetBindingKeyLocaleID(Mod.kPathApplyActionName), "Place path point" },
@@ -105,6 +116,43 @@ namespace ExtendedPhotomode.L10n {
                 { m_Setting.GetBindingKeyLocaleID(Mod.kPathLowerActionName), "Lower path point" },
                 { m_Setting.GetBindingKeyLocaleID(Mod.kPathReverseActionName), "Reverse path" },
                 { m_Setting.GetBindingKeyLocaleID(Mod.kPathBreakTangentActionName), "Break tangent" },
+
+                // What the path tool's cursor hints actually say. A DisplayNameOverride's displayName
+                // becomes the hint's name and is resolved through Common.ACTION[<name>], so these are
+                // keyed off the tokens in PathHints rather than off an action.
+                { Hint(PathHints.AddPoint), "Add point" },
+                { Hint(PathHints.InsertPoint), "Insert point" },
+                { Hint(PathHints.MovePoint), "Move point" },
+                { Hint(PathHints.ShapeCurve), "Shape curve" },
+                { Hint(PathHints.PickHandle), "Drag a handle" },
+                { Hint(PathHints.SharpCorner), "Sharp corner" },
+                { Hint(PathHints.SmoothCorner), "Smooth corner" },
+                { Hint(PathHints.Reverse), "Reverse direction" },
+                { Hint(PathHints.Raise), "Raise point" },
+                { Hint(PathHints.Lower), "Lower point" },
+                { Hint(PathHints.DeletePoint), "Delete point" },
+                { Hint(PathHints.StopDrawing), "Stop drawing" },
+                { Hint(PathHints.SetLookAt), "Aim point here" },
+                { Hint(PathHints.SelectForLookAt), "Pick a point to aim" },
+                { Hint(PathHints.TraceRoad), "Trace this road" },
+                { Hint(PathHints.PlaceSubject), "Place the subject here" },
+                { Hint(PathHints.MoveOrbitCentre), "Move the subject" },
+                { Hint(PathHints.DragOrbitStart), "Set where the orbit starts" },
+                { Hint(PathHints.DragOrbitEnd), "Set where the orbit ends" },
+                { Hint(PathHints.DragDollyStart), "Set where the dolly starts" },
+                { Hint(PathHints.DragDollyEnd), "Set where the dolly ends" },
+
+                // Fallbacks for when no override is active: the action's own name, resolved as
+                // Common.ACTION[<full action id>]. A different key from the settings-menu binding
+                // label above, and what shows as a raw string when an override fails.
+                { Action(Mod.kApplyOrbitActionName), "Generate shot" },
+                { Action(Mod.kPathToolActionName), "Camera path tool" },
+                { Action(Mod.kGeneratePathActionName), "Generate path shot" },
+                { Action(Mod.kPathApplyActionName), "Place path point" },
+                { Action(Mod.kPathRaiseActionName), "Raise path point" },
+                { Action(Mod.kPathLowerActionName), "Lower path point" },
+                { Action(Mod.kPathReverseActionName), "Reverse path" },
+                { Action(Mod.kPathBreakTangentActionName), "Break tangent" },
                 { m_Setting.GetBindingMapLocaleID(), "Extended Photomode" },
 
                 // Photo mode panel. PhotoModeUISystem looks every row's label up as
@@ -124,9 +172,16 @@ namespace ExtendedPhotomode.L10n {
                 { Title(EPM_PhotoModePropertySystem.kRadiusId), "Start" },
                 { Title(EPM_PhotoModePropertySystem.kEndRadiusId), "End" },
 
-                { Title(EPM_PhotoModePropertySystem.kHeightId), "Height" },
-                { Tip(EPM_PhotoModePropertySystem.kHeightId),
-                  "How high above the target the camera sits, in metres. Negative values orbit from below." },
+                { Title(EPM_PhotoModePropertySystem.kHeightGroupId), "Height" },
+                { Tip(EPM_PhotoModePropertySystem.kHeightGroupId),
+                  "How high above the target the camera sits, in metres, at the start and end of the shot. Negative values orbit from below. Make the two differ and the orbit climbs or descends as it goes round, giving a helix instead of a flat circle." },
+
+                { Title(EPM_PhotoModePropertySystem.kHeightId), "Start" },
+                { Title(EPM_PhotoModePropertySystem.kEndHeightId), "End" },
+
+                { Title(EPM_PhotoModePropertySystem.kSweepEaseId), "Ease sweep" },
+                { Tip(EPM_PhotoModePropertySystem.kSweepEaseId),
+                  "Eases the camera into and out of its trip around the target, from 0 (an even sweep) to 1. Only the rotation is eased -- the radius and height still change evenly across the shot, so a spiral keeps pulling in at a constant rate while the swing around the subject slows at both ends." },
 
                 { Title(EPM_PhotoModePropertySystem.kSweepId), "Sweep" },
                 { Tip(EPM_PhotoModePropertySystem.kSweepId),
@@ -152,6 +207,50 @@ namespace ExtendedPhotomode.L10n {
                 { Tip(EPM_PhotoModePropertySystem.kPinCentreId),
                   "Keep the orbit centred on one spot instead of following where the camera looks. Loading a saved shot pins it automatically; turn this off to place a new centre." },
 
+                { Title(EPM_PhotoModePropertySystem.kFollowId), "Follow subject" },
+                { Tip(EPM_PhotoModePropertySystem.kFollowId),
+                  "Track the pinned object while the shot plays, for a vehicle or a citizen that is still moving. Aim at subject keeps the camera on its keyframed course and just turns to hold the subject in frame; Ride with subject moves the whole shot along with it, so an orbit stays an orbit around a car that is driving away. Needs a centre pinned to an actual object — use the pin button on a selected object, not the Pin centre checkbox, which pins a bare point. Unlike everything else here it is not written into keyframes, so it does nothing while the game is paused, and a saved shot replays without it in a later session." },
+
+                { "PhotoMode.FOLLOWMODE[None]", "—" },
+                { "PhotoMode.FOLLOWMODE[Off]", "Off" },
+                { "PhotoMode.FOLLOWMODE[Aim]", "Aim at subject" },
+                { "PhotoMode.FOLLOWMODE[Ride]", "Ride with subject" },
+
+                { Title(EPM_PhotoModePropertySystem.kFramingId), "Framing" },
+                { Tip(EPM_PhotoModePropertySystem.kFramingId),
+                  "Hold the pinned subject at a fixed place in frame for the whole shot, instead of merely pointing at it. The camera is turned off the subject by the angle that puts it on a third, so the move you drew is untouched — only the aim changes. The thirds are the standard composition: a subject on the left third looks into the space on the right." },
+
+                { "PhotoMode.FRAMINGRULE[None]", "Off" },
+                { "PhotoMode.FRAMINGRULE[Centre]", "Centred" },
+                { "PhotoMode.FRAMINGRULE[LeftThird]", "Left third" },
+                { "PhotoMode.FRAMINGRULE[RightThird]", "Right third" },
+                { "PhotoMode.FRAMINGRULE[Headroom]", "Headroom" },
+
+                { Title(EPM_PhotoModePropertySystem.kFocusId), "Focus" },
+                { Tip(EPM_PhotoModePropertySystem.kFocusId),
+                  "Drive depth-of-field focus from the shot's own geometry. Track keeps the pinned subject sharp however far the camera travels — a dolly towards a tower currently goes soft, because focus is a fixed number and the distance is not. Rack ramps focus from the subject to a second point across the shot, so the foreground falls out of focus as the background comes into it. The aperture is opened alongside it, because a perfectly focused f/22 lens looks identical to one that is not." },
+
+                { "PhotoMode.FOCUSMODE[None]", "—" },
+                { "PhotoMode.FOCUSMODE[Off]", "Off" },
+                { "PhotoMode.FOCUSMODE[Track]", "Track subject" },
+                { "PhotoMode.FOCUSMODE[Rack]", "Rack focus" },
+
+                { Title(EPM_PhotoModePropertySystem.kFocusDepthId), "Depth of field" },
+                { Tip(EPM_PhotoModePropertySystem.kFocusDepthId),
+                  "How shallow the focus is, from 0 (everything sharp) to 1 (the widest lens that still reads). Sets the aperture once for the whole shot rather than per keyframe — an aperture that changed as the shot ran would alter the exposure, which looks like the image brightening for no reason." },
+
+                { Title(EPM_PhotoModePropertySystem.kFocusEaseId), "Rack easing" },
+                { Tip(EPM_PhotoModePropertySystem.kFocusEaseId),
+                  "How much the focus pull accelerates and settles rather than sliding at a constant rate. A linear rack reads as mechanical; a focus puller does not move at one speed." },
+
+                { Title(EPM_PhotoModePropertySystem.kFramingHoldId), "Hold subject size" },
+                { Tip(EPM_PhotoModePropertySystem.kFramingHoldId),
+                  "Solve the lens at every keyframe so the subject stays the size it is at the start of the shot, however far the camera travels. A camera pulling away zooms in to compensate, which keeps the subject constant while the background rushes — the same optical trick as a dolly zoom, driven by the move you drew rather than by a fixed pair of distances." },
+
+                { Title(EPM_PhotoModePropertySystem.kFramingLensId), "Framing lens" },
+                { Tip(EPM_PhotoModePropertySystem.kFramingLensId),
+                  "The focal length the framing works from, in millimetres. With Hold subject size off it is simply the lens used to work out how wide the frame is, which is what the thirds are measured against." },
+
                 { Title(EPM_PhotoModePropertySystem.kEnvTitleId), "ENVIRONMENT" },
 
                 { Title(EPM_PhotoModePropertySystem.kTimeGroupId), "Hours" },
@@ -172,11 +271,6 @@ namespace ExtendedPhotomode.L10n {
 
 
 
-                { Title(EPM_PhotoModePropertySystem.kKeyframeIndexId), "Keyframe" },
-                { Tip(EPM_PhotoModePropertySystem.kKeyframeIndexId),
-                  "Which keyframe of the shot on the timeline to edit, counting from 1." },
-
-                { Title(EPM_PhotoModePropertySystem.kKeyframeEaseId), "Easing" },
                 { "PhotoMode.SHOTTYPE[None]", "—" },
                 { "PhotoMode.SHOTTYPE[Orbit]", "Orbit" },
                 { "PhotoMode.SHOTTYPE[DollyZoom]", "Dolly zoom" },
@@ -188,12 +282,10 @@ namespace ExtendedPhotomode.L10n {
                 { Tip(EPM_PhotoModePropertySystem.kShotTypeId),
                   "Which shot the Generate button produces. Each type reads its own section of settings below: Orbit and Dolly zoom use the orbit centre, Drawn path uses the path from the path tool (Ctrl+P)." },
 
-                { Tip(EPM_PhotoModePropertySystem.kKeyframeEaseId),
-                  "How the camera arrives at and leaves this keyframe, the same four choices an animation package gives you. Applies to position and rotation together. Note that regenerating the shot, or toggling Constant speed, re-tangents every key and clears this." },
-
                 // The zero-valued members below are the slot the dropdown discards, mirroring
                 // GateFitMode.None. They should never be seen; the entries exist so that if one ever
                 // does surface it reads as a dash rather than a raw locale key.
+
                 { "PhotoMode.KEYFRAMEEASE[None]", "—" },
                 { "PhotoMode.TIMEOFDAYPRESET[None]", "—" },
                 { "PhotoMode.TIMEOFDAYPRESET[Custom]", "Custom" },
@@ -231,34 +323,77 @@ namespace ExtendedPhotomode.L10n {
                 { Tip(EPM_PhotoModePropertySystem.kPathPitchId),
                   "How far the camera tilts while flying the path. Positive looks down." },
 
-                { Title(EPM_PhotoModePropertySystem.kPathHeightId), "New point height" },
-                { Tip(EPM_PhotoModePropertySystem.kPathHeightId),
-                  "Height above the ground at which new path points are placed, in metres. Existing points are raised and lowered in the path tool." },
-
                 { Title(EPM_PhotoModePropertySystem.kPathLookId), "Aim" },
                 { Tip(EPM_PhotoModePropertySystem.kPathLookId),
-                  "How the camera is pointed as it flies the path. Look at target keeps the pinned centre framed and works out pitch for every keyframe, so the Pitch slider above has no effect in that mode." },
+                  "How the camera is pointed as it flies the path. Look at target keeps the pinned centre framed and works out pitch for every keyframe, so the Pitch slider above has no effect in that mode. Follow an aim rail uses a second drawn path as the thing being looked at — the two are matched by how far along each you are, so the start of the rail belongs to the start of the move and the end to the end. Draw the rail by switching the path tool from Camera to Rail." },
+
+                { Title(EPM_PhotoModePropertySystem.kPathTerrainId), "Terrain" },
+                { Tip(EPM_PhotoModePropertySystem.kPathTerrainId),
+                  "What the path does about the ground under it. Only the points you place are set relative to the terrain; the curve between them is a straight-ish arc through the air, so a path drawn across a ridge flies through the hill and one across a valley sails level over it. Never below ground keeps your heights and only lifts the shot where it would clip. Follow terrain ignores your heights entirely and holds one altitude the whole way, which is the drone shot." },
+
+                { "PhotoMode.PATHTERRAINMODE[None]", "—" },
+                { "PhotoMode.PATHTERRAINMODE[Free]", "Off (use my heights)" },
+                { "PhotoMode.PATHTERRAINMODE[Floor]", "Never below ground" },
+                { "PhotoMode.PATHTERRAINMODE[Follow]", "Follow terrain" },
+
+                { Title(EPM_PhotoModePropertySystem.kPathClearanceId), "Ground clearance" },
+                { Tip(EPM_PhotoModePropertySystem.kPathClearanceId),
+                  "How far above the ground the terrain modes hold the camera, in metres." },
+
+                { Title(EPM_PhotoModePropertySystem.kPathObstaclesId), "Obstacles" },
+                { Tip(EPM_PhotoModePropertySystem.kPathObstaclesId),
+                  "What the path does about buildings and other objects in its way — the other half of Terrain, which only handles the ground. Warn draws the offending stretch red and changes nothing, so the fix stays yours. Lift raises the camera over what it hits, spreading the climb across the run-up either side so it reads as an aerial rising over a tower rather than as a correction." },
+
+                { "PhotoMode.PATHCLEARANCEMODE[None]", "—" },
+                { "PhotoMode.PATHCLEARANCEMODE[Off]", "Ignore objects" },
+                { "PhotoMode.PATHCLEARANCEMODE[Warn]", "Warn only" },
+                { "PhotoMode.PATHCLEARANCEMODE[Lift]", "Fly over them" },
+
+                { Title(EPM_PhotoModePropertySystem.kPathObstacleClearanceId), "Object clearance" },
+                { Tip(EPM_PhotoModePropertySystem.kPathObstacleClearanceId),
+                  "How far above an obstruction the camera passes, in metres. Measured against the object's bounding box, so it errs a little high — which is the right way for this to be wrong." },
+
+                { Title(EPM_PhotoModePropertySystem.kPathLookAheadId), "Look ahead" },
+                { Tip(EPM_PhotoModePropertySystem.kPathLookAheadId),
+                  "How far along the path the camera aims, in metres. At 0 it aims at the next sample, which makes a tight curve read as jittery — the aim swings by the whole turn between one pair of samples and the next. Aiming further ahead averages that out, the way a driver looks into a bend rather than at the bonnet. Only applies when the path faces along its own direction." },
+
+                { Title(EPM_PhotoModePropertySystem.kPathEaseId), "Ease" },
+                { Tip(EPM_PhotoModePropertySystem.kPathEaseId),
+                  "How much the whole move slows at its start and end, from 0 (an even pace) to 1. Composes with per-point speed: a point marked slow stays proportionally slow, and the shot still eases at both ends." },
 
                 // Dropdown options resolve through AutomaticSettings.GetEnumValues(type, "PhotoMode")
                 // as PhotoMode.TYPENAME[Member] with the type name upper-cased — a different shape
                 // from the PROPERTY_TITLE keys above, and the dropdown shows raw keys without them.
+                { "PhotoMode.PATHLOOKMODE[Rail]", "Follow an aim rail" },
                 { "PhotoMode.PATHLOOKMODE[Forward]", "Look along path" },
                 { "PhotoMode.PATHLOOKMODE[Fixed]", "Hold a heading" },
                 { "PhotoMode.PATHLOOKMODE[Target]", "Look at target" },
 
-                { Title(EPM_PhotoModePropertySystem.kPathPointTitleId), "PATH POINT" },
+                { Title(EPM_PhotoModePropertySystem.kTransitionSecondsId), "Transition in" },
+                { Tip(EPM_PhotoModePropertySystem.kTransitionSecondsId),
+                  "How long the camera takes to travel from the previous shot into this one, when the shot list assembles them. Zero is a hard cut, which is a legitimate choice — anything above it is a move between setups, and is what makes a sequence read as one continuous piece rather than a set of clips. Captured with the shot when you press Add current, so each shot carries its own approach." },
 
-                { Title(EPM_PhotoModePropertySystem.kPathPointId), "Point" },
-                { Tip(EPM_PhotoModePropertySystem.kPathPointId),
-                  "Which point on the drawn path the controls below edit." },
+                { Title(EPM_PhotoModePropertySystem.kTransitionEaseId), "Transition easing" },
+                { Tip(EPM_PhotoModePropertySystem.kTransitionEaseId),
+                  "How much the bridging move slows at each end. High values glide out of one shot and settle into the next; zero slides between them at a constant rate." },
 
-                { Title(EPM_PhotoModePropertySystem.kPathPointHeightId), "Point height" },
-                { Tip(EPM_PhotoModePropertySystem.kPathPointHeightId),
-                  "Height of the selected point above sea level, in metres." },
+                { Title(EPM_PhotoModePropertySystem.kRigId), "Camera rig" },
+                { Tip(EPM_PhotoModePropertySystem.kRigId),
+                  "Make the move obey a physical camera support instead of pure geometry. A generated move is mathematically perfect, which is exactly why it reads as computer generated — a real camera has mass, arrives at each pose slightly late, and is never perfectly still. A crane is heavy and utterly smooth; a drone holds position but drifts; handheld follows the action closely and is never still. Only where the camera is changes, never when — durations, dwells and per-point speeds all survive." },
 
-                { Title(EPM_PhotoModePropertySystem.kPathPointSharpId), "Sharp corner" },
-                { Tip(EPM_PhotoModePropertySystem.kPathPointSharpId),
-                  "Give the selected point a hard corner instead of a smooth curve through it." },
+                { "PhotoMode.CAMERARIG[None]", "—" },
+                { "PhotoMode.CAMERARIG[Free]", "None (perfect)" },
+                { "PhotoMode.CAMERARIG[Crane]", "Crane" },
+                { "PhotoMode.CAMERARIG[Drone]", "Drone" },
+                { "PhotoMode.CAMERARIG[Handheld]", "Handheld" },
+
+                { Title(EPM_PhotoModePropertySystem.kRigStrengthId), "Rig strength" },
+                { Tip(EPM_PhotoModePropertySystem.kRigStrengthId),
+                  "How much of the rig's character to apply, from 0 (none) to 1. Turn it down if the lag is softening a deliberate whip-pan." },
+
+                { Title(EPM_PhotoModePropertySystem.kRigSeedId), "Rig seed" },
+                { Tip(EPM_PhotoModePropertySystem.kRigSeedId),
+                  "Chooses the unsteadiness pattern. The same seed always produces the same take, so regenerating a shot does not reshuffle its handheld wobble — change this to get a different one." },
 
                 { Title(EPM_PhotoModePropertySystem.kShotTitleId), "TIMING" },
 
@@ -304,6 +439,21 @@ namespace ExtendedPhotomode.L10n {
         /// </summary>
         /// <param name="propertyId">The <c>PhotoModeProperty</c> id.</param>
         /// <returns>The title localization key.</returns>
+        /// <summary>Builds the locale key a cursor hint resolves an input action's name through.</summary>
+        /// <param name="actionName">The action name as declared on <see cref="Mod"/>.</param>
+        /// <remarks>
+        /// The id is namespaced with the assembly and mod class, so it repeats the mod name twice —
+        /// <c>ExtendedPhotomode.ExtendedPhotomode.Mod/PathApply</c>. Built here rather than written
+        /// out so the two halves cannot drift apart if either is renamed.
+        /// </remarks>
+        private static string Action(string actionName) {
+            return $"Common.ACTION[{nameof(ExtendedPhotomode)}.{typeof(Mod).FullName}/{actionName}]";
+        }
+
+        /// <summary>Builds the locale key a contextual cursor hint resolves through.</summary>
+        /// <param name="hintKey">A token from <see cref="PathHints"/>.</param>
+        private static string Hint(string hintKey) { return $"Common.ACTION[{hintKey}]"; }
+
         private static string Title(string propertyId) { return $"PhotoMode.PROPERTY_TITLE[{propertyId}]"; }
 
         /// <summary>

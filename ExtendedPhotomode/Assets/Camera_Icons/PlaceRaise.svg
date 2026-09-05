@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Place: raise every point by the height step. Inverse of PlaceLower — ghost below, solid above,
+     arrow up — with the same ground line anchoring both. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #fff; stroke-width: 1.5px; stroke-linecap: round; opacity: .5; }
+      .cls-2 { fill: none; stroke: #fff; stroke-width: 1.75px; stroke-linecap: round; opacity: .4; }
+      .cls-3 { fill: none; stroke: #8cd9ff; stroke-width: 2px; stroke-linecap: round; }
+      .cls-4 { fill: #ffd933; }
+      .cls-5 { fill: #8cd9ff; }
+    </style>
+  </defs>
+  <path class="cls-2" d="M3,19 Q14,13 25,19"/>
+  <path class="cls-3" d="M3,9 Q14,3 25,9"/>
+  <circle class="cls-4" cx="3" cy="9" r="2.25"/>
+  <circle class="cls-4" cx="25" cy="9" r="2.25"/>
+  <circle class="cls-4" cx="14" cy="6" r="2.25"/>
+  <g id="Lift">
+    <path class="cls-3" d="M14,21 L14,18"/>
+    <polygon class="cls-5" points="14 14.5 11.25 18.5 16.75 18.5"/>
+  </g>
+  <path class="cls-1" d="M2,24.5 L26,24.5"/>
+</svg>

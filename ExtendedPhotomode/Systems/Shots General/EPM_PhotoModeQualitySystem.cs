@@ -62,7 +62,6 @@ namespace ExtendedPhotomode.Systems {
             Enabled   = false;
 
             if (!Mod.Instance.Settings.RestorePostProcessQuality) {
-                m_Log.Info("Post-process quality restore disabled in settings; leaving photo mode as vanilla.");
                 return;
             }
 
@@ -81,7 +80,6 @@ namespace ExtendedPhotomode.Systems {
                 return;
             }
 
-            var cleared = new List<string>();
             foreach (Type type in kAffectedComponents) {
                 if (!profile.TryGet(type, out VolumeComponent component)) {
                     m_Log.Debug($"{type.Name} not present on the photo mode volume.");
@@ -98,15 +96,7 @@ namespace ExtendedPhotomode.Systems {
                 }
 
                 withQuality.quality.overrideState = false;
-                cleared.Add(type.Name);
             }
-
-            if (cleared.Count == 0) {
-                m_Log.Info("No photo mode quality overrides needed clearing.");
-                return;
-            }
-
-            m_Log.Info($"Restored configured post-process quality in photo mode for: {string.Join(", ", cleared)}");
         }
     }
 }

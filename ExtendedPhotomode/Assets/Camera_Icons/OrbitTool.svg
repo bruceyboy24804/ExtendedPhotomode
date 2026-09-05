@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26.85 26.85">
+  <defs>
+    <style>
+      .cls-1, .cls-2, .cls-3 {
+        fill: none;
+        stroke: #8cd9ff;
+      }
+
+      .cls-1, .cls-2, .cls-3, .cls-4 {
+        stroke-miterlimit: 10;
+      }
+
+      .cls-2 {
+        stroke-dasharray: 1.2;
+      }
+
+      .cls-3, .cls-4 {
+        stroke-width: 2px;
+      }
+
+      .cls-4 {
+        fill: #ffd933;
+        stroke: #ffd933;
+      }
+    </style>
+  </defs>
+  <g id="Orbit">
+    <line class="cls-2" x1="13.11" y1="3.07" x2="13.11" y2="12.56"/>
+    <line class="cls-1" x1="13.11" y1="1.03" x2="13.11" y2="2.81"/>
+    <line class="cls-1" x1="25.85" y1="13.74" x2="24.07" y2="13.74"/>
+    <line class="cls-2" x1="23.78" y1="13.74" x2="14.17" y2="13.74"/>
+    <path class="cls-3" d="M13.02,1.83c-4.86,0-9.24,2.92-11.1,7.41s-.83,9.65,2.6,13.09,8.6,4.46,13.09,2.6,7.41-6.24,7.41-11.1"/>
+  </g>
+  <g id="Centre">
+    <circle class="cls-4" cx="13.11" cy="13.74" r=".89"/>
+    <circle class="cls-4" cx="13.11" cy="1.89" r=".89"/>
+    <circle class="cls-4" cx="24.96" cy="13.74" r=".89"/>
+  </g>
+</svg>

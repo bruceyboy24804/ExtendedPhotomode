@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Obstacle mode: Lift. Same skyline again; the curve climbs over the tall block and comes back
+     down, with the ramp starting well before the building and ending well after it.
+
+     The run-up is the point, not decoration. CameraPath spreads the lift across kClearanceRamp (60m)
+     either side rather than stepping up at the obstacle, because a step reads as a stutter in the
+     footage. An icon that showed a square notch would be advertising the wrong behaviour.
+
+     No red here: Lift resolves the collision, so there is nothing left to warn about. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+        opacity: .22;
+      }
+
+      .cls-2 {
+        fill: none;
+        stroke: #fff;
+        stroke-width: 1.5px;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+      }
+
+      .cls-3 {
+        fill: none;
+        stroke: #8cd9ff;
+        stroke-width: 2px;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+    </style>
+  </defs>
+  <g id="Skyline">
+    <path class="cls-1" d="M3,20 L8,20 L8,25 L3,25 Z"/>
+    <path class="cls-1" d="M11,11 L18,11 L18,25 L11,25 Z"/>
+    <path class="cls-1" d="M21,19 L26,19 L26,25 L21,25 Z"/>
+    <path class="cls-2" d="M3,25 L3,20 L8,20 L8,25"/>
+    <path class="cls-2" d="M11,25 L11,11 L18,11 L18,25"/>
+    <path class="cls-2" d="M21,25 L21,19 L26,19 L26,25"/>
+    <path class="cls-2" d="M1,25 L27,25"/>
+  </g>
+  <g id="Curve">
+    <path class="cls-3" d="M1,17 C5,17 6,7 11,7 L18,7 C23,7 24,17 27,17"/>
+  </g>
+</svg>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Framing: no framing rule.
+     The framing row is the only one in the tool drawn as a VIEWFINDER rather than a map or a section,
+     and it has to be: framing is the one question about where the subject sits IN FRAME, not where
+     anything sits in the world. A frame with a dot in it needs no legend.
+
+     Off is three faint dots in three different places — "wherever it lands" — rather than the ✕ this
+     row used to share with every other Off in the panel. Inside a set of frames, an ✕ would be the
+     one icon that was not a frame. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #fff; stroke-width: 1.5px; stroke-linejoin: round; opacity: .6; }
+      .cls-2 { fill: #ffd933; opacity: .38; }
+    </style>
+  </defs>
+  <rect class="cls-1" x="3" y="8" width="22" height="12" rx="1.5"/>
+  <circle class="cls-2" cx="8.5" cy="12" r="2"/>
+  <circle class="cls-2" cx="15" cy="16.5" r="2"/>
+  <circle class="cls-2" cx="20.5" cy="11" r="2"/>
+</svg>

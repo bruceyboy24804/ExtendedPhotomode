@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Terrain mode: Free. The three terrain icons share one ridge and differ only in what the curve
+     does over it, so they read as one choice rather than three unrelated symbols. Here the curve
+     runs straight through the ridge — the intersection is the meaning. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+        opacity: .22;
+      }
+
+      .cls-2 {
+        fill: none;
+        stroke: #fff;
+        stroke-width: 1.5px;
+        stroke-linejoin: round;
+      }
+
+      .cls-3 {
+        fill: none;
+        stroke: #8cd9ff;
+        stroke-width: 2px;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+    </style>
+  </defs>
+  <g id="Terrain">
+    <path class="cls-1" d="M1,24 L9,24 L14,12 L19,19 L27,22 L27,27 L1,27 Z"/>
+    <path class="cls-2" d="M1,24 L9,24 L14,12 L19,19 L27,22"/>
+  </g>
+  <g id="Curve">
+    <path class="cls-3" d="M1,17 L27,17"/>
+  </g>
+</svg>

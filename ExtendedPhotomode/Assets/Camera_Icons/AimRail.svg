@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Aim: look at the matching point on the aim rail.
+     Same path and cameras, but each cone lands on its OWN point on the orange rail — not on a shared
+     one. That is the difference from AimTarget, where both converge, and it is what "matching point"
+     means: the rail is a second path travelled in step, not a single subject.
+
+     Orange is #ff994c, kRailColor, the same as RailFromPath uses. By this row it should already read
+     as "the thing being looked at". -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #8cd9ff; stroke-width: 2px; stroke-linecap: round; }
+      .cls-2 { fill: #8cd9ff; opacity: .45; }
+      .cls-3 { fill: #ffd933; }
+      .cls-4 { fill: none; stroke: #ff994c; stroke-width: 2px; stroke-linecap: round; }
+      .cls-5 { fill: #ff994c; }
+    </style>
+  </defs>
+  <g id="Cones">
+    <polygon class="cls-2" points="8.5 15.75 6.91 21.88 10.91 21.6"/>
+    <polygon class="cls-2" points="19.5 15.75 17.09 21.6 21.09 21.88"/>
+  </g>
+  <path class="cls-1" d="M3,21 Q14,7 25,21"/>
+  <circle class="cls-3" cx="3" cy="21" r="2"/>
+  <circle class="cls-3" cx="25" cy="21" r="2"/>
+  <circle class="cls-3" cx="8.5" cy="15.75" r="2.5"/>
+  <circle class="cls-3" cx="19.5" cy="15.75" r="2.5"/>
+  <path class="cls-4" d="M4,26 Q14,18 24,26"/>
+  <circle class="cls-5" cx="9" cy="23" r="2"/>
+  <circle class="cls-5" cx="19" cy="23" r="2"/>
+</svg>

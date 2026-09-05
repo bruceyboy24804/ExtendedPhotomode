@@ -1,6 +1,6 @@
 ﻿<Publish>
     <!--Id must be set in order to update existed mod. it is not required for publishing mod for the first time-->
-    <ModId Value="" />
+    <ModId Value="156815" />
     <!--Name of the mod to display to players-->
     <DisplayName Value="Extended Photomode [Early Access]" />
     <!--Short description of the mod-->
@@ -13,7 +13,12 @@
     <!--Thumbnail-->
     <Thumbnail Value="Assets/Thumbnail.png" />
     <!--Screenshot, can be set multiple times-->
-    <Screenshot Value="Assets/Cover/1.jpg" />
+    <Screenshot Value="Assets/Cover/1.png" />
+    <Screenshot Value="Assets/Cover/2.png" />
+    <Screenshot Value="Assets/Cover/3.png" />
+    <Screenshot Value="Assets/Cover/4.png" />
+    <Screenshot Value="Assets/Cover/5.png" />
+    <Screenshot Value="Assets/Cover/6.png" />
     <!--Tag, can be set multiple times-->
     <Tag Value="Code Mod" />
     <!--Link to the forum post where the mod can be discussed-->
@@ -32,6 +37,7 @@
     </ChangeLog>
     <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon, buymeacoffee, kofi, crowdin, gitlab-->
     <ExternalLink Type="discord" Url="https://discord.gg/4f7geN26S" />
+    <ExternalLink Type="github" Url="https://github.com/bruceyboy24804/ExtendedPhotomode" />
     <!--Supported values Public, Private, Unlisted-->
     <AccessLevel Value="Unlisted" />
 </Publish>

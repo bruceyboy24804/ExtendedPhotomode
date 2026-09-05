@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- History: undo the last path edit.
+     A curved arrow doubling back on itself, not the plain ArrowLeft that was here. A bare left arrow
+     reads as "previous" — the meaning it has in every gallery and carousel — and in a row that also
+     holds a visibility toggle there was nothing to correct that reading. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #8cd9ff; stroke-width: 2.25px; stroke-linecap: round; }
+      .cls-2 { fill: #8cd9ff; }
+    </style>
+  </defs>
+  <path class="cls-1" d="M6,12 C10,4 20,4 23,11 C25,16 22,22 16,23"/>
+  <polygon class="cls-2" points="3.5 17 11.5 14.5 5.5 8.5"/>
+</svg>

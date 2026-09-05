@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Framing: hold the subject's size, solving the lens at every keyframe.
+     A dimension line across the subject — the drawing convention for "this measurement is fixed" —
+     because that is exactly the promise: the on-screen width stays put however far the camera goes.
+     It belongs to the framing family and is only shown when a framing rule is on, so it keeps the
+     frame rather than inventing a fourth idiom. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #fff; stroke-width: 1.5px; stroke-linejoin: round; opacity: .6; }
+      .cls-2 { fill: #ffd933; }
+      .cls-3 { fill: none; stroke: #8cd9ff; stroke-width: 1.5px; stroke-linecap: round; }
+    </style>
+  </defs>
+  <rect class="cls-1" x="3" y="6" width="22" height="12" rx="1.5"/>
+  <circle class="cls-2" cx="14" cy="12" r="3.25"/>
+  <g id="Dimension">
+    <path class="cls-3" d="M10.75,22 L17.25,22"/>
+    <path class="cls-3" d="M10.75,20 L10.75,24"/>
+    <path class="cls-3" d="M17.25,20 L17.25,24"/>
+  </g>
+</svg>

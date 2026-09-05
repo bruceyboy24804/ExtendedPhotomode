@@ -46,11 +46,14 @@ namespace ExtendedPhotomode {
     [SettingsUIKeyboardAction(Mod.kApplyOrbitActionName, ActionType.Button, usages: new string[] { Usages.kDefaultUsage })]
     [SettingsUIKeyboardAction(Mod.kPathToolActionName, ActionType.Button, usages: new string[] { Usages.kDefaultUsage })]
     [SettingsUIKeyboardAction(Mod.kGeneratePathActionName, ActionType.Button, usages: new string[] { Usages.kDefaultUsage })]
-    [SettingsUIMouseAction(Mod.kPathApplyActionName, ActionType.Button, usages: new string[] { Usages.kDefaultUsage })]
+    [SettingsUIMouseAction(Mod.kPathApplyActionName, ActionType.Button,
+        modifierOptions: ModifierOptions.Ignore, usages: new string[] { Usages.kDefaultUsage })]
     [SettingsUIKeyboardAction(Mod.kPathRaiseActionName, ActionType.Button, usages: new string[] { Usages.kDefaultUsage })]
     [SettingsUIKeyboardAction(Mod.kPathLowerActionName, ActionType.Button, usages: new string[] { Usages.kDefaultUsage })]
     [SettingsUIKeyboardAction(Mod.kPathReverseActionName, ActionType.Button, usages: new string[] { Usages.kDefaultUsage })]
     [SettingsUIKeyboardAction(Mod.kPathBreakTangentActionName, ActionType.Button, usages: new string[] { Usages.kDefaultUsage })]
+    [SettingsUIKeyboardAction(Mod.kTimelineActionName, ActionType.Button, usages: new string[] { Usages.kDefaultUsage })]
+    [SettingsUIKeyboardAction(Mod.kHideUIActionName, ActionType.Button, usages: new string[] { Usages.kDefaultUsage })]
     public class Setting : ModSetting {
         /// <summary>Id of the mod's only settings tab.</summary>
         public const string kSection = "Main";
@@ -78,6 +81,12 @@ namespace ExtendedPhotomode {
 
         /// <summary>Default for <see cref="OrbitHeight"/>.</summary>
         public const int kDefaultOrbitHeight = 60;
+
+        /// <summary>Default for <see cref="OrbitEndHeight"/>.</summary>
+        public const int kDefaultOrbitEndHeight = kDefaultOrbitHeight;
+
+        /// <summary>Default for <see cref="OrbitSweepEase"/>.</summary>
+        public const float kDefaultOrbitSweepEase = 0f;
 
         /// <summary>Default for <see cref="OrbitSweep"/>.</summary>
         public const int kDefaultOrbitSweep = 360;
@@ -138,6 +147,9 @@ namespace ExtendedPhotomode {
         /// <summary>Default for <see cref="Shot"/>.</summary>
         public const ShotType kDefaultShot = ShotType.Orbit;
 
+        /// <summary>Default for <see cref="Follow"/>.</summary>
+        public const FollowMode kDefaultFollow = FollowMode.Off;
+
 
 
 
@@ -156,6 +168,12 @@ namespace ExtendedPhotomode {
         /// <summary>Default for <see cref="PathPitch"/>.</summary>
         public const int kDefaultPathPitch = 15;
 
+        /// <summary>Default for <see cref="PathLookAhead"/> — off, matching the old aim exactly.</summary>
+        public const int kDefaultPathLookAhead = 0;
+
+        /// <summary>Default for <see cref="PathEase"/>.</summary>
+        public const float kDefaultPathEase = 0f;
+
         /// <summary>Default for <see cref="PathPointHeight"/>.</summary>
         public const int kDefaultPathPointHeight = 40;
 
@@ -164,6 +182,89 @@ namespace ExtendedPhotomode {
 
         /// <summary>Default for <see cref="PathLook"/>.</summary>
         public const PathLookMode kDefaultPathLook = PathLookMode.Forward;
+
+        /// <summary>Default for <see cref="PathClosed"/>.</summary>
+        public const bool kDefaultPathClosed = false;
+
+        /// <summary>Default for <see cref="PathTerrain"/>.</summary>
+        public const PathTerrainMode kDefaultPathTerrain = PathTerrainMode.Free;
+
+        /// <summary>Default for <see cref="PathClearance"/>.</summary>
+        public const int kDefaultPathClearance = 20;
+
+        /// <summary>Default for <see cref="PathSnap"/>.</summary>
+        public const PathSnapMode kDefaultPathSnap = PathSnapMode.Free;
+
+        /// <summary>Default for <see cref="PathGridSize"/>.</summary>
+        public const int kDefaultPathGridSize = 8;
+
+        /// <summary>Default for <see cref="PathAngleStep"/>.</summary>
+        public const int kDefaultPathAngleStep = 15;
+
+        /// <summary>Default for <see cref="PathSnapRadius"/>.</summary>
+        public const int kDefaultPathSnapRadius = 12;
+
+        /// <summary>Default for <see cref="PathShowFrustums"/>.</summary>
+        public const bool kDefaultPathShowFrustums = true;
+
+        /// <summary>Default for <see cref="PathSimplifyTolerance"/>.</summary>
+        public const int kDefaultPathSimplifyTolerance = 5;
+
+        /// <summary>Default for <see cref="PathTraceLength"/>.</summary>
+        public const int kDefaultPathTraceLength = 500;
+
+        /// <summary>Default for <see cref="PathTraceSpacing"/>.</summary>
+        public const int kDefaultPathTraceSpacing = 40;
+
+        /// <summary>Default for <see cref="PathClearanceMode"/>.</summary>
+        /// <remarks>
+        /// Warn rather than Lift, so an obstructed path is pointed out but never silently reshaped —
+        /// a path that quietly moved itself would be worse than one that flew through a tower.
+        /// </remarks>
+        public const PathClearanceMode kDefaultPathClearanceMode = Camera.PathClearanceMode.Warn;
+
+        /// <summary>Default for <see cref="PathObstacleClearance"/>.</summary>
+        public const int kDefaultPathObstacleClearance = 15;
+
+        /// <summary>Default for <see cref="PathNudgeStep"/>.</summary>
+        public const int kDefaultPathNudgeStep = 5;
+
+        /// <summary>Default for <see cref="PathRailOffset"/>.</summary>
+        public const int kDefaultPathRailOffset = 60;
+
+        /// <summary>Default for <see cref="TransitionSeconds"/>.</summary>
+        /// <remarks>Zero, so a sequence cuts unless a move between setups is asked for.</remarks>
+        public const float kDefaultTransitionSeconds = 0f;
+
+        /// <summary>Default for <see cref="TransitionEase"/>.</summary>
+        public const float kDefaultTransitionEase = 0.85f;
+
+        /// <summary>Default for <see cref="Rig"/>.</summary>
+        public const CameraRig kDefaultRig = CameraRig.Free;
+
+        /// <summary>Default for <see cref="RigStrength"/>.</summary>
+        public const float kDefaultRigStrength = 0.6f;
+
+        /// <summary>Default for <see cref="RigSeed"/>.</summary>
+        public const int kDefaultRigSeed = 1;
+
+        /// <summary>Default for <see cref="Focus"/>.</summary>
+        public const FocusMode kDefaultFocus = FocusMode.Off;
+
+        /// <summary>Default for <see cref="FocusDepth"/>.</summary>
+        public const float kDefaultFocusDepth = 0.5f;
+
+        /// <summary>Default for <see cref="FocusEase"/>.</summary>
+        public const float kDefaultFocusEase = 0.6f;
+
+        /// <summary>Default for <see cref="Framing"/>.</summary>
+        public const FramingRule kDefaultFraming = FramingRule.None;
+
+        /// <summary>Default for <see cref="FramingHoldSize"/>.</summary>
+        public const bool kDefaultFramingHoldSize = false;
+
+        /// <summary>Default for <see cref="FramingFocalLength"/>.</summary>
+        public const float kDefaultFramingFocalLength = 50f;
 
         /// <summary>Default for <see cref="DollyStartDistance"/>.</summary>
         public const int kDefaultDollyStartDistance = 60;
@@ -195,6 +296,19 @@ namespace ExtendedPhotomode {
         /// </summary>
         [SettingsUISection(kSection, kRenderingGroup)]
         public bool RestorePostProcessQuality { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether lens and environment values are shown while
+        /// scrubbing the mod's timeline outside photo mode. See EPM_ScrubPreviewSystem.
+        /// </summary>
+        /// <remarks>
+        /// Switchable because it has a real cost. It works by holding photo mode's own control volume
+        /// at full weight, and that volume is priority 2000 — so any weather override sitting on it
+        /// also applies while the timeline is open, the same way photo mode outranks Weather Anarchy.
+        /// Turn it off to keep the timeline strictly an editor and judge the picture in photo mode.
+        /// </remarks>
+        [SettingsUISection(kSection, kRenderingGroup)]
+        public bool PreviewOutsidePhotoMode { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether the weather on screen is carried into photo mode,
@@ -237,8 +351,15 @@ namespace ExtendedPhotomode {
 
         /// <summary>
         /// Gets or sets a value indicating whether the orbit that would be generated is drawn in the
-        /// world while photo mode is open.
+        /// world while the shot tool is open.
         /// </summary>
+        /// <remarks>
+        /// Authoring feedback only. This used to drive a second ring drawn over photo mode as well,
+        /// which showed up for anyone who opened photo mode whatever they were shooting; that system
+        /// is gone, and the only ring left is the one you get while actually placing an orbit.
+        /// Hidden from the options screen because its toggle lives on the tool's own toolbar, next to
+        /// the thing it affects.
+        /// </remarks>
         [SettingsUIHidden]
         public bool ShowOrbitPreview { get; set; } = kDefaultShowOrbitPreview;
 
@@ -259,6 +380,14 @@ namespace ExtendedPhotomode {
         /// </summary>
         [SettingsUIHidden]
         public int PathPitch { get; set; } = kDefaultPathPitch;
+
+        /// <summary>Gets or sets how far ahead along the path the camera aims, in metres.</summary>
+        [SettingsUIHidden]
+        public int PathLookAhead { get; set; } = kDefaultPathLookAhead;
+
+        /// <summary>Gets or sets how strongly the whole path move eases in and out, 0 to 1.</summary>
+        [SettingsUIHidden]
+        public float PathEase { get; set; } = kDefaultPathEase;
 
         /// <summary>
         /// Gets or sets the height above terrain at which new path points are placed, in metres.
@@ -282,6 +411,110 @@ namespace ExtendedPhotomode {
         /// </remarks>
         [SettingsUIHidden]
         public PathLookMode PathLook { get; set; } = kDefaultPathLook;
+
+        /// <summary>Gets or sets whether the path's last point joins back to its first.</summary>
+        [SettingsUIHidden]
+        public bool PathClosed { get; set; } = kDefaultPathClosed;
+
+        /// <summary>Gets or sets how the path's sampled heights relate to the ground.</summary>
+        [SettingsUIHidden]
+        public PathTerrainMode PathTerrain { get; set; } = kDefaultPathTerrain;
+
+        /// <summary>Gets or sets the height above ground the terrain modes hold, in metres.</summary>
+        [SettingsUIHidden]
+        public int PathClearance { get; set; } = kDefaultPathClearance;
+
+        /// <summary>Gets or sets what the cursor snaps to while placing a path point.</summary>
+        [SettingsUIHidden]
+        public PathSnapMode PathSnap { get; set; } = kDefaultPathSnap;
+
+        /// <summary>Gets or sets the grid spacing used by grid snapping, in metres.</summary>
+        [SettingsUIHidden]
+        public int PathGridSize { get; set; } = kDefaultPathGridSize;
+
+        /// <summary>Gets or sets the heading step used by angle snapping, in degrees.</summary>
+        [SettingsUIHidden]
+        public int PathAngleStep { get; set; } = kDefaultPathAngleStep;
+
+        /// <summary>Gets or sets how close the cursor must be to snap onto an existing point.</summary>
+        [SettingsUIHidden]
+        public int PathSnapRadius { get; set; } = kDefaultPathSnapRadius;
+
+        /// <summary>Gets or sets whether a camera view cone is drawn at every path point.</summary>
+        [SettingsUIHidden]
+        public bool PathShowFrustums { get; set; } = kDefaultPathShowFrustums;
+
+        /// <summary>Gets or sets how far a point may sit off the line before Simplify keeps it.</summary>
+        [SettingsUIHidden]
+        public int PathSimplifyTolerance { get; set; } = kDefaultPathSimplifyTolerance;
+
+        /// <summary>Gets or sets how far along a road tracing follows it, in metres.</summary>
+        [SettingsUIHidden]
+        public int PathTraceLength { get; set; } = kDefaultPathTraceLength;
+
+        /// <summary>Gets or sets how far apart tracing places its points, in metres.</summary>
+        [SettingsUIHidden]
+        public int PathTraceSpacing { get; set; } = kDefaultPathTraceSpacing;
+
+        /// <summary>Gets or sets what the path does about objects standing in its way.</summary>
+        [SettingsUIHidden]
+        public PathClearanceMode PathClearanceMode { get; set; } = kDefaultPathClearanceMode;
+
+        /// <summary>Gets or sets how far above an obstruction the path is lifted, in metres.</summary>
+        [SettingsUIHidden]
+        public int PathObstacleClearance { get; set; } = kDefaultPathObstacleClearance;
+
+        /// <summary>Gets or sets how far one nudge moves the selected points, in metres.</summary>
+        [SettingsUIHidden]
+        public int PathNudgeStep { get; set; } = kDefaultPathNudgeStep;
+
+        /// <summary>Gets or sets how far to one side a rail built from the path sits, in metres.</summary>
+        [SettingsUIHidden]
+        public int PathRailOffset { get; set; } = kDefaultPathRailOffset;
+
+        /// <summary>Gets or sets how long the move into a shot takes when it is added to the list.</summary>
+        [SettingsUIHidden]
+        public float TransitionSeconds { get; set; } = kDefaultTransitionSeconds;
+
+        /// <summary>Gets or sets how strongly a transition eases in and out, 0 to 1.</summary>
+        [SettingsUIHidden]
+        public float TransitionEase { get; set; } = kDefaultTransitionEase;
+
+        /// <summary>Gets or sets the physical camera support the shot imitates.</summary>
+        [SettingsUIHidden]
+        public CameraRig Rig { get; set; } = kDefaultRig;
+
+        /// <summary>Gets or sets how strongly the rig's characteristics are applied, 0 to 1.</summary>
+        [SettingsUIHidden]
+        public float RigStrength { get; set; } = kDefaultRigStrength;
+
+        /// <summary>Gets or sets which unsteadiness pattern the rig uses, so a take is repeatable.</summary>
+        [SettingsUIHidden]
+        public int RigSeed { get; set; } = kDefaultRigSeed;
+
+        /// <summary>Gets or sets how focus distance is driven across the shot.</summary>
+        [SettingsUIHidden]
+        public FocusMode Focus { get; set; } = kDefaultFocus;
+
+        /// <summary>Gets or sets how shallow the depth of field is, 0 to 1.</summary>
+        [SettingsUIHidden]
+        public float FocusDepth { get; set; } = kDefaultFocusDepth;
+
+        /// <summary>Gets or sets how strongly a rack focus eases in and out, 0 to 1.</summary>
+        [SettingsUIHidden]
+        public float FocusEase { get; set; } = kDefaultFocusEase;
+
+        /// <summary>Gets or sets where in frame the pinned subject is held.</summary>
+        [SettingsUIHidden]
+        public FramingRule Framing { get; set; } = kDefaultFraming;
+
+        /// <summary>Gets or sets whether the lens is solved to keep the subject a constant size.</summary>
+        [SettingsUIHidden]
+        public bool FramingHoldSize { get; set; } = kDefaultFramingHoldSize;
+
+        /// <summary>Gets or sets the lens the framing solver works from, in millimetres.</summary>
+        [SettingsUIHidden]
+        public float FramingFocalLength { get; set; } = kDefaultFramingFocalLength;
 
         /// <summary>
         /// Gets or sets the distance from the subject at the start of a dolly zoom, in metres.
@@ -337,6 +570,14 @@ namespace ExtendedPhotomode {
         /// </summary>
         [SettingsUIHidden]
         public int OrbitHeight { get; set; } = kDefaultOrbitHeight;
+
+        /// <summary>Gets or sets the height a generated orbit ends at, which makes it a helix.</summary>
+        [SettingsUIHidden]
+        public int OrbitEndHeight { get; set; } = kDefaultOrbitEndHeight;
+
+        /// <summary>Gets or sets how strongly a generated orbit eases its sweep, from 0 to 1.</summary>
+        [SettingsUIHidden]
+        public float OrbitSweepEase { get; set; } = kDefaultOrbitSweepEase;
 
         /// <summary>
         /// Gets or sets the arc the orbit travels, in degrees. 360 is one full turn; negative values
@@ -416,6 +657,10 @@ namespace ExtendedPhotomode {
         /// <summary>Gets or sets which generator the Generate button runs.</summary>
         [SettingsUIHidden]
         public ShotType Shot { get; set; } = kDefaultShot;
+
+        /// <summary>Gets or sets whether playback tracks the pinned subject as it moves.</summary>
+        [SettingsUIHidden]
+        public FollowMode Follow { get; set; } = kDefaultFollow;
 
 
 
@@ -504,6 +749,25 @@ namespace ExtendedPhotomode {
         [SettingsUISection(kSection, kKeybindingGroup)]
         public ProxyBinding PathBreakTangentBinding { get; set; }
 
+        // The shot list has no binding of its own. It is reached by the Shots button in the timeline
+        // header, which writes the same shotListOpen state a keybind would have toggled — so a second
+        // way in would only be a shortcut that could disagree with the button's own arrow.
+
+        /// <summary>Gets or sets the binding that opens the curve timeline.</summary>
+        [SettingsUIKeyboardBinding(BindingKeyboard.K, Mod.kTimelineActionName, ctrl: true)]
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        public ProxyBinding TimelineBinding { get; set; }
+
+        /// <summary>Gets or sets the binding that hides the panels and the world overlays.</summary>
+        /// <remarks>
+        /// A key binding and not only a button, necessarily: hiding the panels hides the button that
+        /// would bring them back. Anything that can turn the UI off has to have a route back in that
+        /// does not depend on the UI.
+        /// </remarks>
+        [SettingsUIKeyboardBinding(BindingKeyboard.H, Mod.kHideUIActionName, ctrl: true)]
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        public ProxyBinding HideUIBinding { get; set; }
+
         /// <summary>
         /// Gets or sets a value that, when set, restores every key binding to its default.
         /// </summary>
@@ -522,6 +786,8 @@ namespace ExtendedPhotomode {
             PathDuration              = kDefaultPathDuration;
             PathMetresPerKey          = kDefaultPathMetresPerKey;
             PathPitch                 = kDefaultPathPitch;
+            PathLookAhead             = kDefaultPathLookAhead;
+            PathEase                  = kDefaultPathEase;
             PathPointHeight           = kDefaultPathPointHeight;
             PathHeightStep            = kDefaultPathHeightStep;
             PathLook                  = kDefaultPathLook;
@@ -533,6 +799,8 @@ namespace ExtendedPhotomode {
             OrbitRadius           = kDefaultOrbitRadius;
             OrbitEndRadius        = kDefaultOrbitEndRadius;
             OrbitHeight           = kDefaultOrbitHeight;
+            OrbitEndHeight        = kDefaultOrbitEndHeight;
+            OrbitSweepEase        = kDefaultOrbitSweepEase;
             OrbitSweep            = kDefaultOrbitSweep;
             OrbitDuration         = kDefaultOrbitDuration;
             OrbitDegreesPerKey    = kDefaultOrbitDegreesPerKey;
@@ -546,6 +814,33 @@ namespace ExtendedPhotomode {
             TimeOfDayEase         = kDefaultTimeOfDayEase;
             TimeOfDayRange        = kDefaultTimeOfDayRange;
             Shot                  = kDefaultShot;
+            Follow                = kDefaultFollow;
+            PathClosed            = kDefaultPathClosed;
+            PathTerrain           = kDefaultPathTerrain;
+            PathClearance         = kDefaultPathClearance;
+            PathSnap              = kDefaultPathSnap;
+            PathGridSize          = kDefaultPathGridSize;
+            PathAngleStep         = kDefaultPathAngleStep;
+            PathSnapRadius        = kDefaultPathSnapRadius;
+            PathShowFrustums      = kDefaultPathShowFrustums;
+            PathSimplifyTolerance = kDefaultPathSimplifyTolerance;
+            PathTraceLength       = kDefaultPathTraceLength;
+            PathTraceSpacing      = kDefaultPathTraceSpacing;
+            PathNudgeStep         = kDefaultPathNudgeStep;
+            PathRailOffset        = kDefaultPathRailOffset;
+            TransitionSeconds     = kDefaultTransitionSeconds;
+            TransitionEase        = kDefaultTransitionEase;
+            Rig                   = kDefaultRig;
+            RigStrength           = kDefaultRigStrength;
+            RigSeed               = kDefaultRigSeed;
+            Focus                 = kDefaultFocus;
+            FocusDepth            = kDefaultFocusDepth;
+            FocusEase             = kDefaultFocusEase;
+            PathClearanceMode     = kDefaultPathClearanceMode;
+            PathObstacleClearance = kDefaultPathObstacleClearance;
+            Framing               = kDefaultFraming;
+            FramingHoldSize       = kDefaultFramingHoldSize;
+            FramingFocalLength    = kDefaultFramingFocalLength;
         }
     }
 }

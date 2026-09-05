@@ -89,7 +89,6 @@ namespace ExtendedPhotomode.Systems {
                 return;
             }
 
-            m_Log.Info($"Registered {m_OwnProperties.Count} photo mode properties.");
             RebuildPhotoModeTabs();
         }
 

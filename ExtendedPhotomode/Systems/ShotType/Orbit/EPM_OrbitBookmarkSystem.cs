@@ -94,7 +94,10 @@ namespace ExtendedPhotomode.Systems {
             m_Subject.PinnedTarget     = setup.Target;
             m_Subject.PinnedStartAngle = setup.StartAngle;
 
-            m_Log.Info($"Restored orbit setup for {guid}: r={setup.Radius}m h={setup.Height}m sweep={setup.Sweep}° at {setup.Target}");
+            // The sidecar stores a point, not an entity — entities are recreated on load, so there is
+            // nothing here that could still identify the thing a followed shot was tracking.
+            m_Subject.PinnedEntity = Entity.Null;
+
         }
 
         private void CaptureSetup(string guid) {
@@ -103,7 +106,6 @@ namespace ExtendedPhotomode.Systems {
             }
 
             m_Store.Put(guid, OrbitSetup.From(orbit));
-            m_Log.Info($"Stored orbit setup with {guid}: {orbit}");
         }
 
         private void CaptureIfChanged(string guid) {

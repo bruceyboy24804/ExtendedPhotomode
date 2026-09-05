@@ -26,24 +26,42 @@ namespace ExtendedPhotomode.Components {
     /// </para>
     /// </remarks>
     public struct EPM_SavedPath : IComponentData, ISerializable {
-        public const int kVersion = 1;
+        /// <summary>Version 2 added the closed flag.</summary>
+        public const int kVersion = 2;
 
         public int m_Id;
 
         public FixedString128Bytes m_Name;
 
+        /// <summary>Whether the path's last point joins back to its first.</summary>
+        /// <remarks>
+        /// Belongs to the path rather than to a node, which is why it lives here and not in
+        /// <see cref="EPM_PathNodeData"/> — the nodes are identical either way, and only the segment
+        /// walk changes.
+        /// </remarks>
+        public bool m_Closed;
+
         public void Serialize<TWriter>(TWriter writer) where TWriter : IWriter {
             writer.Write(kVersion);
             writer.Write(m_Id);
             writer.Write(m_Name.ToString());
+            writer.Write(m_Closed);
         }
 
         public void Deserialize<TReader>(TReader reader) where TReader : IReader {
-            reader.Read(out int _);
+            reader.Read(out int version);
             reader.Read(out m_Id);
 
             reader.Read(out string name);
             m_Name = new FixedString128Bytes(name ?? string.Empty);
+
+            // A version 1 record stops here; reading further would run into the next component.
+            if (version < 2) {
+                m_Closed = false;
+                return;
+            }
+
+            reader.Read(out m_Closed);
         }
     }
 }

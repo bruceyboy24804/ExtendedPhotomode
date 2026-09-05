@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Selection: copy this point's properties.
+     A card lifting off ONE point. The card carries property rows and no position — which is the
+     precise contract: dwell, speed, pitch, lens, hour, target and corner travel, position never does.
+     Drawing the card as a list rather than as a second point is what says that.
+
+     Deliberately a mirror of SelectionPaste: same card in the same place, arrow reversed, one point
+     instead of three. The pair has to be told apart at 28px by direction alone. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+        opacity: .18;
+      }
+
+      .cls-2 {
+        fill: none;
+        stroke: #fff;
+        stroke-width: 1.5px;
+        stroke-linejoin: round;
+      }
+
+      .cls-3 {
+        fill: none;
+        stroke: #fff;
+        stroke-width: 1px;
+        stroke-linecap: round;
+        opacity: .55;
+      }
+
+      .cls-4 {
+        fill: none;
+        stroke: #8cd9ff;
+        stroke-width: 2px;
+        stroke-linecap: round;
+      }
+
+      .cls-5 {
+        fill: #8cd9ff;
+      }
+
+      .cls-6 {
+        fill: #ff73bf;
+      }
+    </style>
+  </defs>
+  <g id="Card">
+    <rect class="cls-1" x="9" y="2" width="10" height="10" rx="1.5"/>
+    <rect class="cls-2" x="9" y="2" width="10" height="10" rx="1.5"/>
+    <path class="cls-3" d="M11.5,5.5 L16.5,5.5"/>
+    <path class="cls-3" d="M11.5,8.5 L16.5,8.5"/>
+  </g>
+  <g id="Lift">
+    <path class="cls-4" d="M14,19 L14,16"/>
+    <polygon class="cls-5" points="14 12.5 10.75 16.5 17.25 16.5"/>
+  </g>
+  <g id="Source">
+    <circle class="cls-6" cx="14" cy="23.5" r="3.5"/>
+  </g>
+</svg>

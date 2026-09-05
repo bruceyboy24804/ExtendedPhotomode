@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Whole path: draw in towards the centre by a tenth.
+     Ghost outer arc, solid inner one — the same before-and-after grammar as the mirror pair, so the
+     six whole-path icons read as one row. The centre dot is not decoration: these operations are all
+     about the path's centre, and shrink and grow are the two that would be ambiguous without it. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #fff; stroke-width: 1.75px; stroke-linecap: round; opacity: .4; }
+      .cls-2 { fill: none; stroke: #8cd9ff; stroke-width: 2px; stroke-linecap: round; }
+      .cls-3 { fill: #ffd933; }
+      .cls-4 { fill: none; stroke: #fff; stroke-width: 1.5px; stroke-linecap: round; opacity: .65; }
+    </style>
+  </defs>
+  <path class="cls-1" d="M3,23 Q14,3 25,23"/>
+  <path class="cls-2" d="M8,21 Q14,10 20,21"/>
+  <circle class="cls-3" cx="8" cy="21" r="2.25"/>
+  <circle class="cls-3" cx="20" cy="21" r="2.25"/>
+  <circle class="cls-3" cx="14" cy="15.5" r="2.25"/>
+  <g id="Inward">
+    <path class="cls-4" d="M3,10 L6.5,12"/>
+    <path class="cls-4" d="M25,10 L21.5,12"/>
+  </g>
+</svg>

@@ -123,7 +123,6 @@ namespace ExtendedPhotomode.Systems {
 
             m_Wrapped = true;
             m_Binding.TryInvokeMethod("Update", out _);
-            m_Log.Info("Saved cinematic shots will now be sorted.");
         }
 
         private CinematicCameraAsset[] Sort(CinematicCameraAsset[] assets) {

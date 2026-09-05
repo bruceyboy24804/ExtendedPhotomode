@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Focus: keep the pinned subject sharp however far the camera travels.
+     The focal plane sits ON the subject, and the arrows under the axis say it moves to stay there.
+     Against FocusRack, which has two planes and a ramp, one plane locked to one subject is the whole
+     difference. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #fff; stroke-width: 1.25px; stroke-dasharray: 2 2; opacity: .45; }
+      .cls-2 { fill: #ffd933; }
+      .cls-3 { fill: none; stroke: #8cd9ff; stroke-width: 2px; stroke-linecap: round; }
+      .cls-4 { fill: #8cd9ff; }
+    </style>
+  </defs>
+  <path class="cls-1" d="M6,14 L25,14"/>
+  <path class="cls-3" d="M20,6 L20,22"/>
+  <circle class="cls-2" cx="4" cy="14" r="3"/>
+  <circle class="cls-2" cx="20" cy="14" r="3.25"/>
+  <g id="Follows">
+    <path class="cls-3" d="M16.5,25 L23.5,25"/>
+    <polygon class="cls-4" points="14.5 25 18 23.2 18 26.8"/>
+    <polygon class="cls-4" points="25.5 25 22 23.2 22 26.8"/>
+  </g>
+</svg>

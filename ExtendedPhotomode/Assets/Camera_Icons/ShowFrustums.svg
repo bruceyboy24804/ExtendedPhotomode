@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- History row: draw a view cone at every point.
+     The cone is the tool's own geometry, not a metaphor for it — two edges and a centre line from a
+     point, in #8cd9ff, which is kFrustumColor. EPM_PathToolSystem draws exactly this shape on the
+     terrain, and the centre line is longer for the same reason it is there: it is the stroke that
+     reads at distance, with the edges only giving the cone width.
+
+     An eye (what was here) says "visibility", which is half right, but says nothing about what
+     becomes visible. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #8cd9ff; stroke-width: 1.75px; stroke-linecap: round; opacity: .6; }
+      .cls-2 { fill: none; stroke: #8cd9ff; stroke-width: 2px; stroke-linecap: round; }
+      .cls-3 { fill: #ffd933; }
+    </style>
+  </defs>
+  <g id="Cone">
+    <path class="cls-1" d="M6,20 L23,7"/>
+    <path class="cls-1" d="M6,20 L25,19"/>
+    <path class="cls-2" d="M6,20 L25,13"/>
+  </g>
+  <circle class="cls-3" cx="6" cy="20" r="3"/>
+</svg>

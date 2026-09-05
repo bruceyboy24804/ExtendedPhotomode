@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The pinned subject: the point an orbit circles, a look-at aims at, and a framing rule holds.
+     The same ringed yellow marker AimTarget converges its cones on, so the two teach each other — by
+     the time this appears on Look at, Subject or Aim, the ring already means "pinned subject" rather
+     than "another path point". Those are the same yellow and would otherwise be indistinguishable.
+
+     Shared by four controls, which is why it is not the framing viewfinder: only Hold size is about
+     what the frame looks like; the rest are about which thing in the world is the subject. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #fff; stroke-width: 1.25px; stroke-dasharray: 2.5 2.5; opacity: .5; }
+      .cls-2 { fill: none; stroke: #fff; stroke-width: 1.5px; stroke-linecap: round; opacity: .6; }
+      .cls-3 { fill: #ffd933; }
+    </style>
+  </defs>
+  <circle class="cls-1" cx="14" cy="14" r="8.5"/>
+  <g id="Crosshair">
+    <path class="cls-2" d="M14,2 L14,5.5"/>
+    <path class="cls-2" d="M14,26 L14,22.5"/>
+    <path class="cls-2" d="M2,14 L5.5,14"/>
+    <path class="cls-2" d="M26,14 L22.5,14"/>
+  </g>
+  <circle class="cls-3" cx="14" cy="14" r="4"/>
+</svg>

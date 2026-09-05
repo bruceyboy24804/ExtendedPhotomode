@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Points: drop points the curve barely needs.
+     The inverse of PointsSubdivide and drawn as its mirror: the same five positions, but the two the
+     operation removes are hollow outlines rather than filled. Same curve, because simplifying does
+     not change the shape either — that is the promise the row is making. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #8cd9ff; stroke-width: 2px; stroke-linecap: round; }
+      .cls-2 { fill: #ffd933; }
+      .cls-3 { fill: none; stroke: #fff; stroke-width: 1.25px; opacity: .5; }
+    </style>
+  </defs>
+  <path class="cls-1" d="M4,21 Q14,6 24,21"/>
+  <circle class="cls-2" cx="4" cy="21" r="2.5"/>
+  <circle class="cls-2" cx="24" cy="21" r="2.5"/>
+  <circle class="cls-2" cx="14" cy="13.5" r="2.5"/>
+  <circle class="cls-3" cx="9" cy="15.4" r="2.5"/>
+  <circle class="cls-3" cx="19" cy="15.4" r="2.5"/>
+</svg>

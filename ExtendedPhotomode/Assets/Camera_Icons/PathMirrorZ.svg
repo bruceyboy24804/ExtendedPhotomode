@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Whole path: flip north to south. The horizontal counterpart of PathMirrorX — same axis, shape and
+     reflection, turned ninety degrees, so the pair is told apart by the axis alone. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #fff; stroke-width: 1.25px; stroke-dasharray: 2.5 2.5; opacity: .6; }
+      .cls-2 { fill: none; stroke: #fff; stroke-width: 1.75px; stroke-linecap: round; opacity: .4; }
+      .cls-3 { fill: none; stroke: #8cd9ff; stroke-width: 2px; stroke-linecap: round; }
+      .cls-4 { fill: #ffd933; }
+    </style>
+  </defs>
+  <path class="cls-1" d="M2,14 L26,14"/>
+  <path class="cls-2" d="M4,24 Q14,17 24,24"/>
+  <path class="cls-3" d="M4,4 Q14,11 24,4"/>
+  <circle class="cls-4" cx="4" cy="4" r="2.25"/>
+  <circle class="cls-4" cx="24" cy="4" r="2.25"/>
+</svg>

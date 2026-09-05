@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Whole path: spread out from the centre by a tenth. The exact inverse of PathShrink — ghost inner,
+     solid outer, ticks pointing away — so the pair is legible as a pair. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #fff; stroke-width: 1.75px; stroke-linecap: round; opacity: .4; }
+      .cls-2 { fill: none; stroke: #8cd9ff; stroke-width: 2px; stroke-linecap: round; }
+      .cls-3 { fill: #ffd933; }
+      .cls-4 { fill: none; stroke: #fff; stroke-width: 1.5px; stroke-linecap: round; opacity: .65; }
+    </style>
+  </defs>
+  <path class="cls-1" d="M8,21 Q14,10 20,21"/>
+  <path class="cls-2" d="M3,23 Q14,3 25,23"/>
+  <circle class="cls-3" cx="3" cy="23" r="2.25"/>
+  <circle class="cls-3" cx="25" cy="23" r="2.25"/>
+  <circle class="cls-3" cx="14" cy="13" r="2.25"/>
+  <g id="Outward">
+    <path class="cls-4" d="M6.5,12 L3,10"/>
+    <path class="cls-4" d="M21.5,12 L25,10"/>
+  </g>
+</svg>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Selection: apply to all selected.
+     The pink is #ff73bf, kSelectedColor in EPM_PathToolSystem — the colour a selected point is
+     actually drawn in on the terrain. Using it here means the row is a legend for the world rather
+     than a set of generic symbols, the same trick ObstacleWarn plays with the blocked red.
+
+     A bracket gathering three points, with one change dropping into it: the toggle's whole meaning is
+     "this goes to all of them, not just the one shown". -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #fff;
+        stroke-width: 1.5px;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        opacity: .6;
+      }
+
+      .cls-2 {
+        fill: none;
+        stroke: #8cd9ff;
+        stroke-width: 2px;
+        stroke-linecap: round;
+      }
+
+      .cls-3 {
+        fill: #8cd9ff;
+      }
+
+      .cls-4 {
+        fill: #ff73bf;
+      }
+    </style>
+  </defs>
+  <g id="Change">
+    <path class="cls-2" d="M14,3 L14,8"/>
+    <polygon class="cls-3" points="14 11.5 10.75 7.5 17.25 7.5"/>
+  </g>
+  <g id="Bracket">
+    <path class="cls-1" d="M4,16 L4,13 L24,13 L24,16"/>
+  </g>
+  <g id="Selected">
+    <circle class="cls-4" cx="6" cy="22" r="3"/>
+    <circle class="cls-4" cx="14" cy="22" r="3"/>
+    <circle class="cls-4" cx="22" cy="22" r="3"/>
+  </g>
+</svg>

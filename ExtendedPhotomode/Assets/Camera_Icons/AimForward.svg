@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Aim: look along the path's own direction of travel.
+     All four Aim icons draw the identical path with two cameras on it, and only the cones move. That
+     is the honest structure — aim mode changes nothing about where the camera goes, only where it
+     points — and it is the same one-scene-many-rules grammar the terrain and obstacle rows use.
+
+     TWO cameras rather than one, because the whole content of "Forward" is that the aim ROTATES along
+     the run. A single cone could not show that, and would be indistinguishable from Fixed.
+
+     The cone directions are the real tangents of the quadratic at its quarter points, not eyeballed:
+     (0.843, -0.536) rising into the arc and (0.843, 0.536) falling out of it. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #8cd9ff; stroke-width: 2px; stroke-linecap: round; }
+      .cls-2 { fill: #8cd9ff; opacity: .45; }
+      .cls-3 { fill: #ffd933; }
+    </style>
+  </defs>
+  <g id="Cones">
+    <polygon class="cls-2" points="8.5 15.75 14.9 14.64 12.22 10.42"/>
+    <polygon class="cls-2" points="19.5 15.75 23.22 21.08 25.9 16.86"/>
+  </g>
+  <path class="cls-1" d="M3,21 Q14,7 25,21"/>
+  <circle class="cls-3" cx="3" cy="21" r="2"/>
+  <circle class="cls-3" cx="25" cy="21" r="2"/>
+  <circle class="cls-3" cx="8.5" cy="15.75" r="2.5"/>
+  <circle class="cls-3" cx="19.5" cy="15.75" r="2.5"/>
+</svg>

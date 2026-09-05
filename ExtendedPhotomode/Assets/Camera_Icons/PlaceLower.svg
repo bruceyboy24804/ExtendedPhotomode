@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Place: lower every point by the height step.
+     Side-on, with the ground line, because this row is the only one about height. The ghost is where
+     the path was; the solid is where it lands. A bare down-arrow (what was here) is honest but says
+     nothing about WHAT moves — and the answer, every point at once rather than the selected one, is
+     the part worth showing. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #fff; stroke-width: 1.5px; stroke-linecap: round; opacity: .5; }
+      .cls-2 { fill: none; stroke: #fff; stroke-width: 1.75px; stroke-linecap: round; opacity: .4; }
+      .cls-3 { fill: none; stroke: #8cd9ff; stroke-width: 2px; stroke-linecap: round; }
+      .cls-4 { fill: #ffd933; }
+      .cls-5 { fill: #8cd9ff; }
+    </style>
+  </defs>
+  <path class="cls-2" d="M3,7 Q14,1 25,7"/>
+  <path class="cls-3" d="M3,17 Q14,11 25,17"/>
+  <circle class="cls-4" cx="3" cy="17" r="2.25"/>
+  <circle class="cls-4" cx="25" cy="17" r="2.25"/>
+  <circle class="cls-4" cx="14" cy="14" r="2.25"/>
+  <g id="Drop">
+    <path class="cls-3" d="M14,5 L14,8"/>
+    <polygon class="cls-5" points="14 11.5 11.25 7.5 16.75 7.5"/>
+  </g>
+  <path class="cls-1" d="M2,24.5 L26,24.5"/>
+</svg>

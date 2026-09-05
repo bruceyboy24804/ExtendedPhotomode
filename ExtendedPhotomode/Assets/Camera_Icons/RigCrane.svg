@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Rig: a heavy crane — slow to start, slow to stop, utterly smooth.
+     The trace is identical to RigFree; what differs is the sample spacing. Ticks bunch at the two
+     ends and open out through the middle, which IS slow-in and slow-out: the same distance covered in
+     more time at the extremes. Weight drawn as timing rather than as a picture of a crane. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #8cd9ff; stroke-width: 2.25px; stroke-linecap: round; }
+      .cls-2 { fill: #ffd933; }
+    </style>
+  </defs>
+  <path class="cls-1" d="M2,22 Q14,4 26,22"/>
+  <circle class="cls-2" cx="2" cy="22" r="1.9"/>
+  <circle class="cls-2" cx="4.4" cy="18.9" r="1.9"/>
+  <circle class="cls-2" cx="8.2" cy="14.7" r="1.9"/>
+  <circle class="cls-2" cx="19.8" cy="14.7" r="1.9"/>
+  <circle class="cls-2" cx="23.6" cy="18.9" r="1.9"/>
+  <circle class="cls-2" cx="26" cy="22" r="1.9"/>
+</svg>

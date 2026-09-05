@@ -1,4 +1,4 @@
-namespace ExtendedPhotomode.Systems {
+﻿namespace ExtendedPhotomode.Systems {
     #region Using Statements
 
     using System.Collections.Generic;
@@ -56,15 +56,38 @@ namespace ExtendedPhotomode.Systems {
             CreateBinding(kShotTypeBinding, () => (int)Mod.Instance.Settings.Shot);
         }
 
-        private void GenerateShot() {
-            ShotType shot = Mod.Instance.Settings.Shot;
+        /// <remarks>
+        /// The hotkey is what makes generating work in the map editor. Our Generate button is a React
+        /// portal that finds the in-game photo mode panel's Take Photo button by its icon style and
+        /// inserts a sibling; the editor's panel has no such button, so the portal never mounts there.
+        /// A keybinding needs no DOM at all and works in both.
+        /// </remarks>
+        protected override void OnUpdate() {
+            base.OnUpdate();
 
-            if (!m_Generators.TryGetValue(shot, out GenerateShotBase generator)) {
-                m_Log.Warn($"No generator registered for shot type {shot}.");
-                return;
+            var generate = Mod.ApplyOrbitAction;
+
+            if (generate != null && generate.WasPressedThisFrame()) {
+                GenerateShot();
             }
+        }
 
-            generator.TryGenerate();
+        // Delegates to the sequence system's dispatch, which the sequencer's assembly pass also uses.
+        // Two lookups meant two places for a new shot type to be missing from.
+        /// <summary>Stages the current setup as a shot, rather than writing it to the timeline.</summary>
+        /// <remarks>
+        /// This used to call <c>Generate</c> and put the move straight onto the timeline. It does not
+        /// any more: generating is exploratory, and a shot that appended itself to the sequence the
+        /// moment it was made rewrote the timeline every time an idea was tried.
+        /// <para>
+        /// The shot lands in the generated list and waits to be dragged onto the track, which is what
+        /// puts it in the cut and assembles it. Nothing is solved here — <c>Assemble</c> runs the
+        /// ordinary generators when the shot enters the sequence, so a staged shot and a generated
+        /// one produce identical curves.
+        /// </para>
+        /// </remarks>
+        private void GenerateShot() {
+            World.GetOrCreateSystemManaged<EPM_ShotListSystem>().AddShot(string.Empty);
         }
 
         private void OrbitSelection() { m_Subject.TryPinToSelection(); }

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Whole path: flip east to west.
+     The icon this replaces was ArrowsMoveLeftRight — a double-headed arrow, which means TRANSLATE.
+     Nothing about it said the path was being reflected, and a user reading it as "nudge sideways"
+     would be reading it correctly. A mirror needs three things: an axis, the shape, and its
+     reflection. Ghost white for the outgoing side, solid blue for the result, throughout this set. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 { fill: none; stroke: #fff; stroke-width: 1.25px; stroke-dasharray: 2.5 2.5; opacity: .6; }
+      .cls-2 { fill: none; stroke: #fff; stroke-width: 1.75px; stroke-linecap: round; opacity: .4; }
+      .cls-3 { fill: none; stroke: #8cd9ff; stroke-width: 2px; stroke-linecap: round; }
+      .cls-4 { fill: #ffd933; }
+    </style>
+  </defs>
+  <path class="cls-1" d="M14,2 L14,26"/>
+  <path class="cls-2" d="M24,22 Q19,10 17,17"/>
+  <path class="cls-3" d="M4,22 Q9,10 11,17"/>
+  <circle class="cls-4" cx="4" cy="22" r="2.25"/>
+  <circle class="cls-4" cx="11" cy="17" r="2.25"/>
+</svg>

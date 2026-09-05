@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28.67 28.67">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #59b2ff;
+      }
+
+      .cls-1, .cls-2 {
+        stroke-miterlimit: 10;
+        stroke-width: 2px;
+      }
+
+      .cls-2 {
+        fill: #ffd933;
+        stroke: #ffd933;
+      }
+    </style>
+  </defs>
+  <g id="Curves">
+    <path class="cls-1" d="M3,23.67c0-6,11.33-.67,11.33-7.33"/>
+    <path class="cls-1" d="M14.33,12.33c0-6,11.33-.67,11.33-7.33"/>
+  </g>
+  <g id="Points">
+    <circle class="cls-2" cx="3" cy="25.67" r="2"/>
+    <circle class="cls-2" cx="14.33" cy="14.33" r="2"/>
+    <circle class="cls-2" cx="25.67" cy="3" r="2"/>
+  </g>
+</svg>

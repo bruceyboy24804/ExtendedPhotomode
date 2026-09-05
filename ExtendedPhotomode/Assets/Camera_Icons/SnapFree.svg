@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Snap mode: Free. The snap icons are PLAN view, looking down, where the terrain and obstacle sets
+     are cross-sections seen from the side. That is deliberate: snapping is about where a click lands
+     on the ground, and the change of viewpoint is what stops a third row of blue-line-over-white
+     scenery reading as more of the same.
+
+     The language follows CentreLine.svg, which was already the Network icon: white is the thing being
+     snapped to, blue is the path, yellow is the point. Free has no guide at all — just the cursor and
+     the point it drops, which is the whole meaning. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #fff;
+        stroke-width: 1.5px;
+        stroke-linecap: round;
+        opacity: .55;
+      }
+
+      .cls-2 {
+        fill: #ffd933;
+      }
+    </style>
+  </defs>
+  <g id="Cursor">
+    <path class="cls-1" d="M14,3 L14,9"/>
+    <path class="cls-1" d="M14,19 L14,25"/>
+    <path class="cls-1" d="M3,14 L9,14"/>
+    <path class="cls-1" d="M19,14 L25,14"/>
+  </g>
+  <g id="Point">
+    <circle class="cls-2" cx="14" cy="14" r="3.25"/>
+  </g>
+</svg>

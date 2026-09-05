@@ -35,6 +35,8 @@ namespace ExtendedPhotomode.Camera {
 
         public float Height;
 
+        public float EndHeight;
+
         public float StartAngle;
 
         public float Sweep;
@@ -44,6 +46,8 @@ namespace ExtendedPhotomode.Camera {
         public bool LookAtTarget;
 
         public float DegreesPerKey;
+
+        public float SweepEase;
 
         public const float kDefaultDegreesPerKey = 30f;
 
@@ -55,11 +59,13 @@ namespace ExtendedPhotomode.Camera {
                 Radius        = radius,
                 EndRadius     = radius,
                 Height        = height,
+                EndHeight     = height,
                 StartAngle    = 0f,
                 Sweep         = 360f,
                 Duration      = 30f,
                 LookAtTarget  = true,
                 DegreesPerKey = kDefaultDegreesPerKey,
+                SweepEase     = 0f,
             };
         }
 
@@ -80,30 +86,33 @@ namespace ExtendedPhotomode.Camera {
 
             for (int i = 0; i < count; i++) {
                 float f     = (last > 0) ? (float)i / last : 0f;
-                float angle = StartAngle + Sweep * f;
+                float angle = StartAngle + Sweep * Shape(f, SweepEase);
                 float rad   = angle * Mathf.Deg2Rad;
 
                 float radius = Mathf.Lerp(from, to, f);
+                float height = Mathf.Lerp(Height, EndHeight, f);
 
-                var offset = new Vector3(Mathf.Sin(rad) * radius, Height, Mathf.Cos(rad) * radius);
+                var offset = new Vector3(Mathf.Sin(rad) * radius, height, Mathf.Cos(rad) * radius);
 
                 samples.Add(new CameraSample {
                     Time     = Duration * f,
                     Position = Target + offset,
-                    Rotation = SolveRotation(offset, angle, radius),
+                    Rotation = SolveRotation(angle, radius, height),
                 });
             }
 
             return samples;
         }
 
-        private Vector3 SolveRotation(Vector3 offset, float angle, float radius) {
+        private Vector3 SolveRotation(float angle, float radius, float height) {
             if (!LookAtTarget) {
-                return new Vector3(SolvePitch(radius, Height), StartAngle + 180f, 0f);
+                return new Vector3(SolvePitch(radius, height), StartAngle + 180f, 0f);
             }
 
-            return new Vector3(SolvePitch(radius, Height), angle + 180f, 0f);
+            return new Vector3(SolvePitch(radius, height), angle + 180f, 0f);
         }
+
+        private static float Shape(float u, float ease) { return Easing.Blend(u, ease); }
 
         private static float SolvePitch(float radius, float height) {
             return Mathf.Atan2(height, Mathf.Max(radius, 0.01f)) * Mathf.Rad2Deg;
@@ -120,9 +129,9 @@ namespace ExtendedPhotomode.Camera {
 
         public override string ToString() {
             return string.Format(
-                "OrbitShot(target={0}, r={1:0.#}->{2:0.#}m, h={3:0.#}m, start={4:0.#}°, sweep={5:0.#}°, {6:0.#}s, {7} keys, lookAt={8})",
-                Target, Radius, (EndRadius > 0f) ? EndRadius : Radius, Height, StartAngle, Sweep,
-                Duration, KeyCount, LookAtTarget);
+                "OrbitShot(target={0}, r={1:0.#}->{2:0.#}m, h={3:0.#}->{4:0.#}m, start={5:0.#}°, sweep={6:0.#}°, ease={7:0.##}, {8:0.#}s, {9} keys, lookAt={10})",
+                Target, Radius, (EndRadius > 0f) ? EndRadius : Radius, Height, EndHeight, StartAngle,
+                Sweep, SweepEase, Duration, KeyCount, LookAtTarget);
         }
     }
 }

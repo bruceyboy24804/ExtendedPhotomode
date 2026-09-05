@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Terrain mode: Floor. Same ridge as TerrainFree and TerrainFollow; the curve is flat where there
+     is room and lifted only over the peak, which is exactly what the mode does — authored heights
+     kept, except where the ground would come closer than the clearance.
+
+     The curve's points are the terrain's own, offset by the clearance wherever the authored height
+     (a flat y=17) would fall below it. Keeping that arithmetic honest is what makes the three icons
+     legible as a set: the same ridge, three different rules. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+        opacity: .22;
+      }
+
+      .cls-2 {
+        fill: none;
+        stroke: #fff;
+        stroke-width: 1.5px;
+        stroke-linejoin: round;
+      }
+
+      .cls-3 {
+        fill: none;
+        stroke: #8cd9ff;
+        stroke-width: 2px;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+    </style>
+  </defs>
+  <g id="Terrain">
+    <path class="cls-1" d="M1,24 L9,24 L14,12 L19,19 L27,22 L27,27 L1,27 Z"/>
+    <path class="cls-2" d="M1,24 L9,24 L14,12 L19,19 L27,22"/>
+  </g>
+  <g id="Curve">
+    <path class="cls-3" d="M1,17 L9,17 L14,8 L19,15 L27,17"/>
+  </g>
+</svg>

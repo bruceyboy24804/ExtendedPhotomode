@@ -1,4 +1,4 @@
-namespace ExtendedPhotomode {
+﻿namespace ExtendedPhotomode {
     #region Using Statements
 
     using Colossal;
@@ -49,6 +49,12 @@ namespace ExtendedPhotomode {
         /// <summary>Name of the action that breaks or smooths a tangent.</summary>
         public const string kPathBreakTangentActionName = "PathBreakTangent";
 
+        /// <summary>Name of the action that opens the curve timeline.</summary>
+        public const string kTimelineActionName = "Timeline";
+
+        /// <summary>Name of the action that hides the mod's panels and the world overlays.</summary>
+        public const string kHideUIActionName = "HideUI";
+
         /// <summary>
         /// Gets the resolved input action that generates an orbit shot.
         /// </summary>
@@ -74,6 +80,12 @@ namespace ExtendedPhotomode {
 
         /// <summary>Gets the action that breaks or smooths a tangent.</summary>
         public static ProxyAction PathBreakTangentAction { get; private set; }
+
+        /// <summary>Gets the action that opens the curve timeline.</summary>
+        public static ProxyAction TimelineAction { get; private set; }
+
+        /// <summary>Hides the panels so a shot can be judged on the picture alone.</summary>
+        public static ProxyAction HideUIAction { get; private set; }
 
         /// <inheritdoc/>
         public override string ModName => nameof(ExtendedPhotomode);
@@ -120,6 +132,12 @@ namespace ExtendedPhotomode {
             PathReverseAction.shouldBeEnabled = true;
             PathBreakTangentAction.shouldBeEnabled = true;
 
+            TimelineAction = Settings.GetAction(kTimelineActionName);
+            TimelineAction.shouldBeEnabled = true;
+
+            HideUIAction = Settings.GetAction(kHideUIActionName);
+            HideUIAction.shouldBeEnabled = true;
+
             PathToolAction.shouldBeEnabled     = true;
             GeneratePathAction.shouldBeEnabled = true;
         }
@@ -135,14 +153,25 @@ namespace ExtendedPhotomode {
             updateSystem.UpdateAt<EPM_PhotoModePropertySystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<EPM_ShotSequenceSystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<EPM_ShotSubjectSystem>(SystemUpdatePhase.UIUpdate);
+            updateSystem.UpdateAt<EPM_FollowSubjectSystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<EPM_OrbitUISystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<EPM_OrbitBookmarkSystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<EPM_PathLibrarySystem>(SystemUpdatePhase.UIUpdate);
+            updateSystem.UpdateAt<EPM_PathPreviewSystem>(SystemUpdatePhase.UIUpdate);
+            updateSystem.UpdateAt<EPM_ShotListSystem>(SystemUpdatePhase.UIUpdate);
+            updateSystem.UpdateAt<EPM_ScrubPreviewSystem>(SystemUpdatePhase.UIUpdate);
+            updateSystem.UpdateAt<EPM_TimelineHistorySystem>(SystemUpdatePhase.UIUpdate);
+            updateSystem.UpdateAt<EPM_TimelineEditSystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<EPM_CursorHideSystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<EPM_ShotSortSystem>(SystemUpdatePhase.UIUpdate);
-            // The custom overlay renderer must tick before anything that writes into its buffer.
-            updateSystem.UpdateAt<ModsCommon.Rendering.CustomOverlayRenderSystem>(SystemUpdatePhase.Rendering);
-            updateSystem.UpdateAt<EPM_OrbitPreviewSystem>(SystemUpdatePhase.Rendering);
+            // Nothing is registered at Rendering any more. EPM_OrbitPreviewSystem drew the orbit ring
+            // in photo mode and was removed: it appeared for anyone who opened photo mode, whatever
+            // they were shooting, and its only off switch was a toggle in a GAMEPLAY tool's toolbar.
+            // The ring that matters is the one OrbitShotEditor draws while the shot tool is open,
+            // which is authoring feedback rather than an overlay laid over someone's photograph.
+            // CustomOverlayRenderSystem went with it — the preview was its only writer, and an
+            // overlay renderer with nothing to draw is a buffer and an update per frame for nothing.
+            // Re-register both together if anything ever needs to draw at Rendering again.
             updateSystem.UpdateAt<EPM_PathToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<EPM_PathToolToggleSystem>(SystemUpdatePhase.Modification1);
             updateSystem.UpdateAt<EPM_PathHintSystem>(SystemUpdatePhase.UITooltip);

@@ -1,0 +1,66 @@
+// The floating preview that follows the cursor during a drag.
+//
+// Lives in a portal on document.body, outside every panel, so it inherits none of the mod's panel
+// styling and has to state all of its own.
+
+@use "./base.scss" as _base;
+
+// Styled as the row you picked up, not as a label about it.
+//
+// It was a flat blue pill in a colour of my own invention, which looked like neither the list it
+// came from nor anything else in the game. Every value here now comes from the game's own custom
+// properties, so it follows the player's theme the way the panels do:
+//
+//   * the selected-item gradient, which is what the game paints a picked list row with — this IS a
+//     picked list row, so it is the honest treatment as well as the vanilla one
+//   * --menuText1Normal for the label, matching the list it came out of
+//   * --panelRadius and --panelBlur, so it reads as a piece of panel rather than a sticker
+//
+// selectedButton also carries a `.legacy-interface` fallback that swaps the gradient for a flat
+// accent colour, which is why the mixin is used rather than the gradient copied out of it.
+.overlay {
+    @include _base.selectedButton;
+
+    display: flex;
+    align-items: center;
+
+    // The list row's own metrics — 5rem/6rem padding at 14rem — so the preview is the size of the
+    // thing it represents. The old fixed 22rem height made a dragged row shrink as it left the list.
+    padding: 5rem 10rem;
+    font-size: 14rem;
+    color: var(--menuText1Normal);
+    white-space: nowrap;
+
+    // Stated rather than inherited.
+    //
+    // By the spec this is redundant: the game sets `body { font-family: var(--fontFamily) }` and
+    // defines the variable on `:root`, so a portal parented to body picks up both. But this element
+    // is the one piece of the mod's UI that lives OUTSIDE the panel tree, and inheritance across
+    // that boundary is precisely the kind of assumption Cohtml has broken elsewhere. One line to not
+    // depend on it.
+    //
+    // var(--fontFamily), never a literal: the game redeclares it per locale — Overpass first for
+    // Latin, "Noto Sans JP" first for Japanese, no Overpass at all for Russian — so hardcoding a
+    // face would break every non-Latin language.
+    font-family: var(--fontFamily);
+
+    backdrop-filter: var(--panelBlur);
+
+    // Long-hand corners: `border-radius` is a shorthand, and Cohtml drops a shorthand outright once
+    // it contains a var(). This is the same trap that silently removed borders across the mod.
+    border-top-left-radius: var(--panelRadius);
+    border-top-right-radius: var(--panelRadius);
+    border-bottom-left-radius: var(--panelRadius);
+    border-bottom-right-radius: var(--panelRadius);
+
+    // Above the panels it is dragged over. The mod's own windows sit well below this.
+    z-index: 9999;
+
+    // The cursor is already carrying it; letting it take hits would make it the drop target under
+    // the pointer and nothing else would ever be found.
+    pointer-events: none;
+
+    // Lifted off the panel beneath. No transition anywhere on this element: dnd-kit repositions it
+    // every frame, and easing that makes it lag the cursor.
+    box-shadow: 0 2rem 8rem rgba(0, 0, 0, 0.5);
+}
