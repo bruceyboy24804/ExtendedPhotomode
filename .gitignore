@@ -8,6 +8,9 @@ riderModule.iml
 # tracked — the tree itself is thousands of files and does not belong in the repo.
 node_modules/
 
+# Local agent notes. Useful to keep on disk, not something to publish.
+CLAUDE.md
+
 # IDE and per-user state.
 .idea/
 *.DotSettings.user
