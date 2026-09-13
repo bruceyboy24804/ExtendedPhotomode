@@ -69,6 +69,29 @@ namespace ExtendedPhotomode.Tools {
         /// <summary>Raises or lowers a handle, for the tool's height keys.</summary>
         public abstract void RaiseHandle(int id, float delta);
 
+        /// <summary>Whether the last <see cref="TryPreview"/> coarsened the shot instead of solving it.</summary>
+        /// <remarks>
+        /// An editor may thin its preview to keep a per-frame solve affordable, which makes the
+        /// returned samples a DRAWING of the shot rather than the keys it will generate. Anything
+        /// reporting on keys has to know the difference: drawing a tick per sample while thinned
+        /// under-reports the key count, and it does so silently, which is the worst way to be wrong.
+        /// </remarks>
+        public bool PreviewThinned { get; protected set; }
+
+        /// <summary>Sets the shot's key spacing from a key tick dragged to a new position.</summary>
+        /// <remarks>
+        /// Virtual rather than abstract: a shot type with no spacing of its own simply does not offer
+        /// it, and the tool draws no draggable ticks for one that leaves this alone. Like
+        /// <see cref="MoveHandle"/>, the editor owns turning a world position back into its own
+        /// numbers — the tool knows only that a tick with some index moved.
+        /// </remarks>
+        /// <param name="index">Which key was dragged, counted from the start of the shot.</param>
+        /// <param name="world">Where it was dragged to.</param>
+        public virtual void SpaceKeys(int index, Vector3 world) { }
+
+        /// <summary>Whether this editor offers key spacing at all.</summary>
+        public virtual bool HasKeySpacing => false;
+
         /// <summary>Solves the shot for preview, so the tool can draw it the way it draws a path.</summary>
         /// <param name="into">Filled with the shot's keyframes, cleared first.</param>
         /// <returns>False when the shot is not yet complete enough to solve.</returns>

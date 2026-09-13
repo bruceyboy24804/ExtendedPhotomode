@@ -6,6 +6,7 @@
         <AssemblyVersion>$(Version).0</AssemblyVersion>
         <FileVersion>$(Version).0</FileVersion>
         <PublishConfigurationPath>Properties\PublishConfiguration.xml</PublishConfigurationPath>
+        <Product>Extended Photomode</Product>
     </PropertyGroup>
 
     <!-- Don't compile the submodule's own build output -->

@@ -3,6 +3,8 @@
 
     using System.Collections.Generic;
 
+    using Colossal.Mathematics;
+
     using UnityEngine;
 
     #endregion
@@ -13,15 +15,24 @@
     /// zero-valued <see cref="None"/> is there and must stay first.
     /// </remarks>
     public enum PathLookMode {
+        [Systems.EnumOption("", "", Visible = false)]
         None = 0,
 
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/AimForward.svg",
+                            "Look along the path's own direction of travel.")]
         Forward = 1,
 
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/AimFixed.svg",
+                            "Hold one compass heading for the whole move.")]
         Fixed = 2,
 
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/AimTarget.svg",
+                            "Keep the pinned subject framed, solving pitch for every keyframe.")]
         Target = 3,
 
         /// <summary>Aim at the matching point on a second drawn path.</summary>
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/AimRail.svg",
+                            "Look at the matching point on the aim rail — the second drawn path.")]
         Rail = 4,
     }
 
@@ -43,11 +54,48 @@
         /// <summary>How far before and after an obstruction the climb over it is spread, in metres.</summary>
         private const float kClearanceRamp = 60f;
 
+        /// <summary>The shortest step curvature weighting may ask for, as a fraction of the spacing.</summary>
+        /// <remarks>
+        /// A real floor, not a comfort value. Without one the 1/(1+x) weighting keeps shrinking as a
+        /// bend tightens — a hairpin would ask for an unbounded number of keys and hit the walk's cap
+        /// instead, which ends the path early and leaves a jump at the last key.
+        ///
+        /// A quarter, so a curvature-weighted path can never carry more than four times the keys a
+        /// uniform one would. That is deliberately the same factor the walk caps at: the two agree by
+        /// construction rather than by luck, so the cap now only ever catches a genuine pathology
+        /// rather than ordinary tight corners.
+        /// </remarks>
+        private const float kMinStepScale = 0.25f;
+
+        /// <summary>Samples per segment when hunting the sharpest bend.</summary>
+        private const int kCurvatureScanSteps = 8;
+
         public List<PathNode> Nodes { get; } = new List<PathNode>();
 
         public float Duration { get; set; } = 30f;
 
         public float MetresPerKey { get; set; } = kDefaultMetresPerKey;
+
+        /// <summary>How much tighter the key spacing gets through a bend, 0 to 1. Zero is uniform.</summary>
+        /// <remarks>
+        /// <para>
+        /// A uniformly spaced path spends the same number of keys on a straight as on a hairpin, and
+        /// the hairpin is where the camera's direction actually changes. Weighting by curvature puts
+        /// the keys where the shape is.
+        /// </para>
+        /// <para>
+        /// It only ever ADDS keys: the step is scaled between <see cref="kMinStepScale"/> of the
+        /// requested spacing and the full amount, never beyond it. That keeps "no two keys further
+        /// apart than MetresPerKey" true whatever this is set to, which matters because the tool's
+        /// spacing grip is drawn at exactly one key gap from the path's start — if a bend could
+        /// stretch the gap, the grip would stop telling the truth about the shot.
+        /// </para>
+        /// <para>
+        /// Defaults to zero. Turning it on changes where every key of every existing path lands, so it
+        /// is a choice rather than a silent improvement.
+        /// </para>
+        /// </remarks>
+        public float CurvatureBias { get; set; }
 
         public PathLookMode LookMode { get; set; } = PathLookMode.Forward;
 
@@ -668,15 +716,177 @@
 
             globals = new List<float>(count);
 
-            for (int i = 0; i < count; i++) {
-                float global  = (float)i / (count - 1) * segments;
-                int   segment = Mathf.Min((int)global, segments - 1);
+            // Walked by ARC LENGTH, not by curve parameter.
+            //
+            // Stepping the parameter uniformly — which this did — spaces samples evenly in t and so
+            // unevenly in metres: a bezier covers far less ground per unit of t through a bend than
+            // along a straight, so keys bunched on every corner and thinned on every straight. The
+            // count was right and the distribution was wrong, which is the hardest kind of wrong to
+            // see: the path looked sampled, and the camera changed speed for no visible reason.
+            //
+            // MathUtils.ClampLength walks a segment until it has covered a given distance and reports
+            // the parameter it reached, or tells us how much the segment had left when it ran out so
+            // the remainder carries into the next one. It is the game's own primitive for exactly this,
+            // and it happens to measure with the same 16-step approximation MeasureLength already used,
+            // so the two agree about where the end of the path is rather than drifting apart over a
+            // long path.
+            float step    = length / (count - 1);
+            int   segment = 0;
+            float t       = 0f;
 
-                globals.Add(global);
-                positions.Add(ClampToTerrain(Evaluate(segment, global - segment)));
+            positions.Add(ClampToTerrain(Evaluate(0, 0f)));
+            globals.Add(0f);
+
+            // Counted when the step is uniform, walked until the path runs out when it is not.
+            //
+            // A curvature-weighted step is SHORTER than the nominal one, so a fixed sample count would
+            // stop before the end of the path — silently, with the last stretch simply missing from
+            // the shot. The cap is what stops a pathological curve from sampling forever; hitting it
+            // means the bias asked for more keys than the path can carry, and the walk ends where a
+            // uniform one would have.
+            int limit = (CurvatureBias > 0.0001f) ? count * 4 : count;
+
+            for (int i = 1; i < limit; i++) {
+                if (segment >= segments) {
+                    break;
+                }
+
+                float remaining = step * StepScaleAt(segment, t);
+
+                while (segment < segments) {
+                    var   bounds = new Bounds1(t, 1f);
+                    float wanted = remaining;
+
+                    if (MathUtils.ClampLength(SegmentBezier(segment), ref bounds, ref wanted)) {
+                        t = bounds.max;
+                        break;
+                    }
+
+                    // The segment ran out with `wanted` metres of it consumed; the rest comes out of
+                    // the next one.
+                    remaining -= wanted;
+                    segment++;
+                    t = 0f;
+                }
+
+                if (segment >= segments) {
+                    break;
+                }
+
+                globals.Add(segment + t);
+                positions.Add(ClampToTerrain(Evaluate(segment, t)));
+            }
+
+            // The end of the path is placed explicitly rather than being whatever the walk landed on.
+            // A walk by distance almost never finishes exactly on the last node, and a shot that stops
+            // a few metres short of where the path was drawn is a visible error at the end of a move —
+            // the one moment the eye is looking for the camera to settle.
+            float last = segments;
+
+            if (globals.Count == 0 || globals[globals.Count - 1] < last - 0.0001f) {
+                globals.Add(last);
+                positions.Add(ClampToTerrain(Evaluate(segments - 1, 1f)));
             }
 
             return positions;
+        }
+
+        /// <summary>How much of a full step to take from here, given how hard the curve bends.</summary>
+        /// <remarks>
+        /// Curvature is 1/radius, so a 50m-radius bend reads 0.02 and a straight reads 0. Measured on
+        /// the curve flattened to XZ, because MathUtils.Curvature is two-dimensional and because a
+        /// path's turns are what need the keys — a climb is already handled by the height channel.
+        /// The reciprocal form keeps the scale bounded without a magic clamp: heavy curvature tends
+        /// towards the half-step floor rather than running away to zero.
+        /// </remarks>
+        private float StepScaleAt(int segment, float t) {
+            if (CurvatureBias <= 0.0001f || segment < 0 || segment >= SegmentCount) {
+                return 1f;
+            }
+
+            float bend = Mathf.Abs(CurvatureAt(segment, t));
+
+            // bend * MetresPerKey is how much turn one nominal step covers, so the reciprocal shortens
+            // the step in proportion to how much the path is turning under it. Floored, then faded in
+            // by the bias.
+            float tightened = Mathf.Max(1f / (1f + (bend * MetresPerKey)), kMinStepScale);
+
+            return Mathf.Lerp(1f, tightened, Mathf.Clamp01(CurvatureBias));
+        }
+
+        /// <summary>Curvature of the path flattened to XZ, at a point in a segment.</summary>
+        private float CurvatureAt(int segment, float t) {
+            if (segment < 0 || segment >= SegmentCount) {
+                return 0f;
+            }
+
+            // Bezier4x3 swizzles, so the flattened curve comes from the type rather than from copying
+            // eight floats out of the control points by hand. It is also how the game itself writes
+            // this — OverlayRenderSystem measures a curve with MathUtils.Length(curve.xz).
+            return MathUtils.Curvature(SegmentBezier(segment).xz, Mathf.Clamp01(t));
+        }
+
+        /// <summary>Where the path bends hardest, as a node-chain parameter, or -1 when it is straight.</summary>
+        /// <remarks>
+        /// Scanned rather than solved. Curvature on a cubic has a closed form, but its maximum does
+        /// not fall out of it cheaply, and this runs once a frame for a handle — a coarse scan lands
+        /// close enough to the real peak that the grip sits on the corner a human would point at.
+        /// </remarks>
+        public float SharpestGlobal() {
+            float best  = -1f;
+            float worst = 0f;
+
+            for (int segment = 0; segment < SegmentCount; segment++) {
+                for (int step = 0; step <= kCurvatureScanSteps; step++) {
+                    float t    = (float)step / kCurvatureScanSteps;
+                    float bend = Mathf.Abs(CurvatureAt(segment, t));
+
+                    if (bend > worst) {
+                        worst = bend;
+                        best  = segment + t;
+                    }
+                }
+            }
+
+            return best;
+        }
+
+        /// <summary>The step scale curvature weighting asks for at a node-chain parameter.</summary>
+        public float StepScaleAtGlobal(float global) {
+            int segment = Mathf.Clamp(Mathf.FloorToInt(global), 0, Mathf.Max(SegmentCount - 1, 0));
+
+            return StepScaleAt(segment, global - segment);
+        }
+
+        /// <summary>The bias that would make the step at a parameter come out at a given length.</summary>
+        /// <remarks>
+        /// The inverse of the weighting, so a grip dragged to a distance can say what bias produced it.
+        /// Where the path is straight there is no bias that changes anything — the tightened scale is
+        /// 1, the two ends of the lerp coincide, and the equation has no solution rather than a large
+        /// one, so it reports failure instead of dividing by nothing.
+        /// </remarks>
+        public bool TryBiasForStep(float global, float metres, out float bias) {
+            bias = 0f;
+
+            int   segment   = Mathf.Clamp(Mathf.FloorToInt(global), 0, Mathf.Max(SegmentCount - 1, 0));
+            float bend      = Mathf.Abs(CurvatureAt(segment, global - segment));
+            float tightened = Mathf.Max(1f / (1f + (bend * MetresPerKey)), kMinStepScale);
+
+            if (tightened >= 1f - 0.0001f || MetresPerKey <= 0.0001f) {
+                return false;
+            }
+
+            float scale = Mathf.Clamp(metres / MetresPerKey, kMinStepScale, 1f);
+
+            bias = Mathf.Clamp01((scale - 1f) / (tightened - 1f));
+            return true;
+        }
+
+        /// <summary>One segment as the maths library's own curve type.</summary>
+        private Bezier4x3 SegmentBezier(int segment) {
+            (Vector3 a, Vector3 b, Vector3 c, Vector3 d) = GetSegment(segment);
+
+            return new Bezier4x3 { a = a, b = b, c = c, d = d };
         }
 
         /// <summary>Lifts the path over anything standing in its way, and records where it had to.</summary>

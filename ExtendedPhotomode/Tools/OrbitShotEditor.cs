@@ -149,7 +149,9 @@ namespace ExtendedPhotomode.Tools {
                 return false;
             }
 
-            if (orbit.KeyCount > kPreviewKeys) {
+            PreviewThinned = orbit.KeyCount > kPreviewKeys;
+
+            if (PreviewThinned) {
                 orbit.DegreesPerKey = Mathf.Abs(orbit.Sweep) / kPreviewKeys;
             }
 
@@ -181,6 +183,51 @@ namespace ExtendedPhotomode.Tools {
 
             buffer.DrawDashedLine(kSpokeColor, new Line3.Segment(centre, from), 0.6f, 3f, 2f);
             buffer.DrawDashedLine(kSpokeColor, new Line3.Segment(centre, to), 0.6f, 3f, 2f);
+        }
+
+        public override bool HasKeySpacing => true;
+
+        /// <summary>Sets the degrees between keys from a dragged key tick.</summary>
+        /// <remarks>
+        /// <para>
+        /// The same inversion the drawn path uses, in angle rather than arc length: key <c>i</c> sits
+        /// <c>i × DegreesPerKey</c> round from the start, so dragging it to a bearing chooses the
+        /// spacing that would put it there — <c>travelled / index</c> — and every other key follows.
+        /// Nothing about that key is stored; keys are a consequence of the spacing, not objects.
+        /// </para>
+        /// <para>
+        /// The travel is measured with <c>DeltaAngle</c> against the bearing that key currently has,
+        /// then added to what it already travelled, for the reason the end handle does the same: it
+        /// keeps a drag continuous past north instead of wrapping, so nudging key 12 does not fling
+        /// the spacing by 30° because 359° became 1°.
+        /// </para>
+        /// </remarks>
+        public override void SpaceKeys(int index, Vector3 world) {
+            if (index < 1 || !Subject.PinnedTarget.HasValue) {
+                return;
+            }
+
+            Polar(Subject.PinnedTarget.Value, world, out float bearing, out _);
+
+            float current = StartAngle + (index * Settings.OrbitDegreesPerKey);
+
+            // Signed angle between the two bearings as direction vectors, rather than Mathf.DeltaAngle
+            // on the degrees. Same answer, but it is measured the way the rest of the geometry here is
+            // measured — and it cannot be handed an angle outside -180..180 by accident, which is the
+            // failure mode DeltaAngle has when a sweep has wound past a full turn.
+            float2 from = new float2(Mathf.Sin(current * Mathf.Deg2Rad), Mathf.Cos(current * Mathf.Deg2Rad));
+            float2 to   = new float2(Mathf.Sin(bearing * Mathf.Deg2Rad), Mathf.Cos(bearing * Mathf.Deg2Rad));
+
+            float travelled = (index * Settings.OrbitDegreesPerKey)
+                            + (MathUtils.RotationAngleSignedRight(from, to) * Mathf.Rad2Deg);
+
+            // Signed sweeps run backwards, so the travel does too; the spacing itself is the
+            // magnitude, and the direction stays the sweep's business.
+            float degrees = Mathf.Abs(travelled) / index;
+
+            // The same 5..90 the panel's setter clamps to — one range for the row and the world.
+            Settings.OrbitDegreesPerKey = Mathf.Clamp(Mathf.RoundToInt(degrees), 5, 90);
+            Settings.ApplyAndSave();
         }
 
         private static int ClampRadius(float radius) {

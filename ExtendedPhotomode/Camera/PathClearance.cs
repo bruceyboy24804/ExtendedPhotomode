@@ -9,15 +9,22 @@ namespace ExtendedPhotomode.Camera {
     /// </para>
     /// </remarks>
     public enum PathClearanceMode {
+        [Systems.EnumOption("", "", Visible = false)]
         None = 0,
 
         /// <summary>Objects are ignored entirely.</summary>
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/ObstacleOff.svg",
+                            "Ignore buildings and other objects entirely.")]
         Off = 1,
 
         /// <summary>Obstructed stretches are drawn in warning colour, but the path is left alone.</summary>
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/ObstacleWarn.svg",
+                            "Draw obstructed stretches red and change nothing, leaving the fix to you.")]
         Warn = 2,
 
         /// <summary>Obstructed samples are lifted over what they hit, smoothly.</summary>
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/ObstacleLift.svg",
+                            "Raise the camera over what it hits when the shot is generated, easing the climb into the run-up either side.")]
         Lift = 3,
     }
 }

@@ -109,30 +109,33 @@
             // Set before the tangents are refreshed: closing the path changes what an end node's
             // neighbours are, and so what its auto tangent should be.
             path.Closed           = settings.PathClosed;
-            path.TerrainMode      = settings.PathTerrain;
+            path.TerrainMode      = Effective.PathTerrain;
             path.TerrainClearance = settings.PathClearance;
 
             path.RefreshAutoTangents();
 
             path.Duration     = settings.PathDuration;
             path.MetresPerKey = settings.PathMetresPerKey;
-            path.Pitch        = settings.PathPitch;
-            path.LookAhead    = settings.PathLookAhead;
-            path.Ease         = settings.PathEase;
-            path.LookMode     = settings.PathLook;
+            path.Pitch        = Effective.PathPitch;
+            path.LookAhead    = Effective.PathLookAhead;
+            path.Ease         = Effective.PathEase;
+            path.CurvatureBias = Effective.CurvatureBias;
+            PathLookMode look = Effective.PathLook(m_Subject.PinnedTarget.HasValue);
+
+            path.LookMode     = look;
 
             path.Rail = m_PathTool.RailPath;
 
             // A rail with fewer than two points cannot be aimed at, so the shot falls back rather than
             // generating with an aim that silently does nothing.
-            if (settings.PathLook == PathLookMode.Rail && !path.Rail.IsValid) {
+            if (look == PathLookMode.Rail && !path.Rail.IsValid) {
                 m_Log.Warn("Aim is set to Rail but no aim rail is drawn; facing along the path instead. " +
                            "Switch the tool to Rail and draw at least two points.");
 
                 path.LookMode = PathLookMode.Forward;
             }
 
-            if (settings.PathLook == PathLookMode.Target) {
+            if (look == PathLookMode.Target) {
                 if (m_Subject.PinnedTarget.HasValue) {
                     path.Target = m_Subject.PinnedTarget.Value;
                 } else {

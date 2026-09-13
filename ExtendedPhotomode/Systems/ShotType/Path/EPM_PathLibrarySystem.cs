@@ -134,6 +134,14 @@
         /// <summary>Trigger key that writes the drawn path to the timeline.</summary>
         public const string kGenerateTrigger = "generatePathShot";
 
+        /// <summary>Writes the shot straight onto the cinematic sequence photo mode plays.</summary>
+        /// <remarks>
+        /// The other destination. Generate puts a shot in the generated list, which is off-screen
+        /// unless the shot list is open — so pressing it looked like it did nothing at all. Naming
+        /// both destinations and offering them separately is what makes that visible.
+        /// </remarks>
+        public const string kSendToCameraTrigger = "sendToCinematicCamera";
+
         /// <summary>Binding key reporting what a click in the tool acts on.</summary>
         public const string kEditModeBinding = "pathEditMode";
 
@@ -246,6 +254,10 @@
             CreateTrigger(kGenerateTrigger,
                           () => World.GetOrCreateSystemManaged<EPM_ShotListSystem>()
                                      .AddShot(string.Empty));
+
+            CreateTrigger(kSendToCameraTrigger,
+                          () => World.GetOrCreateSystemManaged<EPM_ShotSequenceSystem>()
+                                     .Generate(Mod.Instance.Settings.Shot));
             CreateBinding(kEditModeBinding, () => (int)m_PathTool.EditMode);
             CreateBinding(kPlacementHeightBinding, () => Mod.Instance.Settings.PathPointHeight);
             CreateTrigger<int>(kSetEditModeTrigger, SetEditMode);

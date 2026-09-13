@@ -297,7 +297,7 @@
         public void ApplyFocus(IReadOnlyList<CameraSample> samples, float startTime) {
             Setting settings = Mod.Instance.Settings;
 
-            if (settings.Focus == FocusMode.Off || settings.Focus == FocusMode.None ||
+            if (Effective.Focus == FocusMode.Off || Effective.Focus == FocusMode.None ||
                 samples == null || samples.Count == 0) {
                 return;
             }
@@ -315,7 +315,7 @@
 
             var distances = new List<float>(samples.Count);
 
-            FocusSolver.Solve(samples, subject.Value, rackTo, settings.Focus, settings.FocusEase,
+            FocusSolver.Solve(samples, subject.Value, rackTo, Effective.Focus, settings.FocusEase,
                               distances);
 
             ApplyPointCurve(kFocusDistancePropertyId, samples, distances, startTime);
@@ -424,7 +424,7 @@
         public void ApplyRig(List<CameraSample> samples) {
             Setting settings = Mod.Instance.Settings;
 
-            RigSolver.Apply(samples, settings.Rig, settings.RigStrength, settings.RigSeed);
+            RigSolver.Apply(samples, Effective.Rig, settings.RigStrength, settings.RigSeed);
         }
 
         /// <summary>Applies the framing rule to a solved shot, whatever generator produced it.</summary>
@@ -438,7 +438,7 @@
         public void ApplyFraming(List<CameraSample> samples, List<float> focalLengths) {
             Setting settings = Mod.Instance.Settings;
 
-            if (settings.Framing == FramingRule.None) {
+            if (Effective.Framing == FramingRule.None) {
                 return;
             }
 
@@ -449,7 +449,7 @@
                 return;
             }
 
-            FramingSolver.Apply(samples, subject.Value, settings.Framing, focalLengths,
+            FramingSolver.Apply(samples, subject.Value, Effective.Framing, focalLengths,
                                 settings.FramingHoldSize, settings.FramingFocalLength);
         }
     }

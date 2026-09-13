@@ -20,20 +20,20 @@ Everything is written straight onto the **vanilla cinematic timeline**. Playback
 - Bug reports and feedback are very welcome on [Discord](https://discord.gg/4f7geN26S).
 
 ### Shot generators
-Pick a type from the **Shot** dropdown, frame your subject, and press Generate. The panel only shows the settings that apply to the shot you picked.
+Pick a type from the **Shot** dropdown at the top of the panel, frame your subject, and send it where you want it: **To timeline editor** stages it in the shot list, **To cinematic camera** writes it straight onto the sequence photo mode plays. Each confirms with a tick. The panel only shows the settings that apply to the shot you picked.
 
 * **Orbit** -- circle a subject at a set radius, height and sweep. Give it a different end radius and it spirals in or out as it goes round; a different end height and it climbs or descends into a helix. Ease the sweep to slow the swing at both ends without disturbing that travel.
 * **Dolly zoom** -- the camera travels while the lens counter-zooms, holding your subject the same size while the background rushes past. The lens is written as a real curve, so it stays editable afterwards.
 * **Drawn path** -- draw a route through your city and fly it.
 
 ### Drawing paths
-Open the path panel with **Ctrl+P**. The panel is the hub: it shows your saved paths, how many points the current one has, and buttons to start drawing or generate the shot. Opening it does not put you into the tool -- press **Draw path** when you actually want to edit, so you can browse the library without risking a stray click.
+Open the path panel with **Ctrl+P**. The panel is the hub: it shows your saved paths, how many points the current one has, and buttons to start drawing or send the shot on. Opening it does not put you into the tool -- press **Draw path** when you actually want to edit, so you can browse the library without risking a stray click.
 
 While drawing, click empty ground to add a point, click a segment to insert one, drag to move, **PageUp/PageDown** to change a point's height, **Ctrl+R** to reverse. What a click does depends on what's under the cursor, so there are no modes to get stuck in.
 
 **Right-click** a point to delete it. **Escape** backs out: once to stop drawing, again to close the panel. The two never overlap, so backing out can't cost you a point.
 
-Generate the shot with **Ctrl+Shift+P**, or from the Generate button. Paths can look along their own direction, hold a fixed heading, or track your pinned subject.
+Send the path with **Ctrl+Shift+P**, or with either send button. Paths can look along their own direction, hold a fixed heading, or track your pinned subject.
 
 Save paths by name and load them back on any later shot.
 
@@ -76,7 +76,7 @@ Save, load and delete whole sequences, with **Loop** and **Reset** in the header
 ### Shots and the cut
 Press **Shots** in the timeline header to slide out the shot list.
 
-Generating a shot doesn't drop it onto the timeline -- it goes to a **Generated shots** list first, so trying an idea never costs you the cut you'd already assembled. **Drag a shot** onto the timeline to put it in the cut, drag it back out to remove it, drag within the cut to reorder, and drag it onto the delete area to throw it away. Both targets tell you what they'll do while you're dragging. The panel tracks how much you've made and how much is actually in the cut as separate totals.
+**To timeline editor** doesn't drop a shot onto the timeline -- it goes to a **Generated shots** list first, so trying an idea never costs you the cut you'd already assembled. **Drag a shot** onto the timeline to put it in the cut, drag it back out to remove it, drag within the cut to reorder, and drag it onto the delete area to throw it away. Both targets tell you what they'll do while you're dragging. The panel tracks how much you've made and how much is actually in the cut as separate totals.
 
 **Double-click a name** to rename a shot. Press the **pencil** and that shot's settings load, the shot panel opens and the right editor for its type starts -- from the list back under your cursor in one press.
 
@@ -127,12 +127,30 @@ Click any shot and the **duration** and **key density** rows follow it. Change o
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
   <ChangeLog># 1.2.0
 
-A fix release.
+Fixes, plus the first in-world controls for the path tool.
 
-- **Fixed a crash** when editing keyframes in the timeline. The same fault could also send an edit to the *wrong* curve without saying so — if a shot has drifted from what you set, this is why.
-- **Undo and redo work.** They never have: both buttons were dead and always looked disabled.
-- **Box select stays in one graph.** A box drawn in Position no longer drags Rotation and Focus along with it, and it now has a height, so you can grab the top half of a curve instead of a full slice of time.
-- **Removed the orbit ring drawn over photo mode.** It appeared whatever you were shooting and could not be switched off without leaving photo mode. The ring you get while placing an orbit is unchanged.
+**Fixed**
+
+- A crash when editing keyframes. The same fault could also edit the wrong curve without saying so.
+- Undo and redo, which never worked.
+- Box select now stays in one graph, and has a height.
+- Keys are spaced evenly along a path instead of bunching through bends.
+- Raising a path point can be undone, and takes the whole selection with it.
+- The photo mode tab could hide the wrong sections.
+
+**New**
+
+- **Simple mode.** The panel keeps to shot type, subject, draw, duration and send, and the mod decides the rest. Turn on **Advanced** for every control.
+- A button in the top-left toolbar opens the panel. Ctrl+P still works.
+- Pick the shot type from a dropdown at the top of the path panel, before anything else.
+- **To timeline editor** and **To cinematic camera** replace Generate, and confirm with a tick. The first also opens the timeline and shot list, so the shot lands where you can see it.
+- Keyframes are drawn on the path.
+- Drag handles for key spacing, bend density, point height, lens and orbit radius.
+- The game's own elevation controls raise and lower points, snapping to round heights.
+
+**Removed**
+
+- The orbit ring drawn over photo mode. The one while placing an orbit is unchanged.
 
 Full details on [GitHub](https://github.com/bruceyboy24804/ExtendedPhotomode/blob/master/CHANGELOG.md).</ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon, buymeacoffee, kofi, crowdin, gitlab-->

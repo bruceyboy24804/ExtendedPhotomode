@@ -101,12 +101,31 @@ namespace ExtendedPhotomode.Systems {
 
             property.isEnabled ??= () => false;
 
-            if (property.group == ModGroup) {
+            // Whether the property will actually BECOME a widget, decided before it is handed over.
+            //
+            // AddProperty drops a duplicate id on the floor — it warns and returns, leaving the
+            // existing entry alone. Recording a section for it anyway put an entry in m_SectionHidden
+            // with no widget behind it, and from that point on the two lists were off by one: every
+            // predicate after the duplicate applied to the section BELOW the one it was written for.
+            // The count guard in ApplySectionVisibility catches the simple case and gives up, so the
+            // visible symptom is either every section showing or the wrong ones hiding, depending on
+            // how the miscount lands.
+            //
+            // The `/` rule is vanilla's own CheckMultiPropertyHandled, mirrored: a pair like
+            // "Radius/EndRadius" collapses to one row, so it must count once here too.
+            bool accepted = !m_PhotoModeRenderSystem.photoModeProperties.ContainsKey(property.id);
+
+            if (accepted && property.group == ModGroup) {
                 int slash = property.id.IndexOf("/");
 
                 if (slash < 0 || m_SeenMultiGroups.Add(property.id.Substring(0, slash))) {
                     m_SectionHidden.Add(m_CurrentSection);
                 }
+            }
+
+            if (!accepted) {
+                m_Log.Warn($"Photo mode property \"{property.id}\" is already registered; skipping it. "
+                         + "Its section would otherwise be counted without a row to apply it to.");
             }
 
             m_PhotoModeRenderSystem.AddProperty(property);
@@ -224,8 +243,21 @@ namespace ExtendedPhotomode.Systems {
                 }
 
                 if (tab.items.Count != m_SectionHidden.Count) {
+                    // Names what we registered, not just the counts. The lists are matched by
+                    // POSITION, so a mismatch means some row is about to be governed by another
+                    // row's rule — and without the ids there is no way to tell from a log which
+                    // registration introduced the drift.
+                    var registered = new System.Text.StringBuilder();
+
+                    foreach (PhotoModeProperty property in m_OwnProperties) {
+                        if (property.group == ModGroup) {
+                            registered.Append(property.id).Append(' ');
+                        }
+                    }
+
                     m_Log.Warn($"Expected {m_SectionHidden.Count} widgets in the {ModGroup} tab but " +
-                               $"found {tab.items.Count}; leaving every section visible.");
+                               $"found {tab.items.Count}; leaving every section visible. " +
+                               $"Registered ids: {registered}");
                     return;
                 }
 

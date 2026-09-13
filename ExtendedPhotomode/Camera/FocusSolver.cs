@@ -10,15 +10,22 @@ namespace ExtendedPhotomode.Camera {
     /// <summary>How focus distance is driven across a shot.</summary>
     /// <remarks>Sacrificial <c>None</c> at zero, like every enum bound to a photo mode dropdown.</remarks>
     public enum FocusMode {
+        [Systems.EnumOption("", "", Visible = false)]
         None = 0,
 
         /// <summary>Focus is left exactly as the panel has it.</summary>
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/FocusOff.svg",
+                            "Leave focus exactly as the panel has it.")]
         Off = 1,
 
         /// <summary>Focus tracks the pinned subject as the camera moves.</summary>
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/FocusTrack.svg",
+                            "Keep the pinned subject sharp however far the camera travels.")]
         Track = 2,
 
         /// <summary>Focus ramps from the subject to a second point across the shot.</summary>
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/FocusRack.svg",
+                            "Ramp focus from the subject to a second point across the shot.")]
         Rack = 3,
     }
 

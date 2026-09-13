@@ -15,15 +15,22 @@ namespace ExtendedPhotomode.Camera {
     /// </para>
     /// </remarks>
     public enum FollowMode {
+        [Systems.EnumOption("", "", Visible = false)]
         None = 0,
 
         /// <summary>The shot plays exactly as it was generated.</summary>
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/FollowOff.svg",
+                            "The shot plays exactly as generated.")]
         Off = 1,
 
         /// <summary>Keyframed position, but rotation re-solved every frame to keep the subject framed.</summary>
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/FollowAim.svg",
+                            "Keyframed position, but the camera turns to hold a moving subject in frame.")]
         Aim = 2,
 
         /// <summary>The whole shot rides along with the subject, and aims at it.</summary>
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/FollowRide.svg",
+                            "The whole shot travels with the subject, and aims at it.")]
         Ride = 3,
     }
 }

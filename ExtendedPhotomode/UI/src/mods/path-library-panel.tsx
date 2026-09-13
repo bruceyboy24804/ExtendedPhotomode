@@ -1,5 +1,5 @@
 import { useValue } from "cs2/api";
-import { Button, Icon, Scrollable, Tooltip } from "cs2/ui";
+import { Button, Dropdown, DropdownToggle, Icon, Scrollable, Tooltip } from "cs2/ui";
 import { type ReactElement, useEffect, useState } from "react";
 import { VC, VF, VT } from "vanilla/Components";
 import { closeButtonClass } from "./close-button";
@@ -8,6 +8,7 @@ import {
     closePanel,
     deletePath,
     generateShot,
+    sendToCamera,
     loadPath,
     loadedPathBinding,
     newPath,
@@ -25,7 +26,11 @@ import {
     ShotTypes,
     metricsBinding,
     numbersBinding,
+    setNumber,
 } from "./path-bindings";
+import { ShotTypeOptions } from "./generated/enum-options";
+import { shotListOpenBinding } from "./shot-bindings";
+import { timelineOpenBinding } from "./timeline-bindings";
 
 /**
  * What the panel calls itself, and what its tool button does, for each shot type.
@@ -56,6 +61,55 @@ const SHOT_LABELS: Record<
         stop: "Stop editing",
     },
 };
+
+/**
+ * A button that says it worked.
+ *
+ * Both destinations are off-screen — the generated list lives in another panel, the sequence in photo
+ * mode — so pressing either produced no feedback whatsoever and left you wondering whether it had
+ * fired. The tick is the whole point of this component; it replaces the button's label briefly rather
+ * than sitting beside it, so the row does not change width and shuffle its neighbours.
+ */
+function SendButton({
+    label,
+    tooltip,
+    disabled,
+    onSend,
+}: {
+    readonly label: string;
+    readonly tooltip: string;
+    readonly disabled: boolean;
+    readonly onSend: () => void;
+}): ReactElement {
+    const [sent, setSent] = useState(false);
+
+    useEffect(() => {
+        if (!sent) {
+            return;
+        }
+
+        // Cleared on unmount as well as on time, so closing the panel mid-tick cannot leave the timer
+        // holding a setState for a component that is gone.
+        const timer = window.setTimeout(() => setSent(false), 1200);
+
+        return () => window.clearTimeout(timer);
+    }, [sent]);
+
+    return (
+        <Tooltip tooltip={tooltip}>
+            <Button
+                variant="flat"
+                disabled={disabled}
+                onSelect={() => {
+                    onSend();
+                    setSent(true);
+                }}
+            >
+                {sent ? "✓ Sent" : label}
+            </Button>
+        </Tooltip>
+    );
+}
 
 const MAX_NAME = 60;
 
@@ -140,6 +194,7 @@ export function PathLibraryPanel(): ReactElement | null {
     const shot = numbers.shotType;
     const isPath = shot === ShotTypes.Path;
     const labels = SHOT_LABELS[shot] ?? SHOT_LABELS[ShotTypes.Path];
+    const selectedShot = ShotTypeOptions.find((option) => option.mode === numbers.shotType);
 
     // An orbit or dolly is ready the moment it has a subject; a path needs two points.
     const ready = isPath ? points >= 2 : numbers.hasSubject;
@@ -173,6 +228,52 @@ export function PathLibraryPanel(): ReactElement | null {
                         <Icon src="Media/Glyphs/Close.svg" tinted className={styles.closeIcon} />
                     </Button>
                 </Tooltip>
+            </div>
+
+            {/* The shot type comes FIRST, before anything that acts on one.
+                It used to live only in the tool options, which appear once the tool is running — so
+                opening the panel already committed you to whatever type was last used, and changing
+                it meant starting a shot, hunting for the row, and watching every label on this panel
+                rename itself around you. Choosing the type is the first decision, so it is the first
+                control.
+
+                A real dropdown, using the game's own Dropdown components. NOT an HTML <select>: one
+                of those takes the entire cohtml UI down with a "reading 'length'" error, which is why
+                every other choice in this mod is a row of buttons. These components are what the game
+                itself uses for the same job, so they carry its focus handling and styling with them. */}
+            <div className={styles.shotTypes}>
+                <Dropdown
+                    theme={VT.gameDropdown ?? VT.dropdown}
+                    focusKey={VF.FOCUS_DISABLED}
+                    content={
+                        <div className={VT.gameDropdown?.dropdownMenu ?? VT.dropdown?.dropdownMenu}>
+                            {/* Plain buttons, not DropdownItem: cs2/ui exports that name as a TYPE
+                                only — the menu's contents are the caller's to render, and the theme
+                                supplies the classes that make them look like the game's own items. */}
+                            {ShotTypeOptions.map((option) => (
+                                <button
+                                    key={option.mode}
+                                    className={`${
+                                        VT.gameDropdown?.dropdownItem ?? styles.shotItem
+                                    } ${numbers.shotType === option.mode ? "selected" : ""}`}
+                                    onClick={() => setNumber("shotType", option.mode)}
+                                >
+                                    <Icon src={option.src} tinted className={styles.shotIcon} />
+                                    {SHOT_LABELS[option.mode]?.title ?? ""}
+                                </button>
+                            ))}
+                        </div>
+                    }
+                >
+                    <DropdownToggle>
+                        {/* One flex row, so the icon sits beside the label. The toggle's own label
+                            wrapper lays its children out as blocks, which stacked the icon on top. */}
+                        <span className={styles.shotToggle}>
+                            <Icon src={selectedShot?.src ?? ""} tinted className={styles.shotIcon} />
+                            {labels.title}
+                        </span>
+                    </DropdownToggle>
+                </Dropdown>
             </div>
 
             {/* Row order is the workflow: start a path, work on it, then commit it. Generate shot
@@ -214,9 +315,46 @@ export function PathLibraryPanel(): ReactElement | null {
                     {previewing ? "Stop preview" : "Preview"}
                 </Button>
 
-                <Button variant="flat" disabled={!ready} onSelect={generateShot}>
-                    Generate shot
-                </Button>
+                {/* Both destinations, named. One button called "Generate" hid the fact that there
+                    are two places a shot can go, and that the one it chose is off-screen unless the
+                    shot list happens to be open — so it read as doing nothing at all. */}
+                <SendButton
+                    label="To timeline editor"
+                    tooltip="Add the shot to the generated shots list and open the timeline, ready to drag into the cut."
+                    disabled={!ready}
+                    onSend={() => {
+                        generateShot();
+
+                        // Take the user to where the shot went. The list is a pane inside the
+                        // timeline window, so both have to open — sending a shot somewhere you then
+                        // cannot see is the original complaint about this button.
+                        timelineOpenBinding.set(true);
+                        shotListOpenBinding.set(true);
+                    }}
+                />
+
+                <SendButton
+                    label="To cinematic camera"
+                    tooltip="Write the shot straight onto the cinematic sequence photo mode plays."
+                    disabled={!ready}
+                    onSend={sendToCamera}
+                />
+
+                {/* Progressive disclosure, not a mode: the same panel and tool with most of it hidden.
+                    Off, the mod decides everything it hides; on, every row appears and its value is
+                    used. Here rather than only in the options menu, because the moment you want
+                    more control is while you are shooting, not in a settings screen. */}
+                <Tooltip tooltip={numbers.advanced
+                    ? "Hide the fine controls and let the mod decide them."
+                    : "Show every control: key spacing, aim, terrain, rig, focus, framing and more."}>
+                    <Button
+                        variant="flat"
+                        selected={numbers.advanced}
+                        onSelect={() => setNumber("advanced", numbers.advanced ? 0 : 1)}
+                    >
+                        {numbers.advanced ? "Advanced: on" : "Advanced: off"}
+                    </Button>
+                </Tooltip>
             </div>
 
             <div className={styles.status}>

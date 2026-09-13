@@ -38,6 +38,9 @@ namespace ExtendedPhotomode.Systems {
         /// <summary>Whether a subject is pinned, without which orbit and dolly have no handles.</summary>
         public bool hasSubject;
 
+        /// <summary>Whether every control is shown, or the mod is deciding the hidden ones.</summary>
+        public bool advanced;
+
         #region Orbit
 
         public int orbitRadius;
@@ -146,6 +149,7 @@ namespace ExtendedPhotomode.Systems {
                 obstacleMode      = (int)settings.PathClearanceMode,
                 shotType          = (int)settings.Shot,
                 hasSubject        = Subject.PinnedTarget.HasValue,
+                advanced          = settings.Advanced,
 
                 orbitRadius    = settings.OrbitRadius,
                 orbitEndRadius = settings.OrbitEndRadius,
@@ -185,113 +189,37 @@ namespace ExtendedPhotomode.Systems {
             };
         }
 
+        /// <summary>Writes one tool value, addressed by the key the UI knows it as.</summary>
+        /// <remarks>
+        /// The forty-one hand-written cases this replaced each carried their own clamp, which made
+        /// this file the only place a range was written down — so the panel rows restated the ranges
+        /// in TypeScript and the world handles invented a third copy. They now come from
+        /// <see cref="ToolParameters"/>, which is the single place a bound is declared.
+        /// </remarks>
         private void SetNumber(string field, float value) {
-            Setting settings = Mod.Instance.Settings;
-            int     rounded  = Mathf.RoundToInt(value);
+            // Not a value, so not a parameter: pinning reaches into the subject system rather than
+            // storing a number, and clearing the pin is how you start a shot somewhere else — the
+            // next click on empty ground places a new subject instead of being swallowed by the
+            // existing one.
+            if (field == "pinCentre") {
+                if (value > 0.5f) {
+                    Subject.TryPinToSelection();
+                } else {
+                    Subject.PinnedTarget     = null;
+                    Subject.PinnedStartAngle = null;
+                    Subject.PinnedEntity     = Unity.Entities.Entity.Null;
+                }
 
-            switch (field) {
-                case "traceLength":       settings.PathTraceLength = Mathf.Clamp(rounded, 50, 5000); break;
-                case "traceSpacing":      settings.PathTraceSpacing = Mathf.Clamp(rounded, 5, 200); break;
-                case "simplifyTolerance": settings.PathSimplifyTolerance = Mathf.Clamp(rounded, 1, 100); break;
-                case "nudgeStep":         settings.PathNudgeStep = Mathf.Clamp(rounded, 1, 100); break;
-                case "railOffset":        settings.PathRailOffset = Mathf.Clamp(rounded, -500, 500); break;
-                case "obstacleClearance": settings.PathObstacleClearance = Mathf.Clamp(rounded, 0, 200); break;
-                case "terrainClearance":  settings.PathClearance = Mathf.Clamp(rounded, 0, 500); break;
-
-                case "terrainMode":
-                    settings.PathTerrain = (PathTerrainMode)Mathf.Clamp(rounded,
-                                                                        (int)PathTerrainMode.Free,
-                                                                        (int)PathTerrainMode.Follow);
-                    break;
-
-                // The shot type belongs here as much as any of the numbers do: it is chosen while
-                // authoring, and its dropdown lives in photo mode, where the tool cannot run.
-                case "shotType":
-                    settings.Shot = (ShotType)Mathf.Clamp(rounded, (int)ShotType.Orbit,
-                                                          (int)ShotType.Path);
-                    break;
-
-                case "obstacleMode":
-                    settings.PathClearanceMode = (PathClearanceMode)Mathf.Clamp(
-                        rounded, (int)PathClearanceMode.Off, (int)PathClearanceMode.Lift);
-                    break;
-
-                case "orbitRadius":    settings.OrbitRadius = Mathf.Clamp(rounded, 10, 1000); break;
-                case "orbitEndRadius": settings.OrbitEndRadius = Mathf.Clamp(rounded, 10, 1000); break;
-                case "orbitHeight":    settings.OrbitHeight = Mathf.Clamp(rounded, -100, 500); break;
-                case "orbitEndHeight": settings.OrbitEndHeight = Mathf.Clamp(rounded, -100, 500); break;
-                case "orbitSweep":     settings.OrbitSweep = Mathf.Clamp(rounded, -720, 720); break;
-                case "orbitDuration":  settings.OrbitDuration = Mathf.Clamp(rounded, 5, 300); break;
-                case "orbitSpacing":   settings.OrbitDegreesPerKey = Mathf.Clamp(rounded, 5, 90); break;
-                case "orbitLookAt":    settings.OrbitLookAtTarget = value > 0.5f; break;
-                case "orbitPreview":   settings.ShowOrbitPreview = value > 0.5f; break;
-
-                // Not rounded: the eases are the only fractional values here, and truncating them to
-                // whole numbers would leave a 0-to-1 control with exactly two positions.
-                case "orbitSweepEase": settings.OrbitSweepEase = Mathf.Clamp01(value); break;
-
-                case "pathDuration":  settings.PathDuration = Mathf.Clamp(rounded, 5, 300); break;
-                case "pathSpacing":   settings.PathMetresPerKey = Mathf.Clamp(rounded, 5, 200); break;
-                case "pathPitch":     settings.PathPitch = Mathf.Clamp(rounded, -80, 80); break;
-                case "pathLookAhead": settings.PathLookAhead = Mathf.Clamp(rounded, 0, 500); break;
-                case "pathEase":      settings.PathEase = Mathf.Clamp01(value); break;
-
-                case "pathLook":
-                    settings.PathLook = (PathLookMode)Mathf.Clamp(rounded, (int)PathLookMode.Forward,
-                                                                  (int)PathLookMode.Rail);
-                    break;
-
-                case "framingHold": settings.FramingHoldSize = value > 0.5f; break;
-                case "framingLens": settings.FramingFocalLength = Mathf.Clamp(value, 0.11f, 1466f); break;
-                case "focusDepth":  settings.FocusDepth = Mathf.Clamp01(value); break;
-                case "focusEase":   settings.FocusEase = Mathf.Clamp01(value); break;
-                case "rigStrength": settings.RigStrength = Mathf.Clamp01(value); break;
-                case "rigSeed":     settings.RigSeed = Mathf.Clamp(rounded, 1, 999); break;
-
-                case "framing":
-                    settings.Framing = (FramingRule)Mathf.Clamp(rounded, (int)FramingRule.None,
-                                                                (int)FramingRule.Headroom);
-                    break;
-
-                case "focus":
-                    settings.Focus = (FocusMode)Mathf.Clamp(rounded, (int)FocusMode.Off,
-                                                            (int)FocusMode.Rack);
-                    break;
-
-                case "rig":
-                    settings.Rig = (CameraRig)Mathf.Clamp(rounded, (int)CameraRig.Free,
-                                                          (int)CameraRig.Handheld);
-                    break;
-
-                case "follow":
-                    settings.Follow = (FollowMode)Mathf.Clamp(rounded, (int)FollowMode.Off,
-                                                              (int)FollowMode.Ride);
-                    break;
-
-                case "dollyStart":    settings.DollyStartDistance = Mathf.Clamp(rounded, 5, 1000); break;
-                case "dollyEnd":      settings.DollyEndDistance = Mathf.Clamp(rounded, 5, 1000); break;
-                case "dollyDuration": settings.DollyDuration = Mathf.Clamp(rounded, 1, 120); break;
-                case "dollyKeys":     settings.DollyKeys = Mathf.Clamp(rounded, 2, 120); break;
-
-                // Clearing the pin is how you start a shot somewhere else: the next click on empty
-                // ground places a new subject rather than being swallowed by an existing one.
-                case "pinCentre":
-                    if (value > 0.5f) {
-                        Subject.TryPinToSelection();
-                    } else {
-                        Subject.PinnedTarget     = null;
-                        Subject.PinnedStartAngle = null;
-                        Subject.PinnedEntity     = Unity.Entities.Entity.Null;
-                    }
-
-                    return;
-
-                default:
-                    m_Log.Warn($"Unknown path number \"{field}\".");
-                    return;
+                return;
             }
 
-            settings.ApplyAndSave();
+            if (!ToolParameters.TryGet(field, out ToolParameter parameter)) {
+                m_Log.Warn($"Unknown path number \"{field}\".");
+                return;
+            }
+
+            parameter.Set(value);
+            Mod.Instance.Settings.ApplyAndSave();
         }
 
         /// <summary>Copies the selected point's properties, or stamps them onto the selection.</summary>

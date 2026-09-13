@@ -43,6 +43,17 @@ import {
     snapValueBinding,
     toolActiveBinding,
 } from "./path-bindings";
+import {
+    CameraRigOptions,
+    FocusModeOptions,
+    FollowModeOptions,
+    FramingRuleOptions,
+    PathClearanceModeOptions,
+    PathLookModeOptions,
+    PathSnapModeOptions,
+    PathTerrainModeOptions,
+    ShotTypeOptions,
+} from "./generated/enum-options";
 import { uiHiddenBinding } from "./shot-bindings";
 
 const i_points = "coui://uil/Standard/ArrowsMoveAll.svg";
@@ -98,74 +109,22 @@ const UTILITIES = [
 // The shot type, mirrored out of the photo mode panel. Its dropdown lives there, and photo mode
 // forces the default tool — so without this the tool could author three shot types but could not be
 // told which one while it was open.
-const SHOT_TYPES = [
-    { mode: ShotTypes.Orbit, src: "coui://extendedphotomode/Camera_Icons/OrbitTool.svg", tooltip: "Orbit — circle a subject. Drag its centre and the two ends of the sweep." },
-    { mode: ShotTypes.DollyZoom, src: "coui://extendedphotomode/Camera_Icons/DollyTool.svg", tooltip: "Dolly zoom — travel towards or away from a subject while the lens counter-zooms. Drag the subject and the two ends of the track." },
-    { mode: ShotTypes.Path, src: "coui://extendedphotomode/Camera_Icons/PathTool.svg", tooltip: "Drawn path — click the ground to place points and fly the curve through them." },
-];
+// SHOT_TYPES is generated: see ShotTypeOptions, produced from [EnumOption] on the C# enum. The
+// hand-written table it replaced had no connection to that enum at all — adding a shot type left the
+// table short one entry, and renumbering one moved every icon after it onto the wrong choice.
 
-const LOOK_MODES = [
-    // One path with two cameras on it, four times over; only the cones move. Aim mode changes nothing
-    // about where the camera goes, so nothing about the path should change between these four either.
-    { mode: LookMode.Forward, src: "coui://extendedphotomode/Camera_Icons/AimForward.svg", tooltip: "Look along the path's own direction of travel." },
-    { mode: LookMode.Fixed, src: "coui://extendedphotomode/Camera_Icons/AimFixed.svg", tooltip: "Hold one compass heading for the whole move." },
-    { mode: LookMode.Target, src: "coui://extendedphotomode/Camera_Icons/AimTarget.svg", tooltip: "Keep the pinned subject framed, solving pitch for every keyframe." },
-    { mode: LookMode.Rail, src: "coui://extendedphotomode/Camera_Icons/AimRail.svg", tooltip: "Look at the matching point on the aim rail — the second drawn path." },
-];
 
-const FRAMINGS = [
-    // Viewfinders, not maps: framing is the one question about where the subject sits IN FRAME. The
-    // arrows these replace pointed in a direction, which is not what a framing rule is.
-    { mode: Framing.Off, src: "coui://extendedphotomode/Camera_Icons/FramingOff.svg", tooltip: "No framing rule; the shot aims however its own settings say." },
-    { mode: Framing.Centre, src: "coui://extendedphotomode/Camera_Icons/FramingCentre.svg", tooltip: "Hold the subject dead centre." },
-    { mode: Framing.LeftThird, src: "coui://extendedphotomode/Camera_Icons/FramingLeftThird.svg", tooltip: "Hold the subject on the left third, looking into the space on the right." },
-    { mode: Framing.RightThird, src: "coui://extendedphotomode/Camera_Icons/FramingRightThird.svg", tooltip: "Hold the subject on the right third, looking into the space on the left." },
-    { mode: Framing.Headroom, src: "coui://extendedphotomode/Camera_Icons/FramingHeadroom.svg", tooltip: "Centre the subject horizontally and sit it low, with headroom above." },
-];
 
-const FOCUS_MODES = [
-    // Drawn along the optical axis with the focal plane as a blue bar, since focus is purely a
-    // question of distance. Off has no bar, Track has one, Rack has two and a ramp.
-    { mode: Focus.Off, src: "coui://extendedphotomode/Camera_Icons/FocusOff.svg", tooltip: "Leave focus exactly as the panel has it." },
-    { mode: Focus.Track, src: "coui://extendedphotomode/Camera_Icons/FocusTrack.svg", tooltip: "Keep the pinned subject sharp however far the camera travels." },
-    { mode: Focus.Rack, src: "coui://extendedphotomode/Camera_Icons/FocusRack.svg", tooltip: "Ramp focus from the subject to a second point across the shot." },
-];
 
-const RIGS = [
-    // One trace, four amounts of character — clean, weighted, drifting, shaky. Rig is the only
-    // setting that changes how a move FEELS rather than where it goes, and read left to right this
-    // row is a scale, which the old pictograms could never have been.
-    { mode: Rig.Free, src: "coui://extendedphotomode/Camera_Icons/RigFree.svg", tooltip: "No rig — the move plays exactly as solved, which is mathematically perfect and reads as computer generated." },
-    { mode: Rig.Crane, src: "coui://extendedphotomode/Camera_Icons/RigCrane.svg", tooltip: "A heavy crane: slow to start, slow to stop, utterly smooth." },
-    { mode: Rig.Drone, src: "coui://extendedphotomode/Camera_Icons/RigDrone.svg", tooltip: "A drone: quick but never instant, drifting a little on the wind." },
-    { mode: Rig.Handheld, src: "coui://extendedphotomode/Camera_Icons/RigHandheld.svg", tooltip: "Handheld: follows the action closely and is never quite still." },
-];
 
-const FOLLOWS = [
-    // One scene: a subject that moves, ghost to solid. Off leaves the cone behind, Aim swings the
-    // cone across, Ride carries the camera too. The subject moving is the premise of the row.
-    { mode: Follow.Off, src: "coui://extendedphotomode/Camera_Icons/FollowOff.svg", tooltip: "The shot plays exactly as generated." },
-    { mode: Follow.Aim, src: "coui://extendedphotomode/Camera_Icons/FollowAim.svg", tooltip: "Keyframed position, but the camera turns to hold a moving subject in frame." },
-    { mode: Follow.Ride, src: "coui://extendedphotomode/Camera_Icons/FollowRide.svg", tooltip: "The whole shot travels with the subject, and aims at it." },
-];
 
 // Drawn as a set: one ridge, three curves over it. The stock icons that were here — an ✕, an arrow
 // and a grid — were three unrelated symbols, so nothing about them said they were the same choice.
 // Now the difference IS the shape of the line: through the hill, lifted over it, or parallel to it.
-const TERRAINS = [
-    { mode: TerrainMode.Free, src: "coui://extendedphotomode/Camera_Icons/TerrainFree.svg", tooltip: "Use the heights you placed, ignoring the ground." },
-    { mode: TerrainMode.Floor, src: "coui://extendedphotomode/Camera_Icons/TerrainFloor.svg", tooltip: "Keep your heights, but never let the path get closer to the ground than the clearance." },
-    { mode: TerrainMode.Follow, src: "coui://extendedphotomode/Camera_Icons/TerrainFollow.svg", tooltip: "Hold one altitude above the ground for the whole path, ignoring your heights — the drone shot." },
-];
 
-// The same treatment as TERRAINS: one scene, three curves over it. A skyline rather than a ridge,
+// The same treatment as PathTerrainModeOptions: one scene, three curves over it. A skyline rather than a ridge,
 // because Terrain/Free and Obstacle/Off both mean "ignore it and fly straight" — drawn against the
 // same scene the two rows would be indistinguishable, and the scene is what tells them apart.
-const OBSTACLES = [
-    { mode: ObstacleMode.Off, src: "coui://extendedphotomode/Camera_Icons/ObstacleOff.svg", tooltip: "Ignore buildings and other objects entirely." },
-    { mode: ObstacleMode.Warn, src: "coui://extendedphotomode/Camera_Icons/ObstacleWarn.svg", tooltip: "Draw obstructed stretches red and change nothing, leaving the fix to you." },
-    { mode: ObstacleMode.Lift, src: "coui://extendedphotomode/Camera_Icons/ObstacleLift.svg", tooltip: "Raise the camera over what it hits when the shot is generated, easing the climb into the run-up either side." },
-];
 
 // Each shot type gets its own pages: a drawn path has three groups of controls, an orbit and a dolly
 // two, and the labels differ — so the pager is per-type rather than a fixed three.
@@ -200,16 +159,9 @@ const MOVES = [
     { op: "moveHere", src: "coui://extendedphotomode/Camera_Icons/PlaceHere.svg", tooltip: "Move the whole path so its centre lands under the cursor, keeping its height above the ground." },
 ];
 
-// Plan view, where TERRAINS and OBSTACLES are cross-sections seen from the side. Snapping is about
+// Plan view, where PathTerrainModeOptions and PathClearanceModeOptions are cross-sections seen from the side. Snapping is about
 // where a click lands on the ground, and the change of viewpoint is what keeps a third row of blue
 // line over white scenery from reading as more of the same.
-const SNAPS = [
-    { mode: SnapMode.Free, src: "coui://extendedphotomode/Camera_Icons/SnapFree.svg", tooltip: "No snapping — the point lands where you click." },
-    { mode: SnapMode.Grid, src: "coui://extendedphotomode/Camera_Icons/SnapGrid.svg", tooltip: "Round to a fixed grid, for paths that run square to the city." },
-    { mode: SnapMode.Angle, src: "coui://extendedphotomode/Camera_Icons/SnapAngle.svg", tooltip: "Fix the heading from the previous point to a step, keeping the distance you reached." },
-    { mode: SnapMode.Point, src: "coui://extendedphotomode/Camera_Icons/SnapPoint.svg", tooltip: "Land exactly on a point already placed — how a closed loop meets itself with no gap." },
-    { mode: SnapMode.Network, src: "coui://extendedphotomode/Camera_Icons/SnapNetwork.svg", tooltip: "Follow the centreline of the road under the cursor, not where the click hit its surface." },
-];
 
 // Grid, angle and point each drive one number; the other two modes have none, which is what hides
 // the field rather than showing a box that does nothing.
@@ -284,10 +236,18 @@ function PathToolOptionsPanel(): ReactElement {
     const previewing = useValue(previewBinding.binding);
     const [page, setPage] = useState(0);
 
+    // Simple mode: the mod decides everything below, so none of it is shown. What is left is the
+    // handful of choices that genuinely need a person — what to shoot, how long for, and where to
+    // point it. Every hidden row has an answer in C#'s Effective table; hiding a control only works
+    // when what it would have set is good without you.
+    if (!numbers.advanced) {
+        return <SimpleOptions numbers={numbers} />;
+    }
+
     return (
         <>
             <VC.Section title="Shot">
-                {SHOT_TYPES.map(({ mode, src, tooltip }) => (
+                {ShotTypeOptions.map(({ mode, src, tooltip }) => (
                     <VC.ToolButton
                         key={mode}
                         src={src}
@@ -408,7 +368,7 @@ function PathToolOptionsPanel(): ReactElement {
             {/* Snapping lives here rather than only on the photo mode panel because drawing happens
                 in normal gameplay, where that panel is not on screen at all. */}
             <VC.Section title="Snap">
-                {SNAPS.map(({ mode, src, tooltip }) => (
+                {PathSnapModeOptions.map(({ mode, src, tooltip }) => (
                     <VC.ToolButton
                         key={mode}
                         src={src}
@@ -449,7 +409,7 @@ function PathToolOptionsPanel(): ReactElement {
             {/* Terrain and obstacles both reshape what is drawn, so they belong where the path is
                 visible rather than on the photo mode panel, where it is not. */}
             <VC.Section title="Terrain">
-                {TERRAINS.map(({ mode, src, tooltip }) => (
+                {PathTerrainModeOptions.map(({ mode, src, tooltip }) => (
                     <VC.ToolButton
                         key={mode}
                         src={src}
@@ -469,7 +429,7 @@ function PathToolOptionsPanel(): ReactElement {
             )}
 
             <VC.Section title="Obstacles">
-                {OBSTACLES.map(({ mode, src, tooltip }) => (
+                {PathClearanceModeOptions.map(({ mode, src, tooltip }) => (
                     <VC.ToolButton
                         key={mode}
                         src={src}
@@ -1001,6 +961,35 @@ function NumberSection({
  * look-ats both read it — but it is not what the shot is made of, so it does not belong at the top
  * of every page.
  */
+/**
+ * The tool options in simple mode: subject and duration, nothing else.
+ *
+ * Duration is the one number every shot needs a human for — there is no automatic answer to how
+ * long a move should take. The subject decides where the camera looks. Everything else the mod can
+ * choose better than a default slider can, and does, in C#'s Effective table.
+ */
+function SimpleOptions({ numbers }: { readonly numbers: PathNumbers }): ReactElement {
+    const durationKey =
+        numbers.shotType === ShotTypes.Orbit ? "orbitDuration"
+        : numbers.shotType === ShotTypes.DollyZoom ? "dollyDuration"
+        : "pathDuration";
+
+    const duration =
+        numbers.shotType === ShotTypes.Orbit ? numbers.orbitDuration
+        : numbers.shotType === ShotTypes.DollyZoom ? numbers.dollyDuration
+        : numbers.pathDuration;
+
+    return (
+        <>
+            <SubjectSection numbers={numbers} />
+
+            <SliderSection title="Duration" value={duration} suffix="s"
+                           min={5} max={120} step={1}
+                           onChange={(v) => setNumber(durationKey, v)} />
+        </>
+    );
+}
+
 function SubjectSection({ numbers }: { readonly numbers: PathNumbers }): ReactElement {
     return (
         <VC.Section title="Subject">
@@ -1160,7 +1149,7 @@ function PathShape({ numbers }: { readonly numbers: PathNumbers }): ReactElement
                            onChange={(v) => setNumber("pathPitch", v)} />
 
             <VC.Section title="Aim">
-                {LOOK_MODES.map(({ mode, src, tooltip }) => (
+                {PathLookModeOptions.map(({ mode, src, tooltip }) => (
                     <VC.ToolButton
                         key={mode}
                         src={src}
@@ -1199,7 +1188,7 @@ function ShotLook({ numbers }: { readonly numbers: PathNumbers }): ReactElement 
     return (
         <>
             <VC.Section title="Framing">
-                {FRAMINGS.map(({ mode, src, tooltip }) => (
+                {FramingRuleOptions.map(({ mode, src, tooltip }) => (
                     <VC.ToolButton
                         key={mode}
                         src={src}
@@ -1232,7 +1221,7 @@ function ShotLook({ numbers }: { readonly numbers: PathNumbers }): ReactElement 
             )}
 
             <VC.Section title="Focus">
-                {FOCUS_MODES.map(({ mode, src, tooltip }) => (
+                {FocusModeOptions.map(({ mode, src, tooltip }) => (
                     <VC.ToolButton
                         key={mode}
                         src={src}
@@ -1258,7 +1247,7 @@ function ShotLook({ numbers }: { readonly numbers: PathNumbers }): ReactElement 
             )}
 
             <VC.Section title="Rig">
-                {RIGS.map(({ mode, src, tooltip }) => (
+                {CameraRigOptions.map(({ mode, src, tooltip }) => (
                     <VC.ToolButton
                         key={mode}
                         src={src}
@@ -1284,7 +1273,7 @@ function ShotLook({ numbers }: { readonly numbers: PathNumbers }): ReactElement 
             )}
 
             <VC.Section title="Follow">
-                {FOLLOWS.map(({ mode, src, tooltip }) => (
+                {FollowModeOptions.map(({ mode, src, tooltip }) => (
                     <VC.ToolButton
                         key={mode}
                         src={src}

@@ -1,6 +1,7 @@
 import type { ModRegistrar } from "cs2/modding";
 import { OrbitSelectionButton } from "mods/orbit-selection-button";
 import { PhotoModePanelPortal } from "mods/photo-mode-panel-portal";
+import { TopLeftButton } from "./mods/top-left-button";
 import { PathLibraryPanel } from "mods/path-library-panel";
 import { PathToolOptions, PathToolOptionsVisibility } from "mods/path-tool-options";
 import { TimelinePanel } from "mods/timeline-panel";
@@ -57,6 +58,16 @@ const EXTRA_THEMES = [
         path: "game-ui/common/input/slider/themes/default.module.scss",
         name: "slider",
     },
+    {
+        // The GAME's dropdown theme, not the common input module.
+        //
+        // `game-ui/common/input/dropdown/dropdown.module.scss` carries the toggle and the menu but no
+        // item class, so items rendered against it came out unstyled — no padding, no hover. The item
+        // classes live in this theme, which is what the game composes over the base module for its own
+        // dropdowns. Confirmed against the readable UI bundle rather than guessed at.
+        path: "game-ui/game/themes/game-dropdown.module.scss",
+        name: "gameDropdown",
+    },
 ];
 
 const register: ModRegistrar = (moduleRegistry) => {
@@ -85,6 +96,9 @@ const register: ModRegistrar = (moduleRegistry) => {
         "MouseToolOptions",
         PathToolOptions
     );
+
+    // The way in from the HUD, beside the other mods' buttons. Ctrl+P still works.
+    moduleRegistry.append("GameTopLeft", TopLeftButton);
 
     moduleRegistry.append("Game", OrbitSelectionButton);
 

@@ -159,6 +159,12 @@ namespace ExtendedPhotomode {
         /// <summary>Default for <see cref="RestoreTimeAndWeatherOnExit"/>.</summary>
         public const bool kDefaultRestoreTimeAndWeatherOnExit = true;
 
+        /// <summary>Default for <see cref="Advanced"/>. Off: the mod decides until asked not to.</summary>
+        public const bool kDefaultAdvanced = false;
+
+        /// <summary>Default for <see cref="PathCurvatureBias"/>. Off in advanced mode; simple mode ignores it.</summary>
+        public const float kDefaultPathCurvatureBias = 0f;
+
         /// <summary>Default for <see cref="PathDuration"/>.</summary>
         public const int kDefaultPathDuration = 30;
 
@@ -348,6 +354,24 @@ namespace ExtendedPhotomode {
         /// </summary>
         [SettingsUISection(kSection, kRenderingGroup)]
         public bool RestoreTimeAndWeatherOnExit { get; set; } = kDefaultRestoreTimeAndWeatherOnExit;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether every control is shown and driven by hand.
+        /// </summary>
+        /// <remarks>
+        /// Off, the panel shows shot type, subject, draw, duration and send, and everything hidden is
+        /// decided by <see cref="Systems.Effective"/>. On, every row appears and its own value is used.
+        /// Progressive disclosure rather than two modes: it is the same panel with most of it hidden,
+        /// so nothing can drift between a "simple" UI and an "advanced" one.
+        /// </remarks>
+        [SettingsUISection(kSection, kRenderingGroup)]
+        public bool Advanced { get; set; } = kDefaultAdvanced;
+
+        /// <summary>
+        /// Gets or sets how much tighter keys are spaced through bends, 0 to 1. Advanced mode only.
+        /// </summary>
+        [SettingsUIHidden]
+        public float PathCurvatureBias { get; set; } = kDefaultPathCurvatureBias;
 
         /// <summary>
         /// Gets or sets a value indicating whether the orbit that would be generated is drawn in the
@@ -814,6 +838,8 @@ namespace ExtendedPhotomode {
             TimeOfDayEase         = kDefaultTimeOfDayEase;
             TimeOfDayRange        = kDefaultTimeOfDayRange;
             Shot                  = kDefaultShot;
+            Advanced              = kDefaultAdvanced;
+            PathCurvatureBias     = kDefaultPathCurvatureBias;
             Follow                = kDefaultFollow;
             PathClosed            = kDefaultPathClosed;
             PathTerrain           = kDefaultPathTerrain;

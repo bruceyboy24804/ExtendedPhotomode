@@ -14,12 +14,20 @@ namespace ExtendedPhotomode.Camera {
     /// </para>
     /// </remarks>
     public enum ShotType {
+        // Not offered as a choice: this exists to be eaten by the dropdown, per the remarks above.
+        [Systems.EnumOption("", "", Visible = false)]
         None = 0,
 
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/OrbitTool.svg",
+                            "Orbit — circle a subject. Drag its centre and the two ends of the sweep.")]
         Orbit = 1,
 
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/DollyTool.svg",
+                            "Dolly zoom — travel towards or away from a subject while the lens counter-zooms. Drag the subject and the two ends of the track.")]
         DollyZoom = 2,
 
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/PathTool.svg",
+                            "Drawn path — click the ground to place points and fly the curve through them.")]
         Path = 3,
     }
 }

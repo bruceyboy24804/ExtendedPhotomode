@@ -62,6 +62,10 @@
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.SmoothCameraRotation)),
                   "The game flattens the rotation curve at every keyframe, so a cinematic camera stalls once per key as it turns. Leave this on to keep the rotation moving at a constant speed." },
 
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.Advanced)), "Advanced controls" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.Advanced)),
+                  "Show every control and use its value. Off, the panel keeps to shot type, subject, draw, duration and send, and the mod decides the rest: keys tighten through bends, the camera aims at your subject, the path never drops below ground and lifts over buildings, and a drone rig keeps it from looking computer-generated." },
+
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.RestoreTimeAndWeatherOnExit)), "Restore time and weather on exit" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.RestoreTimeAndWeatherOnExit)),
                   "Leaving photo mode clears the game time override, which permanently disables Time & Weather Anarchy for the rest of the session. Leave this on to put your time and weather settings back." },
@@ -124,6 +128,11 @@
                 { Hint(PathHints.InsertPoint), "Insert point" },
                 { Hint(PathHints.MovePoint), "Move point" },
                 { Hint(PathHints.ShapeCurve), "Shape curve" },
+                { Hint(PathHints.SpaceKeys), "Drag to space keyframes" },
+                { Hint(PathHints.RaisePoint), "Drag to raise or lower" },
+                { Hint(PathHints.SetLens), "Drag to set the lens" },
+                { Hint(PathHints.SetRadius), "Drag to set the radius" },
+                { Hint(PathHints.BendKeys), "Drag to tighten keys through bends" },
                 { Hint(PathHints.PickHandle), "Drag a handle" },
                 { Hint(PathHints.SharpCorner), "Sharp corner" },
                 { Hint(PathHints.SmoothCorner), "Smooth corner" },

@@ -25,6 +25,16 @@
 
         public const string ShapeCurve = kPrefix + "ShapeCurve";
 
+        public const string SpaceKeys = kPrefix + "SpaceKeys";
+
+        public const string RaisePoint = kPrefix + "RaisePoint";
+
+        public const string SetLens = kPrefix + "SetLens";
+
+        public const string SetRadius = kPrefix + "SetRadius";
+
+        public const string BendKeys = kPrefix + "BendKeys";
+
         public const string PickHandle = kPrefix + "PickHandle";
 
         public const string SharpCorner = kPrefix + "SharpCorner";

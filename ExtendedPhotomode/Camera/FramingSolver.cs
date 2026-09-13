@@ -12,18 +12,27 @@ namespace ExtendedPhotomode.Camera {
     /// Shaped with a sacrificial <c>None</c> at zero, like every enum bound to a photo mode dropdown.
     /// </remarks>
     public enum FramingRule {
+        [Systems.EnumOption("", "", Visible = false)]
         None = 0,
 
         /// <summary>Dead centre.</summary>
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/FramingCentre.svg",
+                            "Hold the subject dead centre.")]
         Centre = 1,
 
         /// <summary>On the left third, looking into the right of frame.</summary>
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/FramingLeftThird.svg",
+                            "Hold the subject on the left third, looking into the space on the right.")]
         LeftThird = 2,
 
         /// <summary>On the right third, looking into the left of frame.</summary>
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/FramingRightThird.svg",
+                            "Hold the subject on the right third, looking into the space on the left.")]
         RightThird = 3,
 
         /// <summary>Centred horizontally, sitting low with headroom above.</summary>
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/FramingHeadroom.svg",
+                            "Centre the subject horizontally and sit it low, with headroom above.")]
         Headroom = 4,
     }
 

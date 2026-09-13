@@ -43,6 +43,18 @@ namespace ExtendedPhotomode.Tools {
         /// <summary>Roughly how many view cones to draw along a shot, whatever its keyframe count.</summary>
         private const int kShotFrustums = 10;
 
+        /// <summary>Diameter of the tick marking one generated keyframe on the shot line.</summary>
+        /// <remarks>
+        /// Deliberately smaller than <c>kPointDiameter</c>, and drawn without the stem and ring that a
+        /// <see cref="ShotHandle"/> gets. These are a readout, not something you can grab, and a marker
+        /// that looks draggable and is not is worse than no marker at all.
+        /// </remarks>
+        private const float kKeyTickDiameter = 2f;
+
+        /// <summary>Brighter than the shot line so the ticks read against it, and the same hue so they
+        /// belong to it.</summary>
+        private static readonly Color kKeyTickColor = new Color(1f, 1f, 1f, 0.75f);
+
         private int m_HoveredHandleId = -1;
 
         private int m_DraggedHandleId = -1;
@@ -97,6 +109,12 @@ namespace ExtendedPhotomode.Tools {
 
             m_HoveredHandleId = FindHoveredShotHandle();
 
+            // Against last frame's preview: it is filled by DrawShotEditing at the end of this method,
+            // so the alternative is solving the shot twice a frame to make a hover test one frame
+            // fresher. Not worth it — the ticks have not moved in the meantime unless something else
+            // changed the shot, and that redraws anyway.
+            m_HoveredShotKey = FindHoveredShotKey(editor);
+
             HandleShotHeight(editor);
             HandleShotInput(editor);
             DrawShotEditing(editor);
@@ -122,6 +140,27 @@ namespace ExtendedPhotomode.Tools {
         }
 
         private void HandleShotInput(ShotEditorBase editor) {
+            // Ahead of the handles, and safe to be: FindHoveredShotKey already yields to them, so a
+            // drag can only start here when the cursor is on a tick and on nothing else.
+            if (m_DraggingShotKey) {
+                if (!applyAction.IsPressed()) {
+                    m_DraggingShotKey = false;
+                    m_DraggedShotKey  = -1;
+                    return;
+                }
+
+                // Against a level plane at the tick's own height, the rule the shot handles use for
+                // anything not on the ground: an orbit key sits at the shot's height, and following
+                // the terrain hit instead would read the bearing from a point somewhere below it.
+                if (PathPicking.TryHitPlane(m_ShotPreview[Mathf.Min(m_DraggedShotKey,
+                                                                   m_ShotPreview.Count - 1)].Position.y,
+                                            out float3 hit)) {
+                    editor.SpaceKeys(m_DraggedShotKey, hit);
+                }
+
+                return;
+            }
+
             if (m_DraggedHandleId >= 0) {
                 if (!applyAction.IsPressed()) {
                     m_DraggedHandleId = -1;
@@ -138,6 +177,12 @@ namespace ExtendedPhotomode.Tools {
 
             if (m_HoveredHandleId >= 0) {
                 m_DraggedHandleId = m_HoveredHandleId;
+                return;
+            }
+
+            if (m_HoveredShotKey >= 1) {
+                m_DraggedShotKey  = m_HoveredShotKey;
+                m_DraggingShotKey = true;
                 return;
             }
 
@@ -215,6 +260,7 @@ namespace ExtendedPhotomode.Tools {
 
             if (editor.TryPreview(m_ShotPreview)) {
                 DrawShotLine(ref buffer, ref heights, editor.LineColor);
+                DrawShotKeys(ref buffer, editor);
                 DrawShotFrustums(ref buffer);
             }
 
@@ -264,6 +310,81 @@ namespace ExtendedPhotomode.Tools {
         /// of them and a dolly has as many as you ask for, so drawing one per key turns the shot into
         /// a solid fan — the cones stop describing the aim and start hiding it.
         /// </remarks>
+        /// <summary>Marks every keyframe the shot will generate, on the line it will fly.</summary>
+        /// <remarks>
+        /// <para>
+        /// The keys were always there — <see cref="m_ShotPreview"/> IS the solved keyframe list, and
+        /// the shot line is drawn by joining consecutive entries of it — but nothing marked them, so
+        /// key density was the one shot parameter with no representation in the world at all. Changing
+        /// "Key every" moved a number and altered nothing you could see: the line is identical either
+        /// way, and the frustums are capped at <see cref="kShotFrustums"/> and decimated, so their
+        /// spacing deliberately says nothing about the keys.
+        /// </para>
+        /// <para>
+        /// Drawn as plain ticks rather than as handles. They are honest feedback about what will land
+        /// on the timeline, and dense ticks reading as a near-solid line is the correct answer to a
+        /// spacing that is too fine, not a rendering fault to hide.
+        /// </para>
+        /// </remarks>
+        private void DrawShotKeys(ref OverlayRenderSystem.Buffer buffer, ShotEditorBase editor) {
+            // Nothing is drawn while the preview is thinned, because then these samples are a drawing
+            // of the shot rather than its keys — a tick each would report a key count the shot is not
+            // going to generate. At that density (past kPreviewKeys) the ticks would merge into a
+            // solid line and say nothing anyway, so there is no readout being given up.
+            if (editor.PreviewThinned) {
+                return;
+            }
+
+            // The span being divided, from the dragged key round to the end handle. Straight dashes
+            // between consecutive keys rather than a dashed bezier: the shot line itself is already
+            // drawn as chords between these same samples, so a smooth curve here would not lie along
+            // the line it is annotating.
+            if (m_DraggingShotKey && m_DraggedShotKey >= 1) {
+                for (int i = Mathf.Min(m_DraggedShotKey, m_ShotPreview.Count - 1);
+                     i < m_ShotPreview.Count - 1; i++) {
+                    buffer.DrawDashedLine(kKeyGuideColor,
+                                          new Line3.Segment(m_ShotPreview[i].Position,
+                                                            m_ShotPreview[i + 1].Position),
+                                          kKeyGuideWidth, kKeyGuideDash, kKeyGuideGap);
+                }
+            }
+
+            for (int i = 0; i < m_ShotPreview.Count; i++) {
+                bool hot = editor.HasKeySpacing &&
+                           (i == m_HoveredShotKey || (m_DraggingShotKey && i == m_DraggedShotKey));
+
+                DrawMarker(ref buffer, hot ? kHoverColor : kKeyTickColor, m_ShotPreview[i].Position,
+                           hot ? kKeyTickDiameter * 2f : kKeyTickDiameter);
+            }
+        }
+
+        /// <summary>Which key tick on the shot line the cursor is over, or -1.</summary>
+        /// <remarks>
+        /// Offered only when the ticks are truthful and the editor has a spacing to set. Yields to the
+        /// shot's own handles: the first key sits exactly under the start handle, and moving the shot
+        /// always outranks retuning its key density.
+        /// </remarks>
+        private int FindHoveredShotKey(ShotEditorBase editor) {
+            if (editor == null || !editor.HasKeySpacing || editor.PreviewThinned ||
+                m_HoveredHandleId >= 0 || m_ShotPreview.Count < 3 ||
+                !PathPicking.TryGetMouseRay(out float3 origin, out float3 direction)) {
+                return -1;
+            }
+
+            int   best    = -1;
+            float nearest = float.MaxValue;
+
+            for (int i = 1; i < m_ShotPreview.Count; i++) {
+                if (PathPicking.TryHitSphere(origin, direction, m_ShotPreview[i].Position,
+                                             kKeyPickRadius, out float t) && t < nearest) {
+                    nearest = t;
+                    best    = i;
+                }
+            }
+
+            return best;
+        }
+
         private void DrawShotFrustums(ref OverlayRenderSystem.Buffer buffer) {
             if (!Mod.Instance.Settings.PathShowFrustums || m_ShotPreview.Count == 0) {
                 return;
@@ -289,6 +410,10 @@ namespace ExtendedPhotomode.Tools {
                 if (handle.Id == m_HoveredHandleId) {
                     return handle.Hint;
                 }
+            }
+
+            if (m_HoveredShotKey >= 1) {
+                return PathHints.SpaceKeys;
             }
 
             return PathHints.PlaceSubject;

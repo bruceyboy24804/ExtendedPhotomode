@@ -130,6 +130,70 @@
 // Spacing is a symmetric margin on each button against a matching negative one on the row, not the
 // `spaced` mixin. That mixin puts margin on one side only, which a wrapped row cannot compensate for
 // — the first button of the second row would sit 4rem right of the first button of the first.
+// The shot type row. Its own rule rather than reusing `.actions`, whose children are `flex: 1 1 40%`
+// so that TEXT buttons share the width evenly and wrap in pairs. Icon buttons inherited that and came
+// out 275px wide and 56px tall, with the third wrapping onto a row of its own — three enormous
+// panels with a small picture in each.
+//
+// These are square, sized by their icon, and sit together at their natural width.
+.shotTypes {
+    display: flex;
+    align-items: center;
+    padding: 8rem 10rem 0 10rem;
+
+    // The dropdown fills the row, like the action buttons under it. Left to its content it hugs
+    // the current label and sits as a stub in the corner — and a control that is narrower than the
+    // rows it governs reads as less important than them, which is backwards.
+    > * {
+        flex: 1 1 auto;
+        width: 100%;
+    }
+
+    button {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+// The icon inside the dropdown's toggle and its items, sized to sit on the text baseline rather than
+// stretching the row to the icon's own height.
+// The dropdown's items.
+//
+// Styled here rather than from the vanilla dropdown theme: that theme supplies a toggle and a menu
+// class, but no item class reached the markup — cs2/ui exports DropdownItem as a TYPE only, so the
+// items are ours to render and therefore ours to dress. Matched to the game's own row metrics so the
+// menu still reads as one of its dropdowns.
+.shotItem {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 6rem 10rem;
+    border: none;
+    color: var(--menuText1Normal);
+    font-size: 14rem;
+    text-align: left;
+    background-color: transparent;
+
+    &:hover {
+        background-color: var(--menuControlItemHover, rgba(255, 255, 255, 0.15));
+    }
+
+    &.selected {
+        background-color: var(--menuControlItemSelected, rgba(255, 255, 255, 0.25));
+    }
+}
+
+.shotToggle {
+    display: flex;
+    align-items: center;
+}
+
+.shotIcon {
+    width: 20rem;
+    height: 20rem;
+    margin-right: 6rem;
+}
+
 .actions {
     display: flex;
     flex-wrap: wrap;

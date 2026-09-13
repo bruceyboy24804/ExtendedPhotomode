@@ -113,6 +113,8 @@ export type PathNumbers = {
     obstacleMode: number;
     shotType: number;
     hasSubject: boolean;
+    /** Whether every control is shown; off, the mod decides the hidden ones. */
+    advanced: boolean;
 
     orbitRadius: number;
     orbitEndRadius: number;
@@ -152,7 +154,10 @@ export type PathNumbers = {
 };
 
 /** Mirrors ExtendedPhotomode.Camera.ShotType. */
-export const ShotTypes = { Orbit: 1, DollyZoom: 2, Path: 3 } as const;
+// Re-exported from the generated module rather than mirrored by hand. The literal that used to sit
+// here restated ShotType.cs, and nothing tied the two together: renumbering the C# enum left this
+// pointing every consumer at the wrong shot, silently, because both sides are plain ints on the wire.
+export { ShotType as ShotTypes, ShotTypeOptions } from "./generated/enum-options";
 
 /** Mirrors the shot-look enums. Each has a sacrificial 0 that the panel never offers. */
 export const LookMode = { Forward: 1, Fixed: 2, Target: 3, Rail: 4 } as const;
@@ -173,6 +178,7 @@ export const numbersBinding = new OneWayBinding<PathNumbers>("pathNumbers", {
     obstacleMode: ObstacleMode.Warn,
     shotType: 3,
     hasSubject: false,
+    advanced: false,
 
     orbitRadius: 150,
     orbitEndRadius: 150,
@@ -251,7 +257,16 @@ export const click = (): void => trigger("audio", "playSound", "select-item", 1)
 
 export const editPoint = triggers.create<[string, number]>("editPathPoint");
 export const selectPoint = triggers.create<[number]>("selectPathPoint");
+/**
+ * The two places a finished shot can go.
+ *
+ * `generateShot` adds it to the generated shots list, which the timeline panel shows; it does NOT
+ * touch the cinematic sequence, which is why pressing it with the shot list closed looked like it
+ * did nothing. `sendToCamera` writes it straight onto the sequence photo mode plays.
+ */
 export const generateShot = triggers.create<[]>("generatePathShot");
+
+export const sendToCamera = triggers.create<[]>("sendToCinematicCamera");
 export const newPath = triggers.create<[]>("newPath");
 export const importFromSequence = triggers.create<[]>("importPathFromSequence");
 

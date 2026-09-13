@@ -82,6 +82,14 @@
         // the terrain hit — so it wants to be about the width of the drawn tube, not a broad catchment.
         private const float kInsertRadius = 6f;
 
+        /// <summary>How far the mouse ray is extended when testing it against a curve.</summary>
+        /// <remarks>
+        /// <c>MathUtils.Distance</c> takes a SEGMENT, not an infinite ray, so it needs an end. Long
+        /// enough to cross any city from any camera height; the cost of overshooting is nothing, while
+        /// falling short would silently stop picking at distance.
+        /// </remarks>
+        private const float kRayLength = 20000f;
+
         private const float kRenderSpacing = 4f;
 
         private const float kHandlePickRadius = 4f;
@@ -89,6 +97,25 @@
         private const float kHandleGripDiameter = 2.5f;
 
         private const float kPointPickRadius = 5f;
+
+        /// <summary>Pick radius for a key tick — tight, because ticks crowd together at fine spacings.</summary>
+        private const float kKeyPickRadius = 3f;
+
+        // The dashed guide, matching the Network Tools mod's handle connectors rather than vanilla's
+        // guide lines. Its NT_Dimensions has LINE_WIDTH = 0.8 with dash and gap both 2 — an even
+        // on-off rhythm at four times the line's width, which is what makes its connectors read as
+        // dashes rather than as a dotted line. Vanilla's guide lines set gap = width instead, which is
+        // far tighter; ours followed that and looked like a different family of object from the
+        // handles it belongs to.
+        private const float kKeyGuideWidth = 0.8f;
+
+        private const float kKeyGuideDash = 2f;
+
+        private const float kKeyGuideGap = 2f;
+
+        // The same white the hovered tick takes, dimmed: the guide belongs to the tick being dragged
+        // and should read as part of the same gesture rather than as another thing on screen.
+        private static readonly Color kKeyGuideColor = new Color(1f, 1f, 1f, 0.5f);
 
         // Larger than a path point's: a shot has three handles rather than thirty, so there is nothing
         // nearby to mis-grab and an easy target matters more than precision.
@@ -161,6 +188,22 @@
         private readonly HashSet<int> m_Selection = new HashSet<int>();
 
         private PathTarget m_EditTarget = PathTarget.Camera;
+
+        /// <summary>Where the generated keyframes land, resampled with the drawn curve each frame.</summary>
+        private List<Vector3> m_KeySamples = new List<Vector3>();
+
+        /// <summary>Each key's node-chain parameter, so a key can be located ON the curve, not just near it.</summary>
+        private List<float> m_KeyGlobals = new List<float>();
+
+        private int  m_HoveredKey = -1;
+        private bool m_DraggingKey;
+
+        private int  m_HoveredShotKey = -1;
+        private int  m_DraggedShotKey = -1;
+        private bool m_DraggingShotKey;
+
+        /// <summary>Which key tick is being dragged, so the spacing solves against the right one.</summary>
+        private int m_DraggedKey = -1;
 
         private readonly PathHistory m_CameraHistory = new PathHistory();
         private readonly PathHistory m_RailHistory   = new PathHistory();
@@ -355,6 +398,10 @@
             m_DraggedPoint      = -1;
             m_HoveredHandle     = -1;
             m_DraggingHandle    = false;
+            m_HoveredKey        = -1;
+            m_DraggedKey        = -1;
+            m_DraggingKey       = false;
+
             base.OnStopRunning();
         }
 
@@ -378,6 +425,50 @@
         public override PrefabBase GetPrefab() { return null; }
 
         public override bool TrySetPrefab(PrefabBase prefab) { return false; }
+
+        /// <summary>Raises the hovered point, the way the net tool raises a road.</summary>
+        /// <remarks>
+        /// <para>
+        /// <c>ElevationUp</c> and <c>ElevationDown</c> are virtual on <see cref="ToolBaseSystem"/>, and
+        /// <c>ToolUISystem</c> routes the game's own elevation input to whichever tool is active. So
+        /// overriding them gets the player's existing elevation keys AND the elevation buttons in the
+        /// tool UI for nothing — no binding of ours to declare, and no modifier collision to design
+        /// around, which is the trap every custom binding here has had to dodge.
+        /// </para>
+        /// <para>
+        /// The stepping is vanilla's, and it is a snap rather than an add: <c>NetToolSystem</c> does
+        /// <c>floor(elevation / step + 1.00001) * step</c>, which moves to the next MULTIPLE of the
+        /// step instead of adding one to whatever odd height you were on. Press it twice from 3.2m
+        /// with a 10m step and you get 10 then 20, not 13.2 and 23.2. The 1.00001 is what stops a
+        /// height sitting exactly on a multiple from failing to move at all.
+        /// </para>
+        /// <para>
+        /// That is the difference from the held raise/lower keys, which ramp continuously and land on
+        /// whatever height you release at. Both have their place — the ramp for feel, this for landing
+        /// on round numbers — but only this one matches how the rest of the game moves things up.
+        /// </para>
+        /// </remarks>
+        public override void ElevationUp() { StepHeight(1f); }
+
+        public override void ElevationDown() { StepHeight(-1f); }
+
+        private void StepHeight(float direction) {
+            int index = m_HoveredPoint >= 0 ? m_HoveredPoint : Path.Nodes.Count - 1;
+
+            if (index < 0 || EditingShot) {
+                return;
+            }
+
+            float step = Mathf.Max(Mod.Instance.Settings.PathHeightStep, 0.1f);
+            float from = Path.Nodes[index].Position.y;
+
+            float to = (direction > 0f)
+                ? Mathf.Floor((from / step) + 1.00001f) * step
+                : Mathf.Ceil((from / step) - 1.00001f) * step;
+
+            RecordUndo();
+            AdjustHeight(to - from);
+        }
 
         public void RequestEnable() { m_ToolSystem.activeTool = this; }
 
@@ -404,6 +495,10 @@
 
             m_HoveredHandle = FindHoveredHandle();
             m_HoveredPoint  = FindHoveredPoint();
+            m_HoveredKey    = FindHoveredKey();
+
+            CollectAxisHandles();
+            m_HoveredAxis = FindHoveredAxisHandle();
 
             // Solved once here rather than on demand. Drawing the highlight, the hint text and the
             // click itself all need the same answer, and re-running the search for each would let them
@@ -429,25 +524,26 @@
                 Path.RefreshAutoTangents();
             }
 
-            Path.TerrainMode      = settings.PathTerrain;
+            Path.TerrainMode      = Effective.PathTerrain;
             Path.TerrainClearance = settings.PathClearance;
 
-            TravelPath.ClearanceMode     = settings.PathClearanceMode;
+            TravelPath.ClearanceMode     = Effective.PathClearanceMode;
             TravelPath.ObstacleClearance = settings.PathObstacleClearance;
 
             // The aim settings go on the TRAVEL path specifically, not the one being edited: aim is a
             // property of the camera's move, and the rail is only ever a shape that move looks at.
             // Set here rather than by calling the generator's own preparation, which warns when an aim
             // mode has nothing to aim at — once a frame, that would be a log full of the same line.
-            TravelPath.Pitch        = settings.PathPitch;
-            TravelPath.LookAhead    = settings.PathLookAhead;
+            TravelPath.Pitch        = Effective.PathPitch;
+            TravelPath.LookAhead    = Effective.PathLookAhead;
             TravelPath.MetresPerKey = settings.PathMetresPerKey;
             TravelPath.Duration     = settings.PathDuration;
-            TravelPath.Ease         = settings.PathEase;
+            TravelPath.Ease         = Effective.PathEase;
+            TravelPath.CurvatureBias = Effective.CurvatureBias;
             TravelPath.Rail         = RailPath;
 
             Vector3?     pinned = m_Subject.PinnedTarget;
-            PathLookMode look   = settings.PathLook;
+            PathLookMode look   = Effective.PathLook(pinned.HasValue);
 
             // Falls back silently for the gizmos, the same way generating falls back loudly. Drawing
             // frustums for an aim mode that cannot resolve would show a shot that will not happen.
@@ -483,6 +579,10 @@
 
             if (EditMode == PathEditMode.Curves) {
                 return PathHints.PickHandle;
+            }
+
+            if (m_HoveredKey >= 1) {
+                return PathHints.SpaceKeys;
             }
 
             if (m_HoveredPoint >= 0) {
@@ -591,6 +691,71 @@
         }
 
         private bool HandleDrag() {
+            // First of all the drag kinds. An axis grip sits off the path with nothing else near it,
+            // so there is no contest to resolve — and putting it first means a grip can never be
+            // stolen by a point that happens to lie behind it from this angle.
+            if (m_DraggedAxis >= 0) {
+                if (!applyAction.IsPressed()) {
+                    m_DraggedAxis = -1;
+                    return true;
+                }
+
+                DragAxisHandle();
+                return true;
+            }
+
+            if (m_HoveredAxis >= 0 && applyAction.WasPressedThisFrame()) {
+                m_AxisGrabOffset = 0f;
+
+                if (TryGetAxisHandle(m_HoveredAxis, out AxisHandle grabbed)) {
+                    // A steep axis is dragged by screen travel FROM the grab, so both the cursor's
+                    // position and the value at that moment have to be kept; a flat one is read
+                    // absolutely from the ground each frame and needs only the offset.
+                    m_AxisGrabScreen   = UnityEngine.InputSystem.Mouse.current?.position.ReadValue()
+                                      ?? Vector2.zero;
+                    m_AxisGrabDistance = grabbed.Distance;
+
+                    if (!AxisHandle.IsVertical(grabbed.Axis) &&
+                        AxisHandle.TryDistanceAlong(grabbed.Origin, grabbed.Axis, out float at)) {
+                        // Where the cursor grabbed it, minus where it actually is, so the grip does
+                        // not jump to sit under the cursor on the first frame of the drag.
+                        m_AxisGrabOffset = at - grabbed.Distance;
+                    }
+                }
+
+                // Seeded to where the grip already is, and the velocity cleared. Starting the smoother
+                // at zero would have the grip slide in from the origin over the first few frames of
+                // every drag, and a leftover velocity would carry the previous drag's momentum into
+                // this one.
+                if (TryGetAxisHandle(m_HoveredAxis, out AxisHandle seed)) {
+                    m_AxisSmoothed = seed.Distance;
+                }
+
+                m_AxisVelocity = 0f;
+
+                RecordUndo();
+                m_DraggedAxis = m_HoveredAxis;
+                return true;
+            }
+
+            // Its own branch ahead of everything else, because a key drag holds no dragged POINT: it
+            // edits the spacing setting rather than the path, so it cannot ride the m_DraggedPoint
+            // gate below and would otherwise never see the frames that continue or end it.
+            //
+            // No undo snapshot either, and that is not an oversight: the path geometry is untouched,
+            // so a history entry would restore nothing. The spacing is a setting, and it is the
+            // panel's own row that owns putting it back.
+            if (m_DraggingKey) {
+                if (!applyAction.IsPressed()) {
+                    m_DraggingKey = false;
+                    m_DraggedKey  = -1;
+                    return true;
+                }
+
+                DragKeySpacing();
+                return true;
+            }
+
             if (m_DraggedPoint < 0) {
                 if (!applyAction.WasPressedThisFrame()) {
                     return false;
@@ -603,6 +768,15 @@
 
                     m_DraggedPoint  = m_HoveredHandle;
                     m_DraggingHandle = true;
+                    return true;
+                }
+
+                // Before the point test only in the sense that a tick is never offered where a point
+                // is — FindHoveredKey already yields to them, so reaching here means the cursor is on
+                // a tick and nothing else.
+                if (m_HoveredKey >= 1) {
+                    m_DraggedKey  = m_HoveredKey;
+                    m_DraggingKey = true;
                     return true;
                 }
 
@@ -729,6 +903,85 @@
             }
 
             return best;
+        }
+
+        /// <summary>Which key tick the cursor is over, or -1.</summary>
+        /// <remarks>
+        /// Yields to the point picker: a key often lands exactly on a node, and moving the point is
+        /// always the more important of the two, so a tick sitting under one is not offered at all.
+        /// Index 0 is skipped as well — the first key is pinned to the start of the path whatever the
+        /// spacing is, so dragging it could only ever mean nothing.
+        /// </remarks>
+        private int FindHoveredKey() {
+            if (EditMode != PathEditMode.Points || m_HoveredPoint >= 0 || m_KeySamples.Count < 3 ||
+                !PathPicking.TryGetMouseRay(out float3 origin, out float3 direction)) {
+                return -1;
+            }
+
+            int   best    = -1;
+            float nearest = float.MaxValue;
+
+            for (int i = 1; i < m_KeySamples.Count; i++) {
+                if (PathPicking.TryHitSphere(origin, direction, m_KeySamples[i], kKeyPickRadius,
+                                             out float t) && t < nearest) {
+                    nearest = t;
+                    best    = i;
+                }
+            }
+
+            return best;
+        }
+
+        /// <summary>Sets the key spacing from where a key tick was dragged to.</summary>
+        /// <remarks>
+        /// <para>
+        /// Keys are not independent things that can be moved: <c>SamplePositions</c> spreads them
+        /// evenly along the whole curve, so key <c>i</c> of <c>n</c> always sits at <c>i/(n-1)</c> of
+        /// the way along. Dragging one therefore does not move that key, it chooses the spacing that
+        /// would PUT it where the cursor is — and every other key follows from the same rule.
+        /// </para>
+        /// <para>
+        /// Which inverts to <c>spacing = length * fraction / index</c>. Dragging a distant tick is a
+        /// fine adjustment because its index divides a large travel; dragging an early one is coarse.
+        /// That falls out of the maths rather than being designed, and it is the behaviour you want:
+        /// reach for a far tick when tuning, a near one when changing your mind.
+        /// </para>
+        /// </remarks>
+        private void DragKeySpacing() {
+            if (m_DraggedKey < 1 || m_Samples.Count < 2 ||
+                !PathPicking.TryGetMouseRay(out float3 origin, out float3 direction)) {
+                return;
+            }
+
+            int   best    = -1;
+            float nearest = float.MaxValue;
+
+            for (int i = 0; i < m_Samples.Count; i++) {
+                float distance = PathPicking.DistanceToRay(origin, direction, m_Samples[i]);
+
+                if (distance < nearest) {
+                    nearest = distance;
+                    best    = i;
+                }
+            }
+
+            if (best <= 0) {
+                return;
+            }
+
+            float fraction = (float)best / (m_Samples.Count - 1);
+            float length   = Path.MeasureLength();
+
+            if (fraction <= 0.0001f || length <= 0.0001f) {
+                return;
+            }
+
+            float spacing = length * fraction / m_DraggedKey;
+
+            // The same 5..200 the panel's own setter clamps to, deliberately: two clamps on one value
+            // that disagree is how a drag reaches a spacing you cannot then type, and the panel and
+            // the world would be arguing about what is legal.
+            Mod.Instance.Settings.PathMetresPerKey = Mathf.Clamp(Mathf.RoundToInt(spacing), 5, 200);
         }
 
         private void HandleBreakTangent() {
@@ -900,11 +1153,21 @@
                 m_SampleGlobals.Clear();
                 m_SampleRotations.Clear();
                 m_NodeSamples.Clear();
+                m_KeySamples.Clear();
+                m_KeyGlobals.Clear();
                 return;
             }
 
             m_Samples         = Path.SamplePositions(kRenderSpacing, out m_SampleGlobals);
             m_SampleRotations = Path.SolveRotations(m_Samples, m_SampleGlobals);
+
+            // A second pass at the KEY spacing rather than the drawing spacing. The drawn samples sit
+            // every kRenderSpacing metres to make a smooth ribbon and say nothing about where keys
+            // land, so picking the nearest drawn sample to each key would put the ticks up to a whole
+            // render step away from the truth — and a readout that is approximately right about what
+            // reaches the timeline is worse than none.
+            m_KeySamples = Path.SamplePositions(Mathf.Max(Path.MetresPerKey, CameraPath.kMinMetresPerKey),
+                                               out m_KeyGlobals);
 
             // Obstruction is measured against the drawn samples every frame so the warning follows the
             // path as it is dragged, rather than only appearing once a shot is generated.
@@ -924,8 +1187,8 @@
 
             Setting settings = Mod.Instance.Settings;
 
-            if (settings.PathClearanceMode == PathClearanceMode.Off ||
-                settings.PathClearanceMode == PathClearanceMode.None || m_Samples.Count == 0) {
+            if (Effective.PathClearanceMode == PathClearanceMode.Off ||
+                Effective.PathClearanceMode == PathClearanceMode.None || m_Samples.Count == 0) {
                 return;
             }
 
@@ -993,20 +1256,31 @@
         private int FindInsertIndex() {
             m_InsertSegment = -1;
 
-            if (EditMode != PathEditMode.Points || m_HoveredPoint >= 0 || m_Samples.Count < 2 ||
+            if (EditMode != PathEditMode.Points || m_HoveredPoint >= 0 || !Path.IsValid ||
                 !PathPicking.TryGetMouseRay(out float3 origin, out float3 direction)) {
                 return -1;
             }
 
-            int   best     = -1;
-            float nearest  = kInsertRadius;
+            // Against the REAL curve, not against the drawn samples.
+            //
+            // MathUtils.Distance closes on the nearest approach between a bezier and a line segment,
+            // so the mouse ray is tested against the curve itself and answers with the exact parameter
+            // it touched. Walking the drawn samples instead made the pick only as accurate as
+            // kRenderSpacing — the cursor had to come within 4m of a SAMPLE rather than of the curve,
+            // and the insert point could only ever land on one of them.
+            var ray = new Line3.Segment(origin, origin + (direction * kRayLength));
 
-            for (int i = 0; i < m_Samples.Count; i++) {
-                float distance = PathPicking.DistanceToRay(origin, direction, m_Samples[i]);
+            int   best        = -1;
+            float nearest     = kInsertRadius;
+            float bestLocal   = 0f;
+
+            for (int segment = 0; segment < Path.SegmentCount; segment++) {
+                float distance = MathUtils.Distance(SegmentCurve(segment), ray, out float2 t);
 
                 if (distance < nearest) {
-                    nearest = distance;
-                    best    = i;
+                    nearest   = distance;
+                    best      = segment;
+                    bestLocal = t.x;
                 }
             }
 
@@ -1014,18 +1288,21 @@
                 return -1;
             }
 
-            int segment = Mathf.Clamp(Mathf.FloorToInt(m_SampleGlobals[best]), 0, Path.SegmentCount - 1);
-
-            // A sample sitting on a node is that node, not a place to insert beside it — the point
-            // picker owns those, and inserting there would stack two points in the same spot.
-            if (Mathf.Abs(m_SampleGlobals[best] - Mathf.Round(m_SampleGlobals[best])) < 0.02f) {
+            // A hit on a node is that node, not a place to insert beside it — the point picker owns
+            // those, and inserting there would stack two points in the same spot.
+            if (bestLocal < 0.02f || bestLocal > 0.98f) {
                 return -1;
             }
 
-            m_InsertSegment = segment;
-            m_InsertPoint   = m_Samples[best];
+            m_InsertSegment = best;
 
-            return segment + 1;
+            // The parameter comes from the true curve, but the drawn POINT is taken from the sampled
+            // line, because that is what is on screen: the samples are terrain-clamped and the raw
+            // curve is not, so under Follow terrain or Never below ground a marker placed on the curve
+            // would float off the path the player can actually see.
+            m_InsertPoint = NearestSampleTo(best + bestLocal);
+
+            return best + 1;
         }
 
         private void Draw() {
@@ -1042,6 +1319,9 @@
             if (Path.IsValid) {
                 DrawPath(ref buffer);
                 DrawGroundShadow(ref buffer, ref heights);
+                DrawKeyDragGuide(ref buffer);
+                DrawPathKeys(ref buffer);
+                DrawAxisHandles(ref buffer);
             }
 
             DrawRailTies(ref buffer);
@@ -1081,7 +1361,7 @@
                 return;
             }
 
-            if (m_HasCursorPosition && m_HoveredPoint < 0 && m_HoveredHandle < 0) {
+            if (m_HasCursorPosition && m_HoveredPoint < 0 && m_HoveredHandle < 0 && m_HoveredKey < 1) {
                 float3 placement = PlacementPosition(ref heights);
 
                 DrawMarker(ref buffer, kCursorColor, placement, kCursorDiameter);
@@ -1104,19 +1384,27 @@
         /// points at the same spot at different heights.
         /// </para>
         /// </remarks>
+        /// <summary>Draws the path, one overlay curve per segment.</summary>
+        /// <remarks>
+        /// Known limitation, recorded so it is not rediscovered: the overlay's curve drawing is fitted
+        /// for roads. <c>FitQuad</c> pads the band's width in XZ alone and tilts its box towards the
+        /// plane the curve bends in, so a segment that climbs AND turns is built in a steeply tilted
+        /// plane and reads as a broad skewed sheet rather than a band. <c>DrawCurve</c> also measures
+        /// with <c>MathUtils.Length(curve.xz)</c>, which under-reports a climbing curve.
+        /// </remarks>
         private void DrawPath(ref OverlayRenderSystem.Buffer buffer) {
+            Color plain = (m_EditTarget == PathTarget.Rail) ? kRailColor : kPathColor;
+
             for (int i = 0; i < Path.SegmentCount; i++) {
                 bool hot = i == m_InsertSegment;
 
-                Color plain = (m_EditTarget == PathTarget.Rail) ? kRailColor : kPathColor;
-
                 // Obstruction beats the ordinary colour but not the insert highlight: the highlight
                 // answers "what will this click do", which is the more immediate question.
-                if (!hot && SegmentObstructed(i)) {
-                    plain = kBlockedColor;
-                }
+                Color color = hot ? kInsertColor
+                            : SegmentObstructed(i) ? kBlockedColor
+                            : plain;
 
-                buffer.DrawCurve(hot ? kInsertColor : plain, SegmentCurve(i),
+                buffer.DrawCurve(color, SegmentCurve(i),
                                  hot ? kPathWidth + kHighlightSwell : kPathWidth);
             }
         }
@@ -1160,6 +1448,23 @@
                 buffer.DrawDashedLine(kTieColor, new Line3.Segment(from, to), kTieWidth,
                                       kDashLength, kGapLength);
             }
+        }
+
+        /// <summary>The drawn sample nearest a node-chain parameter.</summary>
+        private Vector3 NearestSampleTo(float global) {
+            int   best     = 0;
+            float distance = float.MaxValue;
+
+            for (int i = 0; i < m_SampleGlobals.Count; i++) {
+                float gap = Mathf.Abs(m_SampleGlobals[i] - global);
+
+                if (gap < distance) {
+                    distance = gap;
+                    best     = i;
+                }
+            }
+
+            return (best < m_Samples.Count) ? m_Samples[best] : Vector3.zero;
         }
 
         private Bezier4x3 SegmentCurve(int segment) {
@@ -1320,6 +1625,57 @@
         /// A camera-facing line, which the overlay supports directly. A flat one would vanish when
         /// looked at edge-on, and that is precisely the view you are in while judging a point's height.
         /// </remarks>
+        /// <summary>Marks every keyframe the path will generate, on the curve it will fly.</summary>
+        /// <remarks>
+        /// Shares its tick size and colour with the shot line's version, because they are the same
+        /// readout on two shot types and a reader should not have to learn which is which. Ticks, not
+        /// handles: they carry no stem and no ring, so they cannot be mistaken for the points you drag.
+        /// </remarks>
+        /// <summary>Dashes the span a key drag is dividing, from the dragged key to the path's end.</summary>
+        /// <remarks>
+        /// <para>
+        /// Drawn as real dashed BEZIERS rather than dashes along the drawn samples. Sampling the curve
+        /// and dashing each straight piece restarts the pattern at every sample, so the dashes bunch
+        /// and stretch wherever the curve bends — the same trap as spacing dashes by the curve
+        /// parameter instead of by arc length. <c>DrawDashedCurve</c> walks the curve itself, so the
+        /// rhythm stays even and the guide reads as one smooth line rather than a chain of ticks.
+        /// </para>
+        /// <para>
+        /// The first segment is cut at the dragged key's own parameter, which is why the keys carry
+        /// their globals: a key sits partway along a segment, and starting the guide at the whole
+        /// segment would draw it from the wrong place.
+        /// </para>
+        /// </remarks>
+        private void DrawKeyDragGuide(ref OverlayRenderSystem.Buffer buffer) {
+            if (!m_DraggingKey || m_DraggedKey < 1 || m_DraggedKey >= m_KeyGlobals.Count) {
+                return;
+            }
+
+            float global  = m_KeyGlobals[m_DraggedKey];
+            int   segment = Mathf.Clamp(Mathf.FloorToInt(global), 0, Path.SegmentCount - 1);
+            float local   = Mathf.Clamp01(global - segment);
+
+            buffer.DrawDashedCurve(kKeyGuideColor,
+                                   MathUtils.Cut(SegmentCurve(segment), new float2(local, 1f)),
+                                   kKeyGuideWidth, kKeyGuideDash, kKeyGuideGap);
+
+            for (int i = segment + 1; i < Path.SegmentCount; i++) {
+                buffer.DrawDashedCurve(kKeyGuideColor, SegmentCurve(i), kKeyGuideWidth,
+                                       kDashLength, kGapLength);
+            }
+        }
+
+        private void DrawPathKeys(ref OverlayRenderSystem.Buffer buffer) {
+            for (int i = 0; i < m_KeySamples.Count; i++) {
+                // The hovered tick swells and turns white, the same language a hovered point uses, so
+                // "this is grabbable" is said the way the tool already says it everywhere else.
+                bool hot = i == m_HoveredKey || (m_DraggingKey && i == m_DraggedKey);
+
+                DrawMarker(ref buffer, hot ? kHoverColor : kKeyTickColor, m_KeySamples[i],
+                           hot ? kKeyTickDiameter * 2f : kKeyTickDiameter);
+            }
+        }
+
         private static void DrawStem(ref OverlayRenderSystem.Buffer buffer, float3 ground, float3 point) {
             if (math.distance(ground, point) < 0.01f) {
                 return;
@@ -1345,11 +1701,28 @@
             float step = Mod.Instance.Settings.PathHeightStep * UnityEngine.Time.unscaledDeltaTime
                          * kHeightStepsPerSecond;
 
+            // Recorded on the press, never while held. Height is the one edit driven by a held key
+            // rather than a gesture with a beginning and an end, so without the edge test every frame
+            // of a two-second raise would push its own snapshot: the history fills with a single
+            // movement and undo walks back through it a frame at a time. It is the same reasoning as
+            // recording a drag at the grab rather than per frame.
+            //
+            // Recording at all is the fix: this path recorded nothing, so raising a point was simply
+            // outside the history and Ctrl+Z could not take it back — and the keys are the only way
+            // to change a height.
             if (Mod.PathRaiseAction != null && Mod.PathRaiseAction.IsPressed()) {
+                if (Mod.PathRaiseAction.WasPressedThisFrame()) {
+                    RecordUndo();
+                }
+
                 AdjustHeight(step);
             }
 
             if (Mod.PathLowerAction != null && Mod.PathLowerAction.IsPressed()) {
+                if (Mod.PathLowerAction.WasPressedThisFrame()) {
+                    RecordUndo();
+                }
+
                 AdjustHeight(-step);
             }
         }
@@ -1562,6 +1935,13 @@
             return best;
         }
 
+        /// <summary>Raises or lowers the point under the cursor, and anything selected with it.</summary>
+        /// <remarks>
+        /// The selection rule is the flat drag's, deliberately: raising a point that is part of a
+        /// selection takes the whole set, so a run of points keeps its shape on the vertical axis
+        /// exactly as it does on the horizontal one. Raising an unselected point moves only it, which
+        /// is what makes the keys still usable as a quick nudge without clearing a selection first.
+        /// </remarks>
         private void AdjustHeight(float delta) {
             int index = m_HoveredPoint >= 0 ? m_HoveredPoint : Path.Nodes.Count - 1;
 
@@ -1569,8 +1949,18 @@
                 return;
             }
 
-            PathNode node = Path.Nodes[index];
-            node.Position = node.Position + new Vector3(0f, delta, 0f);
+            var lift = new Vector3(0f, delta, 0f);
+
+            if (m_Selection.Contains(index)) {
+                foreach (int selected in m_Selection) {
+                    if (selected < Path.Nodes.Count) {
+                        Path.Nodes[selected].Position += lift;
+                    }
+                }
+            } else {
+                Path.Nodes[index].Position += lift;
+            }
+
             Path.RefreshAutoTangents();
         }
 

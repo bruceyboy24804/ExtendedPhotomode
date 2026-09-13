@@ -11,20 +11,20 @@ Everything is written straight onto the **vanilla cinematic timeline**. Playback
 - Bug reports and feedback are very welcome on [Discord](https://discord.gg/4f7geN26S).
 
 ### Shot generators
-Pick a type from the **Shot** dropdown, frame your subject, and press Generate. The panel only shows the settings that apply to the shot you picked.
+Pick a type from the **Shot** dropdown at the top of the panel, frame your subject, and send it where you want it: **To timeline editor** stages it in the shot list, **To cinematic camera** writes it straight onto the sequence photo mode plays. Each confirms with a tick. The panel only shows the settings that apply to the shot you picked.
 
 * **Orbit** -- circle a subject at a set radius, height and sweep. Give it a different end radius and it spirals in or out as it goes round; a different end height and it climbs or descends into a helix. Ease the sweep to slow the swing at both ends without disturbing that travel.
 * **Dolly zoom** -- the camera travels while the lens counter-zooms, holding your subject the same size while the background rushes past. The lens is written as a real curve, so it stays editable afterwards.
 * **Drawn path** -- draw a route through your city and fly it.
 
 ### Drawing paths
-Open the path panel with **Ctrl+P**. The panel is the hub: it shows your saved paths, how many points the current one has, and buttons to start drawing or generate the shot. Opening it does not put you into the tool -- press **Draw path** when you actually want to edit, so you can browse the library without risking a stray click.
+Open the path panel with **Ctrl+P**. The panel is the hub: it shows your saved paths, how many points the current one has, and buttons to start drawing or send the shot on. Opening it does not put you into the tool -- press **Draw path** when you actually want to edit, so you can browse the library without risking a stray click.
 
 While drawing, click empty ground to add a point, click a segment to insert one, drag to move, **PageUp/PageDown** to change a point's height, **Ctrl+R** to reverse. What a click does depends on what's under the cursor, so there are no modes to get stuck in.
 
 **Right-click** a point to delete it. **Escape** backs out: once to stop drawing, again to close the panel. The two never overlap, so backing out can't cost you a point.
 
-Generate the shot with **Ctrl+Shift+P**, or from the Generate button. Paths can look along their own direction, hold a fixed heading, or track your pinned subject.
+Send the path with **Ctrl+Shift+P**, or with either send button. Paths can look along their own direction, hold a fixed heading, or track your pinned subject.
 
 Save paths by name and load them back on any later shot.
 
@@ -67,7 +67,7 @@ Save, load and delete whole sequences, with **Loop** and **Reset** in the header
 ### Shots and the cut
 Press **Shots** in the timeline header to slide out the shot list.
 
-Generating a shot doesn't drop it onto the timeline -- it goes to a **Generated shots** list first, so trying an idea never costs you the cut you'd already assembled. **Drag a shot** onto the timeline to put it in the cut, drag it back out to remove it, drag within the cut to reorder, and drag it onto the delete area to throw it away. Both targets tell you what they'll do while you're dragging. The panel tracks how much you've made and how much is actually in the cut as separate totals.
+**To timeline editor** doesn't drop a shot onto the timeline -- it goes to a **Generated shots** list first, so trying an idea never costs you the cut you'd already assembled. **Drag a shot** onto the timeline to put it in the cut, drag it back out to remove it, drag within the cut to reorder, and drag it onto the delete area to throw it away. Both targets tell you what they'll do while you're dragging. The panel tracks how much you've made and how much is actually in the cut as separate totals.
 
 **Double-click a name** to rename a shot. Press the **pencil** and that shot's settings load, the shot panel opens and the right editor for its type starts -- from the list back under your cursor in one press.
 

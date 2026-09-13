@@ -5,8 +5,8 @@ appears on Paradox Mods; this file carries the detail behind it.
 
 # 1.2.0
 
-A fix release. Three of these were quietly broken rather than missing, including one that could
-take the game down.
+Fixes, the path tool's first in-world controls, and a simpler way in. Three of the fixes were
+quietly broken rather than missing, including one that could take the game down.
 
 **Crashes while editing keyframes**
 
@@ -36,6 +36,86 @@ meant editing curves you could not see.
 A box now selects within the graph you drew it in, on the channel that graph is editing, and it has
 a real height: you can grab the top half of a curve instead of a full-height slice of time. Shift
 still extends a selection.
+
+**Keys are spaced by distance, not by curve parameter**
+
+`SamplePositions` stepped the node-chain parameter uniformly, which spaces samples evenly in `t` and
+therefore unevenly in metres — a bezier covers far less ground per unit of `t` through a bend than
+along a straight. The key count was right and the distribution was wrong, which is the hard kind of
+wrong to see: the path looked sampled, and the camera changed speed for no visible reason.
+
+It now walks the curve by arc length with `MathUtils.ClampLength`, which advances a segment until it
+has covered a given distance and reports what it had left when it ran out, so the remainder carries
+into the next segment.
+
+**The path tool's in-world controls**
+
+Values that existed only as panel rows are now grips in the world, each on a line whose length is the
+value: key spacing, the bend weighting, a point's height, its lens, and an orbit's radius. Keyframes
+are drawn on the path as ticks, so the spacing controls have something visible to act on.
+
+Three different projections, chosen by what the axis means. A horizontal axis is measured on the
+ground — the cursor's ground point moves left when you drag left, from any camera. A vertical one is
+measured on screen, because no ground point can express a height and closest-approach against the
+mouse ray is near-singular when you look level at an upright line. A grip whose direction carries no
+meaning follows the cursor freely, the way the timeline's easing handles do.
+
+Height also picks up `ElevationUp`/`ElevationDown` from `ToolBaseSystem`, so the game's own elevation
+input and the tool UI's elevation buttons drive it, and it snaps to the next multiple of the step the
+way `NetToolSystem` does rather than adding to whatever odd height you were on.
+
+**The way in, reordered**
+
+A user put it plainly: pressing Ctrl+P said "make a new orbit", and only after starting one did the
+choice of path or dolly appear, at which point every label on the panel renamed itself. The shot type
+is now a dropdown at the top of the panel, before anything that acts on one — the first decision is
+the first control. It is the game's own `Dropdown`, not an HTML `<select>`, which takes the whole
+cohtml UI down. A button in the top-left toolbar opens the panel, beside the other mods' buttons, so
+Ctrl+P no longer has to be known in advance.
+
+`Generate shot` hid a real fork. It added the shot to the generated list — off-screen unless the shot
+list was open — so pressing it appeared to do nothing. It is now two named buttons, **To timeline
+editor** and **To cinematic camera**, and each shows a tick when it fires. The first also opens the
+timeline window and slides out the shot list — both, because the list is a pane inside the window —
+so the shot arrives somewhere you are looking rather than somewhere you have to go and find.
+
+**Simple mode**
+
+Off by default: the tool options keep to subject and duration, and the mod decides everything it
+hides — never below ground, lift over buildings, aim at the subject if there is one, curvature-weighted
+keys, level pitch, a drone rig, tracked focus, centred framing. Turn on **Advanced** (in the panel or
+the options menu) and every row appears and its own value is used.
+
+Progressive disclosure rather than two modes: one panel with most of it hidden, so nothing can drift
+between a simple UI and an advanced one. The decisions live in a single `Effective` table that both
+the tool's preview and the generator read, because a default that lived in one and not the other
+would draw a shot that does not match the one it generates. The hidden settings keep their stored
+values; switching to advanced reveals them unchanged.
+
+**Under the hood**
+
+- Tool values are declared once, in `ToolParameters`. The forty-one hand-written setter cases each
+  carried their own clamp, so a range existed in three places free to disagree — which is how a drag
+  reaches a value you then cannot type. Bounds now come from one table.
+- The panel's option rows are generated from `[EnumOption]` attributes on the C# enums by a small
+  Roslyn tool (`Tools/ExtendedPhotomode.Codegen`). Nine hand-written tables mirroring nine enums are
+  gone; add a member and the row appears, renumber one and the icons follow.
+- `MathUtils` is used where it should have been: `Tangent` for exact curve direction, `Curvature` for
+  the bend weighting, `Distance` against a bezier for picking, `Cut` for the drag guide,
+  `SmoothDamp` for grip steadiness, `RotationAngleSignedRight` for orbit bearings. `Bezier4x3.xz`
+  replaces a hand-built flattened curve.
+- Key spacing can tighten through bends (`CurvatureBias`), floored at a quarter step so a hairpin
+  cannot ask for unbounded keys. Off in advanced mode unless set; simple mode turns it fully on.
+- The height keys record an undo step and move the whole selection, matching the flat drag.
+
+**Fixes behind the panel**
+
+- `PhotoModePropertyBase` recorded a section for every property it registered, but `AddProperty`
+  silently drops a duplicate id. A duplicate therefore left a section predicate with no widget behind
+  it, and every predicate after it applied to the wrong row — which is one way a panel ends up with
+  most of its sections missing.
+- Insert picking tested the drawn samples rather than the curve, so the cursor had to come within
+  range of a *sample* rather than of the path. It now uses `MathUtils.Distance` against the bezier.
 
 **Removed**
 

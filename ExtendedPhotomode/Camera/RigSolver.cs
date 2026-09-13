@@ -10,18 +10,27 @@ namespace ExtendedPhotomode.Camera {
     /// <summary>The physical camera support a shot pretends to have been made on.</summary>
     /// <remarks>Sacrificial <c>None</c> at zero, like every enum bound to a photo mode dropdown.</remarks>
     public enum CameraRig {
+        [Systems.EnumOption("", "", Visible = false)]
         None = 0,
 
         /// <summary>No constraint. The move plays exactly as solved.</summary>
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/RigFree.svg",
+                            "No rig — the move plays exactly as solved, which is mathematically perfect and reads as computer generated.")]
         Free = 1,
 
         /// <summary>A heavy crane: slow to start, slow to stop, very smooth.</summary>
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/RigCrane.svg",
+                            "A heavy crane: slow to start, slow to stop, utterly smooth.")]
         Crane = 2,
 
         /// <summary>A drone: quick but never instant, with a little drift at the ends.</summary>
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/RigDrone.svg",
+                            "A drone: quick but never instant, drifting a little on the wind.")]
         Drone = 3,
 
         /// <summary>Handheld: responsive, with the small constant unsteadiness of a person.</summary>
+        [Systems.EnumOption("coui://extendedphotomode/Camera_Icons/RigHandheld.svg",
+                            "Handheld: follows the action closely and is never quite still.")]
         Handheld = 4,
     }
 

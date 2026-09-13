@@ -164,14 +164,10 @@
             updateSystem.UpdateAt<EPM_TimelineEditSystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<EPM_CursorHideSystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<EPM_ShotSortSystem>(SystemUpdatePhase.UIUpdate);
-            // Nothing is registered at Rendering any more. EPM_OrbitPreviewSystem drew the orbit ring
-            // in photo mode and was removed: it appeared for anyone who opened photo mode, whatever
-            // they were shooting, and its only off switch was a toggle in a GAMEPLAY tool's toolbar.
-            // The ring that matters is the one OrbitShotEditor draws while the shot tool is open,
-            // which is authoring feedback rather than an overlay laid over someone's photograph.
-            // CustomOverlayRenderSystem went with it — the preview was its only writer, and an
-            // overlay renderer with nothing to draw is a buffer and an update per frame for nothing.
-            // Re-register both together if anything ever needs to draw at Rendering again.
+            // Nothing is registered at Rendering. The path band draws through the overlay's own curve
+            // rendering, so CustomOverlayRenderSystem has no writer — an overlay renderer with nothing
+            // to draw is a buffer and an update per frame for nothing. Re-register it here alongside
+            // whatever needs to draw a mesh at Rendering.
             updateSystem.UpdateAt<EPM_PathToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<EPM_PathToolToggleSystem>(SystemUpdatePhase.Modification1);
             updateSystem.UpdateAt<EPM_PathHintSystem>(SystemUpdatePhase.UITooltip);
